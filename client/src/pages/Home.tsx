@@ -5,10 +5,6 @@ import { useCreateOrder } from '@/hooks/use-orders';
 import { cn } from '@/lib/utils';
 import { useDropzone } from 'react-dropzone';
 
-const REVIEW_IMAGES: string[] = [
-  // Adicione os imports das imagens de review aqui
-];
-
 const STYLES = [
   { id: '2_pessoas', label: '2 Pessoas', desc: 'Um momento entre dois.', slots: 2, roles: ['Pessoa 1', 'Pessoa 2'] },
   { id: '3_pessoas', label: '3 Pessoas', desc: 'Três histórias, uma foto.', slots: 3, roles: ['Pessoa 1', 'Pessoa 2', 'Pessoa 3'] },
@@ -246,39 +242,6 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="py-16 bg-white overflow-hidden">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-10 text-center">
-            <h3 className="text-3xl font-serif italic text-primary" data-testid="text-reviews-title">
-              O que nossos clientes dizem
-            </h3>
-          </div>
-          {REVIEW_IMAGES.length > 0 && (
-            <div className="relative">
-              <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none" />
-              <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none" />
-              <motion.div
-                className="flex gap-6"
-                animate={{ x: ["0%", "-50%"] }}
-                transition={{ x: { repeat: Infinity, repeatType: "loop", duration: 30, ease: "linear" } }}
-                data-testid="carousel-reviews"
-              >
-                {[...REVIEW_IMAGES, ...REVIEW_IMAGES].map((src, index) => (
-                  <div
-                    key={index}
-                    className="flex-shrink-0 w-[300px] rounded-sm overflow-hidden shadow-sm"
-                    data-testid={`card-review-${index}`}
-                  >
-                    <img
-                      src={src}
-                      alt={`Review ${(index % REVIEW_IMAGES.length) + 1}`}
-                      className="w-full h-auto object-cover"
-                    />
-                  </div>
-                ))}
-              </motion.div>
-            </div>
-          )}
-        </section>
       </main>
 
       <footer className="border-t border-border/50 py-12 bg-white">
