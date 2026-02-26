@@ -165,7 +165,7 @@ export default function Home() {
             transition={{ duration: 0.8, delay: 0.1 }}
             className="text-5xl md:text-7xl lg:text-8xl font-serif text-primary text-balance leading-tight max-w-5xl"
           >
-            <span className="text-accent block">Imortalize</span>sua Família em uma<br /><span className="italic">Obra Atemporal.</span>
+            <span className="text-accent">Imortalize</span><br />sua Família em uma<br />Obra Atemporal.
           </motion.h1>
 
           <motion.p
