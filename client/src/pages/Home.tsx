@@ -172,7 +172,7 @@ export default function Home() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="mt-6 font-serif italic text-foreground/90 text-lg md:text-xl"
+            className="mt-6 font-sans text-foreground/70 text-lg md:text-xl font-light"
           >
             Prévia gratuita, sem pagamento prévio.
           </motion.p>
