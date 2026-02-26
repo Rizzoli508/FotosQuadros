@@ -113,10 +113,10 @@ export default function Home() {
     return () => { document.body.style.overflow = ''; };
   }, [openStyleId]);
 
-  const allFacesUploaded = faceSlots.length > 0 && faceSlots.every(s => s.file !== null);
+  const hasAtLeastOnePhoto = faceSlots.some(s => s.file !== null);
 
   const handleSubmit = () => {
-    if (!openStyleId || !allFacesUploaded) return;
+    if (!openStyleId || !hasAtLeastOnePhoto) return;
     createOrder.mutate({
       style: openStyleId,
       finish,
@@ -357,23 +357,18 @@ export default function Home() {
 
               <div className="shrink-0 px-4 py-5 flex flex-col items-center bg-black">
                 <button
-                  disabled={!allFacesUploaded || createOrder.isPending}
+                  disabled={!hasAtLeastOnePhoto || createOrder.isPending}
                   onClick={handleSubmit}
                   data-testid="button-submit-order"
                   className={cn(
                     "w-full max-w-md py-4 bg-white text-primary font-sans font-semibold tracking-widest uppercase text-sm rounded-sm hover-elevate active-elevate-2",
-                    allFacesUploaded && !createOrder.isPending
+                    hasAtLeastOnePhoto && !createOrder.isPending
                       ? "cursor-pointer"
                       : "opacity-40 cursor-not-allowed"
                   )}
                 >
                   {createOrder.isPending ? "Processando..." : "Gerar Meu Retrato"}
                 </button>
-                {!allFacesUploaded && (
-                  <p className="text-white/40 text-xs mt-3 text-center" data-testid="text-modal-hint">
-                    Envie todas as fotos para continuar.
-                  </p>
-                )}
               </div>
             </div>
           </motion.div>
