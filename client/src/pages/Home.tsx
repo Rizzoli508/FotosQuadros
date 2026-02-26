@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Camera, Check, Plus, Star, X } from 'lucide-react';
+import { Camera, Check, Star } from 'lucide-react';
 import { useCreateOrder } from '@/hooks/use-orders';
-import { PhotoUpload, type PhotoSlot } from '@/components/PhotoUpload';
 import { cn } from '@/lib/utils';
 
 const STYLES = [
@@ -13,67 +12,12 @@ const STYLES = [
   { id: 'fam_5', label: 'Família de 5', desc: 'Amor multiplicado.' },
 ];
 
-const ROLES = ["Pessoa 1", "Pessoa 2", "Filho 1", "Filho 2", "Filho 3"];
-
 export default function Home() {
-  const [photos, setPhotos] = useState<PhotoSlot[]>([
-    { id: 'slot-0', role: ROLES[0], file: null, preview: null },
-    { id: 'slot-1', role: ROLES[1], file: null, preview: null }
-  ]);
-  
   const [selectedStyle, setSelectedStyle] = useState<string | null>(null);
   const [finish, setFinish] = useState<'bw' | 'color'>('bw');
   const createOrder = useCreateOrder();
 
-  const handleUpload = (id: string, file: File) => {
-    const previewUrl = URL.createObjectURL(file);
-    setPhotos(prev => prev.map(p => p.id === id ? { ...p, file, preview: previewUrl } : p));
-  };
-
-  const handleRemove = (id: string) => {
-    setPhotos(prev => {
-      const updated = prev.map(p => {
-        if (p.id === id) {
-          if (p.preview) URL.revokeObjectURL(p.preview);
-          return { ...p, file: null, preview: null };
-        }
-        return p;
-      });
-      return updated;
-    });
-  };
-
-  const addPerson = () => {
-    if (photos.length < 5) {
-      setPhotos(prev => [
-        ...prev, 
-        { id: `slot-${prev.length}`, role: ROLES[prev.length], file: null, preview: null }
-      ]);
-    }
-  };
-
-  const removePerson = () => {
-    if (photos.length > 2) {
-      setPhotos(prev => {
-        const newPhotos = [...prev];
-        const removed = newPhotos.pop();
-        if (removed?.preview) URL.revokeObjectURL(removed.preview);
-        return newPhotos;
-      });
-    }
-  };
-
-  useEffect(() => {
-    // Cleanup previews on unmount
-    return () => {
-      photos.forEach(p => {
-        if (p.preview) URL.revokeObjectURL(p.preview);
-      });
-    };
-  }, []);
-
-  const validPhotos = photos.filter(p => p.file !== null);
-  const canSubmit = validPhotos.length >= 2 && selectedStyle !== null;
+  const canSubmit = selectedStyle !== null;
 
   const handleSubmit = () => {
     if (!canSubmit) return;
@@ -81,8 +25,7 @@ export default function Home() {
     createOrder.mutate({
       style: selectedStyle,
       finish,
-      // Mapping file info to JSON to satisfy the schema requirement
-      photos: validPhotos.map(p => ({ role: p.role, filename: p.file?.name }))
+      photos: []
     });
   };
 
@@ -157,55 +100,10 @@ export default function Home() {
               className="space-y-24"
             >
               
-              {/* Step 1: Upload */}
-              <motion.div variants={fadeUp} className="space-y-8">
-                <div className="flex items-end justify-between border-b border-border pb-4">
-                  <div>
-                    <span className="text-accent font-serif text-xl italic">01.</span>
-                    <h2 className="text-3xl font-serif text-primary mt-1">Enviar Fotos</h2>
-                  </div>
-                  <p className="text-sm text-muted-foreground hidden sm:block">Envie fotos individuais claras e bem iluminadas.</p>
-                </div>
-                
-                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-6">
-                  {photos.map((slot) => (
-                    <PhotoUpload 
-                      key={slot.id} 
-                      slotData={slot} 
-                      onUpload={handleUpload} 
-                      onRemove={handleRemove} 
-                    />
-                  ))}
-                </div>
-
-                <div className="flex items-center gap-4 pt-4">
-                  {photos.length < 5 && (
-                    <button 
-                      onClick={addPerson}
-                      data-testid="button-add-person"
-                      className="flex items-center gap-2 text-sm font-medium text-primary hover-elevate active-elevate-2"
-                    >
-                      <Plus className="w-4 h-4" />
-                      Adicionar pessoa
-                    </button>
-                  )}
-                  {photos.length > 2 && (
-                    <button 
-                      onClick={removePerson}
-                      data-testid="button-remove-person"
-                      className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover-elevate active-elevate-2 ml-auto"
-                    >
-                      <X className="w-4 h-4" />
-                      Remover último
-                    </button>
-                  )}
-                </div>
-              </motion.div>
-
-              {/* Step 2: Style */}
+              {/* Step 1: Style */}
               <motion.div variants={fadeUp} className="space-y-8">
                 <div className="border-b border-border pb-4">
-                  <span className="text-accent font-serif text-xl italic">02.</span>
+                  <span className="text-accent font-serif text-xl italic">01.</span>
                   <h2 className="text-3xl font-serif text-primary mt-1">Escolher Estilo</h2>
                 </div>
                 
@@ -241,10 +139,10 @@ export default function Home() {
                 </div>
               </motion.div>
 
-              {/* Step 3: Finish */}
+              {/* Step 2: Finish */}
               <motion.div variants={fadeUp} className="space-y-8">
                 <div className="border-b border-border pb-4">
-                  <span className="text-accent font-serif text-xl italic">03.</span>
+                  <span className="text-accent font-serif text-xl italic">02.</span>
                   <h2 className="text-3xl font-serif text-primary mt-1">Acabamento</h2>
                 </div>
                 
@@ -312,8 +210,8 @@ export default function Home() {
                 </button>
                 
                 {!canSubmit && (
-                  <p className="text-sm text-muted-foreground mt-4 text-center">
-                    Faça o upload de pelo menos 2 fotos e escolha um estilo para continuar.
+                  <p className="text-sm text-muted-foreground mt-4 text-center" data-testid="text-submit-hint">
+                    Escolha um estilo para continuar.
                   </p>
                 )}
               </motion.div>
