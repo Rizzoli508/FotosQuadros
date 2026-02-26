@@ -232,13 +232,37 @@ export default function Home() {
                   {CATEGORIES.map((category) => (
                     <div key={category.title}>
                       <h3 className="font-serif text-xl text-primary mb-4">{category.title}</h3>
-                      <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide scroll-smooth snap-x snap-mandatory touch-pan-x">
+                      <div
+                        className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide cursor-grab active:cursor-grabbing"
+                        onMouseDown={(e) => {
+                          const el = e.currentTarget;
+                          const startX = e.pageX - el.offsetLeft;
+                          const scrollLeft = el.scrollLeft;
+                          let dragged = false;
+                          const onMove = (ev: MouseEvent) => {
+                            ev.preventDefault();
+                            const x = ev.pageX - el.offsetLeft;
+                            const walk = (x - startX) * 1.5;
+                            if (Math.abs(x - startX) > 5) dragged = true;
+                            el.scrollLeft = scrollLeft - walk;
+                          };
+                          const onUp = () => {
+                            document.removeEventListener('mousemove', onMove);
+                            document.removeEventListener('mouseup', onUp);
+                            if (dragged) {
+                              el.addEventListener('click', (ev) => ev.stopPropagation(), { once: true, capture: true });
+                            }
+                          };
+                          document.addEventListener('mousemove', onMove);
+                          document.addEventListener('mouseup', onUp);
+                        }}
+                      >
                         {category.molds.map((mold) => (
                           <button
                             key={mold.id}
                             data-testid={`button-style-${mold.id}`}
                             onClick={() => handleOpenStyle(mold.id, category)}
-                            className="group flex-shrink-0 w-[160px] md:w-[180px] flex flex-col text-left hover-elevate active-elevate-2 snap-start"
+                            className="group flex-shrink-0 w-[160px] md:w-[180px] flex flex-col text-left hover-elevate active-elevate-2"
                           >
                             <div className="w-full aspect-[3/4] bg-primary rounded-sm shadow-xl relative overflow-hidden mb-3">
                               <div className="absolute inset-4 border border-white/10 flex items-center justify-center">
