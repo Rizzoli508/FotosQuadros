@@ -10,7 +10,7 @@ const FAQ = [
   { q: 'Como vou receber?', a: 'Após a confirmação do pagamento, você receberá seu retrato exclusivo direto no WhatsApp em até 1 minuto' },
   { q: 'Que tipo de foto devo enviar?', a: 'Fotos com rosto visível, boa iluminação e sem óculos escuros garantem o melhor resultado.' },
   { q: 'E se eu não gostar?', a: 'Você pode gerar novamente gratuitamente até ficar satisfeito.' },
-  { q: 'O quadro é de qualidade?', a: 'Impresso em material premium com tintas de alta durabilidade, pronto para pendurar.' },
+  { q: 'O quadro é de qualidade?', a: 'Impresso em material premium com tintas de alta durabilidade, você escolhe o tamanho e o estilo da moldura. Chega pronto para pendurar na sua casa.' },
 ];
 
 const CATEGORIES = [
