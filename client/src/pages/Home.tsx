@@ -232,13 +232,13 @@ export default function Home() {
                   {CATEGORIES.map((category) => (
                     <div key={category.title}>
                       <h3 className="font-serif text-xl text-primary mb-4">{category.title}</h3>
-                      <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
+                      <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide scroll-smooth snap-x snap-mandatory touch-pan-x">
                         {category.molds.map((mold) => (
                           <button
                             key={mold.id}
                             data-testid={`button-style-${mold.id}`}
                             onClick={() => handleOpenStyle(mold.id, category)}
-                            className="group flex-shrink-0 w-[160px] md:w-[180px] flex flex-col text-left hover-elevate active-elevate-2"
+                            className="group flex-shrink-0 w-[160px] md:w-[180px] flex flex-col text-left hover-elevate active-elevate-2 snap-start"
                           >
                             <div className="w-full aspect-[3/4] bg-primary rounded-sm shadow-xl relative overflow-hidden mb-3">
                               <div className="absolute inset-4 border border-white/10 flex items-center justify-center">
