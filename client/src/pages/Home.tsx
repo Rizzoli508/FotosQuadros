@@ -1,40 +1,134 @@
-import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Camera, Check, Star } from 'lucide-react';
+import { useState, useCallback, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Camera, Check, Star, X, UploadCloud, User } from 'lucide-react';
 import { useCreateOrder } from '@/hooks/use-orders';
 import { cn } from '@/lib/utils';
+import { useDropzone } from 'react-dropzone';
 
 const STYLES = [
-  { id: 'casal', label: 'Casal', desc: 'A essência de vocês.' },
-  { id: 'casal_1f', label: 'Casal + 1 Filho', desc: 'Três corações.' },
-  { id: 'casal_2f', label: 'Casal + 2 Filhos', desc: 'Laços eternos.' },
-  { id: 'fam_4', label: 'Família de 4', desc: 'Conexão profunda.' },
-  { id: 'fam_5', label: 'Família de 5', desc: 'Amor multiplicado.' },
+  { id: 'casal', label: 'Casal', desc: 'A essência de vocês.', slots: 2, roles: ['Pessoa 1', 'Pessoa 2'] },
+  { id: 'casal_1f', label: 'Casal + 1 Filho', desc: 'Três corações.', slots: 3, roles: ['Pessoa 1', 'Pessoa 2', 'Filho 1'] },
+  { id: 'casal_2f', label: 'Casal + 2 Filhos', desc: 'Laços eternos.', slots: 4, roles: ['Pessoa 1', 'Pessoa 2', 'Filho 1', 'Filho 2'] },
+  { id: 'fam_4', label: 'Família de 4', desc: 'Conexão profunda.', slots: 4, roles: ['Pessoa 1', 'Pessoa 2', 'Pessoa 3', 'Pessoa 4'] },
+  { id: 'fam_5', label: 'Família de 5', desc: 'Amor multiplicado.', slots: 5, roles: ['Pessoa 1', 'Pessoa 2', 'Pessoa 3', 'Pessoa 4', 'Pessoa 5'] },
 ];
 
+interface FaceSlot {
+  role: string;
+  file: File | null;
+  preview: string | null;
+}
+
+function FaceUploadSlot({ slot, onUpload, onRemove }: { slot: FaceSlot; onUpload: (file: File) => void; onRemove: () => void }) {
+  const onDrop = useCallback((acceptedFiles: File[]) => {
+    if (acceptedFiles.length > 0) {
+      onUpload(acceptedFiles[0]);
+    }
+  }, [onUpload]);
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    accept: { 'image/*': ['.jpeg', '.jpg', '.png', '.webp'] },
+    maxFiles: 1,
+  });
+
+  return (
+    <div className="flex flex-col items-center gap-2">
+      <span className="text-xs font-medium text-white/70 tracking-wide uppercase">{slot.role}</span>
+      {slot.preview ? (
+        <div className="relative w-20 h-20 md:w-24 md:h-24 rounded-full overflow-visible group">
+          <img
+            src={slot.preview}
+            alt={slot.role}
+            className="w-full h-full object-cover rounded-full"
+            data-testid={`img-face-${slot.role}`}
+          />
+          <button
+            onClick={onRemove}
+            data-testid={`button-remove-face-${slot.role}`}
+            className="absolute -top-1 -right-1 bg-white/20 backdrop-blur-md text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity z-10"
+            aria-label="Remover foto"
+          >
+            <X className="w-3 h-3" />
+          </button>
+        </div>
+      ) : (
+        <div
+          {...getRootProps()}
+          data-testid={`upload-face-${slot.role}`}
+          className={cn(
+            "w-20 h-20 md:w-24 md:h-24 rounded-full border-2 border-dashed flex flex-col items-center justify-center cursor-pointer transition-colors",
+            isDragActive ? "border-accent bg-accent/10" : "border-white/30 hover:border-white/60"
+          )}
+        >
+          <input {...getInputProps()} />
+          <UploadCloud className="w-5 h-5 text-white/50 mb-1" />
+          <span className="text-[10px] text-white/40">Enviar</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function Home() {
-  const [selectedStyle, setSelectedStyle] = useState<string | null>(null);
+  const [openStyleId, setOpenStyleId] = useState<string | null>(null);
+  const [faceSlots, setFaceSlots] = useState<FaceSlot[]>([]);
   const [finish, setFinish] = useState<'bw' | 'color'>('bw');
   const createOrder = useCreateOrder();
 
-  const canSubmit = selectedStyle !== null;
+  const openStyle = STYLES.find(s => s.id === openStyleId) || null;
+
+  const handleOpenStyle = (styleId: string) => {
+    const style = STYLES.find(s => s.id === styleId);
+    if (!style) return;
+    setFaceSlots(style.roles.map(role => ({ role, file: null, preview: null })));
+    setOpenStyleId(styleId);
+  };
+
+  const handleCloseModal = () => {
+    faceSlots.forEach(s => { if (s.preview) URL.revokeObjectURL(s.preview); });
+    setOpenStyleId(null);
+    setFaceSlots([]);
+  };
+
+  const handleFaceUpload = (index: number, file: File) => {
+    const preview = URL.createObjectURL(file);
+    setFaceSlots(prev => prev.map((s, i) => i === index ? { ...s, file, preview } : s));
+  };
+
+  const handleFaceRemove = (index: number) => {
+    setFaceSlots(prev => prev.map((s, i) => {
+      if (i === index) {
+        if (s.preview) URL.revokeObjectURL(s.preview);
+        return { ...s, file: null, preview: null };
+      }
+      return s;
+    }));
+  };
+
+  useEffect(() => {
+    if (openStyleId) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => { document.body.style.overflow = ''; };
+  }, [openStyleId]);
+
+  const allFacesUploaded = faceSlots.length > 0 && faceSlots.every(s => s.file !== null);
 
   const handleSubmit = () => {
-    if (!canSubmit) return;
-    
+    if (!openStyleId || !allFacesUploaded) return;
     createOrder.mutate({
-      style: selectedStyle,
+      style: openStyleId,
       finish,
-      photos: []
+      photos: faceSlots.map(s => ({ role: s.role, filename: s.file?.name }))
     });
   };
 
   const staggerContainer = {
     hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: { staggerChildren: 0.1 }
-    }
+    show: { opacity: 1, transition: { staggerChildren: 0.1 } }
   };
 
   const fadeUp = {
@@ -44,7 +138,6 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col font-sans">
-      {/* Header */}
       <header className="w-full py-6 px-6 md:px-12 flex items-center justify-between z-10 relative">
         <div className="flex items-center gap-2 text-primary">
           <Camera className="w-6 h-6" />
@@ -58,9 +151,8 @@ export default function Home() {
       </header>
 
       <main className="flex-1">
-        {/* Hero Section */}
         <section className="pt-16 pb-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto flex flex-col items-center text-center">
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
@@ -68,8 +160,8 @@ export default function Home() {
           >
             O Presente Perfeito
           </motion.div>
-          
-          <motion.h1 
+
+          <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.1 }}
@@ -77,60 +169,56 @@ export default function Home() {
           >
             Sua Família, <span className="italic text-accent">Imortalizada.</span>
           </motion.h1>
-          
-          <motion.p 
+
+          <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
             className="mt-8 text-lg md:text-xl text-foreground/70 max-w-2xl font-light leading-relaxed"
           >
-            Envie suas fotos, escolha seu estilo, receba um retrato atemporal. 
+            Envie suas fotos, escolha seu estilo, receba um retrato atemporal.
             <span className="block mt-2 font-serif italic text-foreground/90">Prévia gratuita, sem cartão de crédito.</span>
           </motion.p>
         </section>
 
-        {/* Builder Section */}
         <section className="py-24 bg-white border-y border-border/50">
           <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-            <motion.div 
+            <motion.div
               variants={staggerContainer}
               initial="hidden"
               whileInView="show"
               viewport={{ once: true, margin: "-100px" }}
               className="space-y-24"
             >
-              
-              {/* Step 1: Style */}
               <motion.div variants={fadeUp} className="space-y-8">
                 <div className="border-b border-border pb-4">
                   <span className="text-accent font-serif text-xl italic">01.</span>
                   <h2 className="text-3xl font-serif text-primary mt-1">Escolher Estilo</h2>
+                  <p className="text-sm text-muted-foreground mt-2">Clique em um estilo para começar.</p>
                 </div>
-                
+
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
                   {STYLES.map((style) => (
                     <button
                       key={style.id}
                       data-testid={`button-style-${style.id}`}
-                      onClick={() => setSelectedStyle(style.id)}
+                      onClick={() => handleOpenStyle(style.id)}
                       className="group flex flex-col text-left hover-elevate active-elevate-2"
                     >
-                      <div className={cn(
-                        "w-full aspect-[3/4] bg-primary rounded-sm shadow-xl relative overflow-hidden mb-4 transition-all duration-300",
-                        selectedStyle === style.id ? "ring-2 ring-accent ring-offset-4 ring-offset-white" : "opacity-90"
-                      )}>
-                        {/* Placeholder graphic simulating the art product */}
+                      <div className="w-full aspect-[3/4] bg-primary rounded-sm shadow-xl relative overflow-hidden mb-4">
                         <div className="absolute inset-4 border border-white/10 flex items-center justify-center">
                           <Camera className="w-6 h-6 text-white/20" />
                         </div>
                         <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex items-end p-4">
                           <span className="text-white font-serif text-sm opacity-80">{style.label}</span>
                         </div>
-                        {selectedStyle === style.id && (
-                          <div className="absolute top-3 right-3 bg-accent text-white rounded-full p-1">
-                            <Check className="w-3 h-3" />
-                          </div>
-                        )}
+                        <div className="absolute bottom-12 left-0 right-0 flex justify-center gap-1 px-2">
+                          {Array.from({ length: style.slots }).map((_, i) => (
+                            <div key={i} className="w-4 h-4 rounded-full border border-white/30 flex items-center justify-center">
+                              <User className="w-2.5 h-2.5 text-white/30" />
+                            </div>
+                          ))}
+                        </div>
                       </div>
                       <span className="font-semibold text-sm text-primary">{style.label}</span>
                       <span className="text-xs text-muted-foreground mt-1">{style.desc}</span>
@@ -139,88 +227,52 @@ export default function Home() {
                 </div>
               </motion.div>
 
-              {/* Step 2: Finish */}
               <motion.div variants={fadeUp} className="space-y-8">
                 <div className="border-b border-border pb-4">
                   <span className="text-accent font-serif text-xl italic">02.</span>
                   <h2 className="text-3xl font-serif text-primary mt-1">Acabamento</h2>
                 </div>
-                
+
                 <div className="flex flex-col sm:flex-row gap-4">
                   <button
                     onClick={() => setFinish('bw')}
                     data-testid="button-finish-bw"
                     className={cn(
                       "flex-1 py-6 px-6 flex items-center justify-between border rounded-sm hover-elevate active-elevate-2",
-                      finish === 'bw' 
-                        ? "border-accent shadow-sm" 
-                        : "border-border bg-white"
+                      finish === 'bw' ? "border-accent shadow-sm" : "border-border bg-white"
                     )}
                   >
                     <div className="text-left">
                       <span className="block font-serif text-lg text-primary">Preto e Branco</span>
                       <span className="block text-sm text-muted-foreground mt-1">Clássico, atemporal e elegante.</span>
                     </div>
-                    <div className={cn(
-                      "w-5 h-5 rounded-full border flex items-center justify-center",
-                      finish === 'bw' ? "border-accent" : "border-border"
-                    )}>
+                    <div className={cn("w-5 h-5 rounded-full border flex items-center justify-center", finish === 'bw' ? "border-accent" : "border-border")}>
                       {finish === 'bw' && <div className="w-3 h-3 rounded-full bg-accent" />}
                     </div>
                   </button>
-                  
+
                   <button
                     onClick={() => setFinish('color')}
                     data-testid="button-finish-color"
                     className={cn(
                       "flex-1 py-6 px-6 flex items-center justify-between border rounded-sm hover-elevate active-elevate-2",
-                      finish === 'color' 
-                        ? "border-accent shadow-sm" 
-                        : "border-border bg-white"
+                      finish === 'color' ? "border-accent shadow-sm" : "border-border bg-white"
                     )}
                   >
                     <div className="text-left">
                       <span className="block font-serif text-lg text-primary">Colorido</span>
                       <span className="block text-sm text-muted-foreground mt-1">Vibrante, quente e contemporâneo.</span>
                     </div>
-                    <div className={cn(
-                      "w-5 h-5 rounded-full border flex items-center justify-center",
-                      finish === 'color' ? "border-accent" : "border-border"
-                    )}>
+                    <div className={cn("w-5 h-5 rounded-full border flex items-center justify-center", finish === 'color' ? "border-accent" : "border-border")}>
                       {finish === 'color' && <div className="w-3 h-3 rounded-full bg-accent" />}
                     </div>
                   </button>
                 </div>
               </motion.div>
-
-              {/* Submit CTA */}
-              <motion.div variants={fadeUp} className="pt-12 flex flex-col items-center border-t border-border">
-                <button
-                  disabled={!canSubmit || createOrder.isPending}
-                  onClick={handleSubmit}
-                  data-testid="button-submit-order"
-                  className={cn(
-                    "px-12 py-5 bg-primary text-primary-foreground font-sans font-semibold tracking-widest uppercase text-sm rounded-sm shadow-xl hover-elevate active-elevate-2",
-                    canSubmit && !createOrder.isPending
-                      ? "cursor-pointer"
-                      : "opacity-50 cursor-not-allowed shadow-none"
-                  )}
-                >
-                  {createOrder.isPending ? "Processando..." : "Gerar Meu Retrato"}
-                </button>
-                
-                {!canSubmit && (
-                  <p className="text-sm text-muted-foreground mt-4 text-center" data-testid="text-submit-hint">
-                    Escolha um estilo para continuar.
-                  </p>
-                )}
-              </motion.div>
-
             </motion.div>
           </div>
         </section>
 
-        {/* Social Proof */}
         <section className="py-20 bg-background">
           <div className="max-w-4xl mx-auto px-4 text-center flex flex-col items-center">
             <div className="flex gap-1 text-accent mb-6">
@@ -228,7 +280,7 @@ export default function Home() {
                 <Star key={i} className="w-6 h-6 fill-current" />
               ))}
             </div>
-            <h3 className="text-2xl md:text-3xl font-serif text-primary mb-4">
+            <h3 className="text-2xl md:text-3xl font-serif text-primary mb-4" data-testid="text-social-proof">
               "Mais de 10.000 famílias confiam na Lumina para eternizar seus momentos."
             </h3>
             <p className="text-muted-foreground font-sans tracking-wide uppercase text-xs font-semibold">
@@ -238,23 +290,102 @@ export default function Home() {
         </section>
       </main>
 
-      {/* Footer */}
       <footer className="border-t border-border/50 py-12 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="flex items-center gap-2 text-primary opacity-80">
             <Camera className="w-5 h-5" />
             <span className="font-serif text-lg font-semibold tracking-wider">LUMINA</span>
           </div>
-          
           <p className="text-sm text-muted-foreground">
             &copy; {new Date().getFullYear()} Lumina Studios. Todos os direitos reservados.
           </p>
-          
-          <a href="mailto:suporte@lumina.com" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+          <a href="mailto:suporte@lumina.com" data-testid="link-support-email" className="text-sm text-muted-foreground hover-elevate">
             suporte@lumina.com
           </a>
         </div>
       </footer>
+
+      <AnimatePresence>
+        {openStyle && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm p-4"
+            onClick={handleCloseModal}
+            data-testid="modal-style-overlay"
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              transition={{ duration: 0.3, ease: "easeOut" }}
+              className="relative w-full max-w-lg flex flex-col items-center"
+              onClick={(e) => e.stopPropagation()}
+              data-testid="modal-style-content"
+            >
+              <button
+                onClick={handleCloseModal}
+                data-testid="button-close-modal"
+                className="absolute -top-2 -right-2 md:top-0 md:right-0 z-10 bg-white/10 backdrop-blur-md text-white rounded-full p-2 hover-elevate active-elevate-2"
+                aria-label="Fechar"
+              >
+                <X className="w-5 h-5" />
+              </button>
+
+              <div className="w-full aspect-[3/4] max-h-[50vh] bg-primary rounded-sm shadow-2xl relative overflow-hidden">
+                <div className="absolute inset-6 border border-white/10 flex items-center justify-center">
+                  <Camera className="w-12 h-12 text-white/15" />
+                </div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-6">
+                  <div>
+                    <span className="text-white font-serif text-2xl">{openStyle.label}</span>
+                    <span className="block text-white/60 text-sm mt-1">{openStyle.desc}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-8 w-full">
+                <p className="text-white/80 text-sm text-center mb-4 font-medium tracking-wide uppercase">
+                  Envie a foto do rosto de cada pessoa
+                </p>
+                <div className="flex justify-center gap-4 md:gap-6 flex-wrap">
+                  {faceSlots.map((slot, index) => (
+                    <FaceUploadSlot
+                      key={slot.role}
+                      slot={slot}
+                      onUpload={(file) => handleFaceUpload(index, file)}
+                      onRemove={() => handleFaceRemove(index)}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              <div className="mt-8 w-full flex flex-col items-center">
+                <button
+                  disabled={!allFacesUploaded || createOrder.isPending}
+                  onClick={handleSubmit}
+                  data-testid="button-submit-order"
+                  className={cn(
+                    "w-full max-w-sm py-4 bg-white text-primary font-sans font-semibold tracking-widest uppercase text-sm rounded-sm hover-elevate active-elevate-2",
+                    allFacesUploaded && !createOrder.isPending
+                      ? "cursor-pointer"
+                      : "opacity-40 cursor-not-allowed"
+                  )}
+                >
+                  {createOrder.isPending ? "Processando..." : "Gerar Meu Retrato"}
+                </button>
+                {!allFacesUploaded && (
+                  <p className="text-white/50 text-xs mt-3 text-center" data-testid="text-modal-hint">
+                    Envie todas as fotos para continuar.
+                  </p>
+                )}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
