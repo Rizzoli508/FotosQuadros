@@ -342,7 +342,7 @@ export default function Home() {
                   </div>
 
                   <p className="text-white/70 text-xs text-center mb-4 font-medium tracking-wide leading-relaxed">
-                    Você pode enviar uma foto em grupo com várias pessoas, ou enviar fotos individuais de cada uma.
+                    Envie uma foto do grupo ou uma foto separada de cada pessoa.
                   </p>
                   <div className="flex justify-center gap-4 md:gap-6 flex-wrap">
                     {faceSlots.map((slot, index) => (
