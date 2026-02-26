@@ -175,7 +175,7 @@ export default function Home() {
             className="mt-8 text-lg md:text-xl text-foreground/70 max-w-2xl font-light leading-relaxed"
           >
             Envie suas fotos, escolha seu estilo, receba um retrato atemporal.
-            <span className="block mt-2 font-serif italic text-foreground/90">Prévia gratuita, sem cartão de crédito.</span>
+            <span className="block mt-2 font-serif italic text-foreground/90">Prévia gratuita, sem pagamento prévio.</span>
           </motion.p>
         </section>
 
