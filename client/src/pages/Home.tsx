@@ -6,12 +6,10 @@ import { cn } from '@/lib/utils';
 import { useDropzone } from 'react-dropzone';
 
 const FAQ = [
-  { q: 'O que vocês criam?', a: 'Nossa inteligência artificial transforma as fotos da sua família em um retrato artístico único e atemporal, disponível em digital ou quadro impresso com moldura.' },
   { q: 'Como funciona?', a: 'Escolha a composição, anexe as fotos e gere sua prévia gratuitamente, sem cadastro ou pagamento. Gostou? Finalize a compra e receba seu retrato.' },
   { q: 'Como vou receber?', a: 'Após a confirmação do pagamento, seu retrato exclusivo chegará direto no seu WhatsApp em até 2 minutos.' },
   { q: 'Que tipo de foto devo enviar?', a: 'Fotos com rosto visível e boa iluminação garantem o melhor resultado.' },
   { q: 'Posso pedir um quadro impresso?', a: 'Sim! Você escolhe o tamanho e o estilo da moldura. O quadro chega pronto para pendurar na sua casa.' },
-  { q: 'Minhas fotos ficam salvas?', a: 'Suas fotos são usadas apenas para gerar o retrato e não ficam armazenadas em nossos servidores.' },
   { q: 'E se eu não gostar?', a: 'Você pode gerar novamente gratuitamente até ficar satisfeito.' },
 ];
 
