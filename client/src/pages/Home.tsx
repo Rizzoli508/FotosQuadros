@@ -156,7 +156,7 @@ export default function Home() {
             transition={{ duration: 0.8, ease: "easeOut" }}
             className="inline-block mb-6 px-4 py-1.5 rounded-full border border-accent/30 bg-accent/5 text-accent text-xs font-semibold tracking-widest uppercase"
           >
-            O Presente Perfeito
+            Eternize Quem Você Ama
           </motion.div>
 
           <motion.h1
