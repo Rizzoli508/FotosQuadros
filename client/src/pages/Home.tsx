@@ -149,7 +149,7 @@ export default function Home() {
       </header>
 
       <main className="flex-1">
-        <section className="pt-16 pb-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto flex flex-col items-center text-center">
+        <section className="pt-16 pb-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto flex flex-col items-center text-center">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -179,7 +179,7 @@ export default function Home() {
           </motion.p>
         </section>
 
-        <section className="py-24 bg-white border-y border-border/50">
+        <section className="py-12 bg-white border-y border-border/50">
           <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div
               variants={staggerContainer}
