@@ -167,6 +167,15 @@ export default function Home() {
           >
             <span className="text-accent">Imortalize</span> sua Família em uma{' '}<br className="hidden md:inline" /><span className="italic text-accent">Obra-Prima Atemporal.</span>
           </motion.h1>
+
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="mt-6 font-serif italic text-foreground/90 text-lg md:text-xl"
+          >
+            Prévia gratuita, sem pagamento prévio.
+          </motion.p>
         </section>
 
         <section className="py-12 bg-white border-y border-border/50">
