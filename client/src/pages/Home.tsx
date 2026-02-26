@@ -341,8 +341,8 @@ export default function Home() {
                     <span className="block text-white/60 text-sm mt-1">{openStyle.desc}</span>
                   </div>
 
-                  <p className="text-white/70 text-xs text-center mb-4 font-medium tracking-widest uppercase">
-                    Envie a foto do rosto de cada pessoa
+                  <p className="text-white/70 text-xs text-center mb-4 font-medium tracking-wide leading-relaxed">
+                    Você pode enviar uma foto em grupo com várias pessoas, ou enviar fotos individuais de cada uma.
                   </p>
                   <div className="flex justify-center gap-4 md:gap-6 flex-wrap">
                     {faceSlots.map((slot, index) => (
