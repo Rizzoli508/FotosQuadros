@@ -5,6 +5,17 @@ import { useCreateOrder } from '@/hooks/use-orders';
 import { cn } from '@/lib/utils';
 import { useDropzone } from 'react-dropzone';
 
+const REVIEWS = [
+  { name: "Ana Carolina", location: "São Paulo, SP", text: "Ficou lindo! Minha família inteira amou o resultado. A qualidade é impressionante." },
+  { name: "Rafael Mendes", location: "Rio de Janeiro, RJ", text: "Presente perfeito para o aniversário dos meus pais. Eles choraram de emoção." },
+  { name: "Juliana Costa", location: "Belo Horizonte, MG", text: "Superou todas as expectativas. O retrato ficou tão real que parece uma pintura clássica." },
+  { name: "Pedro Almeida", location: "Curitiba, PR", text: "Processo super fácil e rápido. Em poucos dias já tinha o quadro na parede." },
+  { name: "Mariana Silva", location: "Brasília, DF", text: "Já é o terceiro retrato que encomendo. Viciante! Cada um mais bonito que o outro." },
+  { name: "Lucas Ferreira", location: "Salvador, BA", text: "Minha esposa não acreditou quando viu. Foi o melhor presente que já dei." },
+  { name: "Camila Oliveira", location: "Florianópolis, SC", text: "Atendimento impecável e resultado incrível. Recomendo para todos." },
+  { name: "Thiago Santos", location: "Porto Alegre, RS", text: "A prévia gratuita me convenceu na hora. O resultado final ficou ainda melhor." },
+];
+
 const STYLES = [
   { id: 'casal', label: 'Casal', desc: 'A essência de vocês.', slots: 2, roles: ['Pessoa 1', 'Pessoa 2'] },
   { id: 'casal_1f', label: 'Casal + 1 Filho', desc: 'Três corações.', slots: 3, roles: ['Pessoa 1', 'Pessoa 2', 'Filho 1'] },
@@ -240,6 +251,50 @@ export default function Home() {
             <p className="text-muted-foreground font-sans tracking-wide uppercase text-xs font-semibold">
               Avaliação de 4.9/5 no Trustpilot
             </p>
+          </div>
+        </section>
+
+        <section className="py-16 bg-white overflow-hidden">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-10 text-center">
+            <h3 className="text-3xl font-serif italic text-primary" data-testid="text-reviews-title">
+              O que nossos clientes dizem
+            </h3>
+          </div>
+          <div className="relative">
+            <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none" />
+            <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none" />
+            <motion.div
+              className="flex gap-6"
+              animate={{ x: ["0%", "-50%"] }}
+              transition={{ x: { repeat: Infinity, repeatType: "loop", duration: 30, ease: "linear" } }}
+              data-testid="carousel-reviews"
+            >
+              {[...REVIEWS, ...REVIEWS].map((review, index) => (
+                <div
+                  key={index}
+                  className="flex-shrink-0 w-[340px] bg-background border border-border/50 rounded-sm p-6 flex flex-col gap-4"
+                  data-testid={`card-review-${index}`}
+                >
+                  <div className="flex gap-1 text-accent">
+                    {[1, 2, 3, 4, 5].map(i => (
+                      <Star key={i} className="w-4 h-4 fill-current" />
+                    ))}
+                  </div>
+                  <p className="font-serif text-primary text-sm leading-relaxed italic">
+                    "{review.text}"
+                  </p>
+                  <div className="flex items-center gap-3 mt-auto pt-4 border-t border-border/30">
+                    <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center text-accent font-serif font-semibold text-sm">
+                      {review.name.charAt(0)}
+                    </div>
+                    <div>
+                      <span className="block text-sm font-semibold text-primary">{review.name}</span>
+                      <span className="block text-xs text-muted-foreground">{review.location}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </motion.div>
           </div>
         </section>
       </main>
