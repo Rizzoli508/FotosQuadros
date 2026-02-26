@@ -224,48 +224,6 @@ export default function Home() {
                 </div>
               </motion.div>
 
-              <motion.div variants={fadeUp} className="space-y-8">
-                <div className="border-b border-border pb-4">
-                  <span className="text-accent font-serif text-xl italic">02.</span>
-                  <h2 className="text-3xl font-serif text-primary mt-1">Acabamento</h2>
-                </div>
-
-                <div className="flex flex-col sm:flex-row gap-4">
-                  <button
-                    onClick={() => setFinish('bw')}
-                    data-testid="button-finish-bw"
-                    className={cn(
-                      "flex-1 py-6 px-6 flex items-center justify-between border rounded-sm hover-elevate active-elevate-2",
-                      finish === 'bw' ? "border-accent shadow-sm" : "border-border bg-white"
-                    )}
-                  >
-                    <div className="text-left">
-                      <span className="block font-serif text-lg text-primary">Preto e Branco</span>
-                      <span className="block text-sm text-muted-foreground mt-1">Clássico, atemporal e elegante.</span>
-                    </div>
-                    <div className={cn("w-5 h-5 rounded-full border flex items-center justify-center", finish === 'bw' ? "border-accent" : "border-border")}>
-                      {finish === 'bw' && <div className="w-3 h-3 rounded-full bg-accent" />}
-                    </div>
-                  </button>
-
-                  <button
-                    onClick={() => setFinish('color')}
-                    data-testid="button-finish-color"
-                    className={cn(
-                      "flex-1 py-6 px-6 flex items-center justify-between border rounded-sm hover-elevate active-elevate-2",
-                      finish === 'color' ? "border-accent shadow-sm" : "border-border bg-white"
-                    )}
-                  >
-                    <div className="text-left">
-                      <span className="block font-serif text-lg text-primary">Colorido</span>
-                      <span className="block text-sm text-muted-foreground mt-1">Vibrante, quente e contemporâneo.</span>
-                    </div>
-                    <div className={cn("w-5 h-5 rounded-full border flex items-center justify-center", finish === 'color' ? "border-accent" : "border-border")}>
-                      {finish === 'color' && <div className="w-3 h-3 rounded-full bg-accent" />}
-                    </div>
-                  </button>
-                </div>
-              </motion.div>
             </motion.div>
           </div>
         </section>
