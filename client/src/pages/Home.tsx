@@ -1,9 +1,18 @@
 import { useState, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Camera, Check, Star, X, Plus, User } from 'lucide-react';
+import { Camera, Check, ChevronDown, Star, X, Plus, User } from 'lucide-react';
 import { useCreateOrder } from '@/hooks/use-orders';
 import { cn } from '@/lib/utils';
 import { useDropzone } from 'react-dropzone';
+
+const FAQ = [
+  { q: 'Como funciona?', a: 'Você escolhe a composição, envia as fotos e nossa IA cria o retrato. Em minutos você recebe a prévia direto no seu WhatsApp.' },
+  { q: 'Quanto tempo leva?', a: 'A prévia chega no seu WhatsApp em até 2 minutos após o envio das fotos.' },
+  { q: 'Minhas fotos ficam salvas?', a: 'Suas fotos são usadas apenas para gerar o retrato e não ficam armazenadas em nossos servidores.' },
+  { q: 'Que tipo de foto devo enviar?', a: 'Fotos com rosto visível, boa iluminação e sem óculos escuros garantem o melhor resultado.' },
+  { q: 'E se eu não gostar?', a: 'Você pode gerar novamente gratuitamente até ficar satisfeito antes de comprar.' },
+  { q: 'O quadro é de qualidade?', a: 'Impresso em material premium com tintas de alta durabilidade, pronto para pendurar.' },
+];
 
 const CATEGORIES = [
   {
@@ -105,6 +114,7 @@ function FaceUploadSlot({ slot, onUpload, onRemove }: { slot: FaceSlot; onUpload
 
 export default function Home() {
   const [openStyleId, setOpenStyleId] = useState<string | null>(null);
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [faceSlots, setFaceSlots] = useState<FaceSlot[]>([]);
   const [finish, setFinish] = useState<'bw' | 'color'>('bw');
   const createOrder = useCreateOrder();
@@ -297,6 +307,48 @@ export default function Home() {
             <p className="text-muted-foreground font-sans tracking-wide uppercase text-xs font-semibold">
               Avaliação de 4.9/5 no Trustpilot
             </p>
+          </div>
+        </section>
+
+        <section className="py-20 bg-white">
+          <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h3 className="text-3xl font-serif italic text-primary text-center mb-12" data-testid="text-faq-title">
+              Perguntas Frequentes
+            </h3>
+            <div className="divide-y divide-border/50">
+              {FAQ.map((item, i) => (
+                <div key={i} data-testid={`faq-item-${i}`}>
+                  <button
+                    onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                    data-testid={`button-faq-${i}`}
+                    className="w-full flex items-center justify-between py-5 text-left hover-elevate active-elevate-2"
+                  >
+                    <span className="font-serif text-lg text-primary pr-4">{item.q}</span>
+                    <ChevronDown
+                      className={cn(
+                        "w-5 h-5 text-muted-foreground flex-shrink-0 transition-transform duration-300",
+                        openFaq === i && "rotate-180"
+                      )}
+                    />
+                  </button>
+                  <AnimatePresence>
+                    {openFaq === i && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.3, ease: "easeInOut" }}
+                        className="overflow-hidden"
+                      >
+                        <p className="pb-5 text-muted-foreground font-sans text-sm leading-relaxed" data-testid={`text-faq-answer-${i}`}>
+                          {item.a}
+                        </p>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              ))}
+            </div>
           </div>
         </section>
 
