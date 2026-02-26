@@ -189,7 +189,7 @@ export default function Home() {
             >
               <motion.div variants={fadeUp} className="space-y-8">
                 <div className="border-b border-border pb-4">
-                  <h2 className="text-3xl font-serif italic text-primary">Escolher Estilo</h2>
+                  <h2 className="text-3xl font-serif italic text-primary">Escolha o Estilo</h2>
                   <p className="text-sm text-muted-foreground mt-2">Clique em um estilo para começar.</p>
                 </div>
 
