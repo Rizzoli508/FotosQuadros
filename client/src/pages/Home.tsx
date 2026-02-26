@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Camera, Check, Star, X, UploadCloud, User } from 'lucide-react';
+import { Camera, Check, Star, X, Plus, User } from 'lucide-react';
 import { useCreateOrder } from '@/hooks/use-orders';
 import { cn } from '@/lib/utils';
 import { useDropzone } from 'react-dropzone';
@@ -61,8 +61,7 @@ function FaceUploadSlot({ slot, onUpload, onRemove }: { slot: FaceSlot; onUpload
           )}
         >
           <input {...getInputProps()} />
-          <UploadCloud className="w-5 h-5 text-white/50 mb-1" />
-          <span className="text-[10px] text-white/40">Enviar</span>
+          <Plus className="w-6 h-6 text-white/50" />
         </div>
       )}
     </div>
