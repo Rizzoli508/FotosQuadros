@@ -10,11 +10,10 @@ const REVIEW_IMAGES: string[] = [
 ];
 
 const STYLES = [
-  { id: 'casal', label: 'Casal', desc: 'A essência de vocês.', slots: 2, roles: ['Pessoa 1', 'Pessoa 2'] },
-  { id: 'casal_1f', label: 'Casal + 1 Filho', desc: 'Três corações.', slots: 3, roles: ['Pessoa 1', 'Pessoa 2', 'Filho 1'] },
-  { id: 'casal_2f', label: 'Casal + 2 Filhos', desc: 'Laços eternos.', slots: 4, roles: ['Pessoa 1', 'Pessoa 2', 'Filho 1', 'Filho 2'] },
-  { id: 'fam_4', label: 'Família de 4', desc: 'Conexão profunda.', slots: 4, roles: ['Pessoa 1', 'Pessoa 2', 'Pessoa 3', 'Pessoa 4'] },
-  { id: 'fam_5', label: 'Família de 5', desc: 'Amor multiplicado.', slots: 5, roles: ['Pessoa 1', 'Pessoa 2', 'Pessoa 3', 'Pessoa 4', 'Pessoa 5'] },
+  { id: '2_pessoas', label: '2 Pessoas', desc: 'Um momento entre dois.', slots: 2, roles: ['Pessoa 1', 'Pessoa 2'] },
+  { id: '3_pessoas', label: '3 Pessoas', desc: 'Três histórias, uma foto.', slots: 3, roles: ['Pessoa 1', 'Pessoa 2', 'Pessoa 3'] },
+  { id: '4_pessoas', label: '4 Pessoas', desc: 'Quatro sorrisos, uma memória.', slots: 4, roles: ['Pessoa 1', 'Pessoa 2', 'Pessoa 3', 'Pessoa 4'] },
+  { id: '5_pessoas', label: '5 Pessoas', desc: 'Unidos em um só retrato.', slots: 5, roles: ['Pessoa 1', 'Pessoa 2', 'Pessoa 3', 'Pessoa 4', 'Pessoa 5'] },
 ];
 
 interface FaceSlot {
