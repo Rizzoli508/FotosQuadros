@@ -5,11 +5,47 @@ import { useCreateOrder } from '@/hooks/use-orders';
 import { cn } from '@/lib/utils';
 import { useDropzone } from 'react-dropzone';
 
-const STYLES = [
-  { id: '2_pessoas', label: '2 Pessoas', desc: 'Um momento entre dois.', slots: 2, roles: ['Pessoa 1', 'Pessoa 2'] },
-  { id: '3_pessoas', label: '3 Pessoas', desc: 'Três histórias, uma foto.', slots: 3, roles: ['Pessoa 1', 'Pessoa 2', 'Pessoa 3'] },
-  { id: '4_pessoas', label: '4 Pessoas', desc: 'Quatro sorrisos, uma memória.', slots: 4, roles: ['Pessoa 1', 'Pessoa 2', 'Pessoa 3', 'Pessoa 4'] },
-  { id: '5_pessoas', label: '5 Pessoas', desc: 'Unidos em um só retrato.', slots: 5, roles: ['Pessoa 1', 'Pessoa 2', 'Pessoa 3', 'Pessoa 4', 'Pessoa 5'] },
+const CATEGORIES = [
+  {
+    title: '2 Pessoas',
+    slots: 2,
+    roles: ['Pessoa 1', 'Pessoa 2'],
+    molds: [
+      { id: '2p_1', label: 'Em breve' },
+      { id: '2p_2', label: 'Em breve' },
+      { id: '2p_3', label: 'Em breve' },
+    ],
+  },
+  {
+    title: '3 Pessoas',
+    slots: 3,
+    roles: ['Pessoa 1', 'Pessoa 2', 'Pessoa 3'],
+    molds: [
+      { id: '3p_1', label: 'Em breve' },
+      { id: '3p_2', label: 'Em breve' },
+      { id: '3p_3', label: 'Em breve' },
+    ],
+  },
+  {
+    title: '4 Pessoas',
+    slots: 4,
+    roles: ['Pessoa 1', 'Pessoa 2', 'Pessoa 3', 'Pessoa 4'],
+    molds: [
+      { id: '4p_1', label: 'Em breve' },
+      { id: '4p_2', label: 'Em breve' },
+      { id: '4p_3', label: 'Em breve' },
+    ],
+  },
+  {
+    title: '1 Pessoa + Pet',
+    slots: 2,
+    roles: ['Pessoa', 'Pet'],
+    molds: [
+      { id: 'pet_1', label: 'Em breve' },
+      { id: 'pet_2', label: 'Em breve' },
+      { id: 'pet_3', label: 'Em breve' },
+    ],
+  },
 ];
 
 interface FaceSlot {
@@ -73,13 +109,13 @@ export default function Home() {
   const [finish, setFinish] = useState<'bw' | 'color'>('bw');
   const createOrder = useCreateOrder();
 
-  const openStyle = STYLES.find(s => s.id === openStyleId) || null;
+  const openMold = openStyleId
+    ? CATEGORIES.flatMap(c => c.molds.map(m => ({ ...m, categoryTitle: c.title, slots: c.slots, roles: c.roles }))).find(m => m.id === openStyleId) || null
+    : null;
 
-  const handleOpenStyle = (styleId: string) => {
-    const style = STYLES.find(s => s.id === styleId);
-    if (!style) return;
-    setFaceSlots(style.roles.map(role => ({ role, file: null, preview: null })));
-    setOpenStyleId(styleId);
+  const handleOpenStyle = (moldId: string, category: typeof CATEGORIES[number]) => {
+    setFaceSlots(category.roles.map(role => ({ role, file: null, preview: null })));
+    setOpenStyleId(moldId);
   };
 
   const handleCloseModal = () => {
@@ -192,32 +228,30 @@ export default function Home() {
                   <p className="text-sm text-muted-foreground mt-2">Clique em um estilo para começar.</p>
                 </div>
 
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-                  {STYLES.map((style) => (
-                    <button
-                      key={style.id}
-                      data-testid={`button-style-${style.id}`}
-                      onClick={() => handleOpenStyle(style.id)}
-                      className="group flex flex-col text-left hover-elevate active-elevate-2"
-                    >
-                      <div className="w-full aspect-[3/4] bg-primary rounded-sm shadow-xl relative overflow-hidden mb-4">
-                        <div className="absolute inset-4 border border-white/10 flex items-center justify-center">
-                          <Camera className="w-6 h-6 text-white/20" />
-                        </div>
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex items-end p-4">
-                          <span className="text-white font-serif text-sm opacity-80">{style.label}</span>
-                        </div>
-                        <div className="absolute bottom-12 left-0 right-0 flex justify-center gap-1 px-2">
-                          {Array.from({ length: style.slots }).map((_, i) => (
-                            <div key={i} className="w-4 h-4 rounded-full border border-white/30 flex items-center justify-center">
-                              <User className="w-2.5 h-2.5 text-white/30" />
+                <div className="space-y-10">
+                  {CATEGORIES.map((category) => (
+                    <div key={category.title}>
+                      <h3 className="font-serif text-xl text-primary mb-4">{category.title}</h3>
+                      <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
+                        {category.molds.map((mold) => (
+                          <button
+                            key={mold.id}
+                            data-testid={`button-style-${mold.id}`}
+                            onClick={() => handleOpenStyle(mold.id, category)}
+                            className="group flex-shrink-0 w-[160px] md:w-[180px] flex flex-col text-left hover-elevate active-elevate-2"
+                          >
+                            <div className="w-full aspect-[3/4] bg-primary rounded-sm shadow-xl relative overflow-hidden mb-3">
+                              <div className="absolute inset-4 border border-white/10 flex items-center justify-center">
+                                <Camera className="w-6 h-6 text-white/20" />
+                              </div>
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex items-end p-3">
+                                <span className="text-white/60 font-sans text-xs">{mold.label}</span>
+                              </div>
                             </div>
-                          ))}
-                        </div>
+                          </button>
+                        ))}
                       </div>
-                      <span className="font-semibold text-sm text-primary">{style.label}</span>
-                      <span className="text-xs text-muted-foreground mt-1">{style.desc}</span>
-                    </button>
+                    </div>
                   ))}
                 </div>
               </motion.div>
@@ -260,7 +294,7 @@ export default function Home() {
       </footer>
 
       <AnimatePresence>
-        {openStyle && (
+        {openMold && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -291,8 +325,8 @@ export default function Home() {
 
                 <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent pt-24 pb-6 px-6">
                   <div className="mb-6">
-                    <span className="text-white font-serif text-2xl md:text-3xl">{openStyle.label}</span>
-                    <span className="block text-white/60 text-sm mt-1">{openStyle.desc}</span>
+                    <span className="text-white font-serif text-2xl md:text-3xl">{openMold.categoryTitle}</span>
+                    <span className="block text-white/60 text-sm mt-1">{openMold.label}</span>
                   </div>
 
                   <p className="text-white/70 text-xs text-center mb-4 font-medium tracking-wide leading-relaxed">

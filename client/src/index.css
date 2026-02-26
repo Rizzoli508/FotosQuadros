@@ -68,4 +68,12 @@
   .hover-lift {
     @apply transition-transform duration-500 hover:-translate-y-1 hover:shadow-xl hover:shadow-black/5;
   }
+
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
 }
