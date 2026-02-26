@@ -312,63 +312,58 @@ export default function Home() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm p-4"
+            className="fixed inset-0 z-50 flex flex-col bg-black/95"
             onClick={handleCloseModal}
             data-testid="modal-style-overlay"
           >
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              transition={{ duration: 0.3, ease: "easeOut" }}
-              className="relative w-full max-w-lg flex flex-col items-center"
+            <div
+              className="relative flex-1 flex flex-col"
               onClick={(e) => e.stopPropagation()}
               data-testid="modal-style-content"
             >
               <button
                 onClick={handleCloseModal}
                 data-testid="button-close-modal"
-                className="absolute -top-2 -right-2 md:top-0 md:right-0 z-10 bg-white/10 backdrop-blur-md text-white rounded-full p-2 hover-elevate active-elevate-2"
+                className="absolute top-4 right-4 z-20 bg-white/10 backdrop-blur-md text-white rounded-full p-2 hover-elevate active-elevate-2"
                 aria-label="Fechar"
               >
                 <X className="w-5 h-5" />
               </button>
 
-              <div className="w-full aspect-[3/4] max-h-[50vh] bg-primary rounded-sm shadow-2xl relative overflow-hidden">
-                <div className="absolute inset-6 border border-white/10 flex items-center justify-center">
-                  <Camera className="w-12 h-12 text-white/15" />
+              <div className="flex-1 relative bg-primary">
+                <div className="absolute inset-8 border border-white/10 flex items-center justify-center">
+                  <Camera className="w-16 h-16 text-white/10" />
                 </div>
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-6">
-                  <div>
-                    <span className="text-white font-serif text-2xl">{openStyle.label}</span>
+
+                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent pt-24 pb-6 px-6">
+                  <div className="mb-6">
+                    <span className="text-white font-serif text-2xl md:text-3xl">{openStyle.label}</span>
                     <span className="block text-white/60 text-sm mt-1">{openStyle.desc}</span>
+                  </div>
+
+                  <p className="text-white/70 text-xs text-center mb-4 font-medium tracking-widest uppercase">
+                    Envie a foto do rosto de cada pessoa
+                  </p>
+                  <div className="flex justify-center gap-4 md:gap-6 flex-wrap">
+                    {faceSlots.map((slot, index) => (
+                      <FaceUploadSlot
+                        key={slot.role}
+                        slot={slot}
+                        onUpload={(file) => handleFaceUpload(index, file)}
+                        onRemove={() => handleFaceRemove(index)}
+                      />
+                    ))}
                   </div>
                 </div>
               </div>
 
-              <div className="mt-8 w-full">
-                <p className="text-white/80 text-sm text-center mb-4 font-medium tracking-wide uppercase">
-                  Envie a foto do rosto de cada pessoa
-                </p>
-                <div className="flex justify-center gap-4 md:gap-6 flex-wrap">
-                  {faceSlots.map((slot, index) => (
-                    <FaceUploadSlot
-                      key={slot.role}
-                      slot={slot}
-                      onUpload={(file) => handleFaceUpload(index, file)}
-                      onRemove={() => handleFaceRemove(index)}
-                    />
-                  ))}
-                </div>
-              </div>
-
-              <div className="mt-8 w-full flex flex-col items-center">
+              <div className="shrink-0 px-4 py-5 flex flex-col items-center bg-black">
                 <button
                   disabled={!allFacesUploaded || createOrder.isPending}
                   onClick={handleSubmit}
                   data-testid="button-submit-order"
                   className={cn(
-                    "w-full max-w-sm py-4 bg-white text-primary font-sans font-semibold tracking-widest uppercase text-sm rounded-sm hover-elevate active-elevate-2",
+                    "w-full max-w-md py-4 bg-white text-primary font-sans font-semibold tracking-widest uppercase text-sm rounded-sm hover-elevate active-elevate-2",
                     allFacesUploaded && !createOrder.isPending
                       ? "cursor-pointer"
                       : "opacity-40 cursor-not-allowed"
@@ -377,12 +372,12 @@ export default function Home() {
                   {createOrder.isPending ? "Processando..." : "Gerar Meu Retrato"}
                 </button>
                 {!allFacesUploaded && (
-                  <p className="text-white/50 text-xs mt-3 text-center" data-testid="text-modal-hint">
+                  <p className="text-white/40 text-xs mt-3 text-center" data-testid="text-modal-hint">
                     Envie todas as fotos para continuar.
                   </p>
                 )}
               </div>
-            </motion.div>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
