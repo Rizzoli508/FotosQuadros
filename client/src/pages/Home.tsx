@@ -34,7 +34,6 @@ function FaceUploadSlot({ slot, onUpload, onRemove }: { slot: FaceSlot; onUpload
 
   return (
     <div className="flex flex-col items-center gap-2">
-      <span className="text-xs font-medium text-white/70 tracking-wide uppercase">{slot.role}</span>
       {slot.preview ? (
         <div className="relative w-20 h-20 md:w-24 md:h-24 rounded-full overflow-visible group">
           <img
