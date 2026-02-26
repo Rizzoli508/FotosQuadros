@@ -165,18 +165,8 @@ export default function Home() {
             transition={{ duration: 0.8, delay: 0.1 }}
             className="text-5xl md:text-7xl lg:text-8xl font-serif text-primary text-balance leading-tight max-w-5xl"
           >
-            Sua Família, <span className="italic text-accent">Imortalizada.</span>
+            Imortalize sua Família em uma <span className="italic text-accent">Obra-Prima Atemporal.</span>
           </motion.h1>
-
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="mt-8 text-lg md:text-xl text-foreground/70 max-w-2xl font-light leading-relaxed"
-          >
-            Envie suas fotos, escolha seu estilo, receba um retrato atemporal.
-            <span className="block mt-2 font-serif italic text-foreground/90">Prévia gratuita, sem pagamento prévio.</span>
-          </motion.p>
         </section>
 
         <section className="py-12 bg-white border-y border-border/50">
