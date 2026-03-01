@@ -90,10 +90,10 @@ function FaceUploadSlot({ slot, onUpload, onRemove }: { slot: FaceSlot; onUpload
           <button
             onClick={onRemove}
             data-testid={`button-remove-face-${slot.role}`}
-            className="absolute -top-1 -right-1 bg-white/20 backdrop-blur-md text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity z-10"
+            className="absolute -top-1 -right-1 text-white/70 hover:text-white transition-opacity z-10"
             aria-label="Remover foto"
           >
-            <X className="w-3 h-3" />
+            <X className="w-4 h-4" />
           </button>
         </div>
       ) : (
@@ -402,10 +402,10 @@ export default function Home() {
               <button
                 onClick={handleCloseModal}
                 data-testid="button-close-modal"
-                className="absolute bottom-4 left-4 z-40 bg-white/10 backdrop-blur-md text-white rounded-full p-1.5 hover:bg-white/20 transition-all shadow-lg"
+                className="absolute top-4 left-4 z-40 text-white/70 hover:text-white transition-all"
                 aria-label="Fechar"
               >
-                <X className="w-4 h-4" />
+                <X className="w-6 h-6" />
               </button>
 
               <div className="flex-1 relative bg-primary overflow-hidden group/modal">
