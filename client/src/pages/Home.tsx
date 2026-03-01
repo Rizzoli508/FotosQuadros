@@ -402,14 +402,14 @@ export default function Home() {
               <button
                 onClick={handleCloseModal}
                 data-testid="button-close-modal"
-                className="absolute top-4 right-4 z-40 bg-white/10 backdrop-blur-md text-white rounded-full p-1.5 hover:bg-white/20 transition-all shadow-lg"
+                className="absolute bottom-4 left-4 z-40 bg-white/10 backdrop-blur-md text-white rounded-full p-1.5 hover:bg-white/20 transition-all shadow-lg"
                 aria-label="Fechar"
               >
                 <X className="w-4 h-4" />
               </button>
 
               <div className="flex-1 relative bg-primary overflow-hidden group/modal">
-                <div className="absolute top-6 left-0 right-0 z-30 flex justify-center">
+                <div className="absolute top-12 left-0 right-0 z-30 flex justify-center">
                   <div className="flex bg-[#f5f5f0] p-1 border border-[#b8973a] rounded-full">
                     <button
                       onClick={() => setFinish('bw')}
