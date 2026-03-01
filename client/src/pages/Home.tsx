@@ -101,12 +101,12 @@ function FaceUploadSlot({ slot, onUpload, onRemove }: { slot: FaceSlot; onUpload
           {...getRootProps()}
           data-testid={`upload-face-${slot.role}`}
           className={cn(
-            "w-20 h-20 md:w-24 md:h-24 rounded-full border-2 border-dashed flex flex-col items-center justify-center cursor-pointer transition-colors",
-            isDragActive ? "border-accent bg-accent/10" : "border-white/30 hover:border-white/60"
+            "w-20 h-20 md:w-24 md:h-24 rounded-full border border-dashed flex flex-col items-center justify-center cursor-pointer transition-colors",
+            isDragActive ? "border-[#b8973a] bg-[#b8973a]/10" : "border-[#b8973a] hover:border-[#b8973a]/80"
           )}
         >
           <input {...getInputProps()} />
-          <Plus className="w-6 h-6 text-white/50" />
+          <Plus className="w-6 h-6 text-[#b8973a]" />
         </div>
       )}
     </div>
@@ -402,13 +402,13 @@ export default function Home() {
               <button
                 onClick={handleCloseModal}
                 data-testid="button-close-modal"
-                className="absolute top-4 right-4 z-40 bg-white/10 backdrop-blur-md text-white rounded-full p-1.5 hover:bg-white/20 transition-all shadow-lg"
+                className="absolute top-4 right-4 z-40 bg-black/10 backdrop-blur-md text-black/60 rounded-full p-1.5 hover:bg-black/20 transition-all shadow-lg"
                 aria-label="Fechar"
               >
                 <X className="w-4 h-4" />
               </button>
 
-              <div className="flex-1 relative bg-primary overflow-hidden group/modal">
+              <div className="flex-1 relative bg-[#f5f5f0] overflow-hidden group/modal">
                 <div className="absolute top-6 left-0 right-0 z-30 flex justify-center">
                   <div className="flex bg-[#f5f5f0] p-1 border border-[#b8973a] rounded-full">
                     <button
@@ -440,13 +440,13 @@ export default function Home() {
 
                 <div className="absolute inset-0 flex transition-transform duration-500 ease-in-out" style={{ transform: `translateX(${selectedSubStyle === 'classico' ? '0%' : '-100%'})` }}>
                   {/* Classico View */}
-                  <div className="min-w-full h-full relative border-r border-white/5">
+                  <div className="min-w-full h-full relative border-r border-black/5 bg-[#2a2a2a]">
                     <div className="absolute inset-8 border border-white/10 flex items-center justify-center">
                       <Camera className="w-16 h-16 text-white/10" />
                     </div>
                   </div>
                   {/* Intimo View */}
-                  <div className="min-w-full h-full relative">
+                  <div className="min-w-full h-full relative bg-[#2a2a2a]">
                     <div className="absolute inset-8 border border-white/10 flex items-center justify-center bg-white/5">
                       <Star className="w-16 h-16 text-white/10" />
                     </div>
@@ -456,7 +456,7 @@ export default function Home() {
                 {selectedSubStyle === 'intimo' && (
                   <button 
                     onClick={() => setSelectedSubStyle('classico')}
-                    className="absolute left-4 top-1/2 -translate-y-1/2 z-20 bg-white/20 backdrop-blur-md text-white rounded-full p-2 hover:bg-white/30 transition-all shadow-lg"
+                    className="absolute left-4 top-1/2 -translate-y-1/2 z-20 bg-black/10 backdrop-blur-md text-black/60 rounded-full p-2 hover:bg-black/20 transition-all shadow-lg"
                   >
                     <ChevronRight className="w-6 h-6 rotate-180" />
                   </button>
@@ -465,21 +465,21 @@ export default function Home() {
                 {selectedSubStyle === 'classico' && (
                   <button 
                     onClick={() => setSelectedSubStyle('intimo')}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 z-20 bg-white/20 backdrop-blur-md text-white rounded-full p-2 hover:bg-white/30 transition-all shadow-lg"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 z-20 bg-black/10 backdrop-blur-md text-black/60 rounded-full p-2 hover:bg-black/20 transition-all shadow-lg"
                   >
                     <ChevronRight className="w-6 h-6" />
                   </button>
                 )}
 
-                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent pt-24 pb-6 px-6">
+                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-[#f5f5f0] via-[#f5f5f0]/80 to-transparent pt-24 pb-6 px-6">
                   <div className="mb-6 text-center">
-                    <span className="text-white font-serif text-2xl md:text-3xl block">{openMold.categoryTitle}</span>
-                    <span className="text-white/60 text-sm mt-1 uppercase tracking-widest">
+                    <span className="text-[#1a1a1a] font-serif text-2xl md:text-3xl block">{openMold.categoryTitle}</span>
+                    <span className="text-[#1a1a1a]/60 text-sm mt-1 uppercase tracking-widest">
                       {selectedSubStyle === 'classico' ? 'Retrato Clássico' : 'Retrato Íntimo'}
                     </span>
                   </div>
 
-                  <p className="text-white/70 text-xs text-center mb-4 font-medium tracking-wide leading-relaxed">
+                  <p className="text-[#1a1a1a]/70 text-xs text-center mb-4 font-medium tracking-wide leading-relaxed">
                     Envie uma foto do grupo ou uma foto separada de cada pessoa.
                   </p>
                   <div className="flex justify-center gap-4 md:gap-6 flex-wrap">
@@ -495,17 +495,18 @@ export default function Home() {
                 </div>
               </div>
 
-              <div className="shrink-0 px-4 py-5 flex flex-col items-center bg-black">
+              <div className="shrink-0 px-4 py-5 flex flex-col items-center bg-[#f5f5f0]">
                 <button
                   disabled={!hasAtLeastOnePhoto || createOrder.isPending}
                   onClick={handleSubmit}
                   data-testid="button-submit-order"
                   className={cn(
-                    "w-full max-w-md py-4 bg-white text-primary font-sans font-semibold tracking-widest uppercase text-sm rounded-sm hover-elevate active-elevate-2",
+                    "w-full max-w-md py-4 bg-[#b8973a] text-[#f5f5f0] font-serif font-normal tracking-[0.15em] uppercase text-sm rounded-sm hover-elevate active-elevate-2",
                     hasAtLeastOnePhoto && !createOrder.isPending
                       ? "cursor-pointer"
                       : "opacity-40 cursor-not-allowed"
                   )}
+                  style={{ fontFamily: 'var(--font-cormorant), serif' }}
                 >
                   {createOrder.isPending ? "Processando..." : "Gerar Meu Retrato"}
                 </button>
