@@ -424,12 +424,23 @@ export default function Home() {
                   </div>
                 </div>
 
-                <button 
-                  onClick={() => setSelectedSubStyle(prev => prev === 'classico' ? 'intimo' : 'classico')}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 z-20 bg-white/20 backdrop-blur-md text-white rounded-full p-2 hover:bg-white/30 transition-all shadow-lg"
-                >
-                  <ChevronRight className={cn("w-6 h-6 transition-transform duration-500", selectedSubStyle === 'classico' ? "rotate-0" : "rotate-180")} />
-                </button>
+                {selectedSubStyle === 'intimo' && (
+                  <button 
+                    onClick={() => setSelectedSubStyle('classico')}
+                    className="absolute left-4 top-1/2 -translate-y-1/2 z-20 bg-white/20 backdrop-blur-md text-white rounded-full p-2 hover:bg-white/30 transition-all shadow-lg"
+                  >
+                    <ChevronRight className="w-6 h-6 rotate-180" />
+                  </button>
+                )}
+
+                {selectedSubStyle === 'classico' && (
+                  <button 
+                    onClick={() => setSelectedSubStyle('intimo')}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 z-20 bg-white/20 backdrop-blur-md text-white rounded-full p-2 hover:bg-white/30 transition-all shadow-lg"
+                  >
+                    <ChevronRight className="w-6 h-6" />
+                  </button>
+                )}
 
                 <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent pt-24 pb-6 px-6">
                   <div className="mb-6 text-center">
