@@ -1,6 +1,6 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Camera, Check, ChevronDown, Star, X, Plus, User } from 'lucide-react';
+import { Camera, Check, ChevronDown, Star, X, Plus, User, ChevronRight } from 'lucide-react';
 import { useCreateOrder } from '@/hooks/use-orders';
 import { cn } from '@/lib/utils';
 import { useDropzone } from 'react-dropzone';
@@ -21,9 +21,8 @@ const CATEGORIES = [
     slots: 2,
     roles: ['Pessoa 1', 'Pessoa 2'],
     molds: [
-      { id: '2p_1', label: 'Em breve' },
-      { id: '2p_2', label: 'Em breve' },
-      { id: '2p_3', label: 'Em breve' },
+      { id: '2p_1', label: 'Retrato Clássico' },
+      { id: '2p_2', label: 'Retrato Íntimo' },
     ],
   },
   {
@@ -31,9 +30,8 @@ const CATEGORIES = [
     slots: 3,
     roles: ['Pessoa 1', 'Pessoa 2', 'Pessoa 3'],
     molds: [
-      { id: '3p_1', label: 'Em breve' },
-      { id: '3p_2', label: 'Em breve' },
-      { id: '3p_3', label: 'Em breve' },
+      { id: '3p_1', label: 'Retrato Clássico' },
+      { id: '3p_2', label: 'Retrato Íntimo' },
     ],
   },
   {
@@ -41,9 +39,8 @@ const CATEGORIES = [
     slots: 4,
     roles: ['Pessoa 1', 'Pessoa 2', 'Pessoa 3', 'Pessoa 4'],
     molds: [
-      { id: '4p_1', label: 'Em breve' },
-      { id: '4p_2', label: 'Em breve' },
-      { id: '4p_3', label: 'Em breve' },
+      { id: '4p_1', label: 'Retrato Clássico' },
+      { id: '4p_2', label: 'Retrato Íntimo' },
     ],
   },
   {
@@ -51,9 +48,8 @@ const CATEGORIES = [
     slots: 2,
     roles: ['Pessoa', 'Pet'],
     molds: [
-      { id: 'pet_1', label: 'Em breve' },
-      { id: 'pet_2', label: 'Em breve' },
-      { id: 'pet_3', label: 'Em breve' },
+      { id: 'pet_1', label: 'Retrato Clássico' },
+      { id: 'pet_2', label: 'Retrato Íntimo' },
     ],
   },
 ];
@@ -241,10 +237,10 @@ export default function Home() {
 
                 <div className="space-y-10">
                   {CATEGORIES.map((category) => (
-                    <div key={category.title}>
+                    <div key={category.title} className="relative group">
                       <h3 className="font-serif text-xl text-primary mb-4">{category.title}</h3>
                       <div
-                        className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide cursor-grab active:cursor-grabbing"
+                        className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide cursor-grab active:cursor-grabbing scroll-smooth"
                         onMouseDown={(e) => {
                           const el = e.currentTarget;
                           const startX = e.pageX - el.offsetLeft;
@@ -286,6 +282,17 @@ export default function Home() {
                           </button>
                         ))}
                       </div>
+                      <button 
+                        onClick={(e) => {
+                          const container = e.currentTarget.previousElementSibling;
+                          if (container) {
+                            container.scrollBy({ left: 200, behavior: 'smooth' });
+                          }
+                        }}
+                        className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white/20 backdrop-blur-md text-white rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity shadow-lg"
+                      >
+                        <ChevronRight className="w-5 h-5" />
+                      </button>
                     </div>
                   ))}
                 </div>
@@ -401,9 +408,9 @@ export default function Home() {
                 </div>
 
                 <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent pt-24 pb-6 px-6">
-                  <div className="mb-6">
-                    <span className="text-white font-serif text-2xl md:text-3xl">{openMold.categoryTitle}</span>
-                    <span className="block text-white/60 text-sm mt-1">{openMold.label}</span>
+                  <div className="mb-6 text-center">
+                    <span className="text-white font-serif text-2xl md:text-3xl block">{openMold.categoryTitle}</span>
+                    <span className="text-white/60 text-sm mt-1 uppercase tracking-widest">{openMold.label}</span>
                   </div>
 
                   <p className="text-white/70 text-xs text-center mb-4 font-medium tracking-wide leading-relaxed">
