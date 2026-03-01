@@ -409,6 +409,33 @@ export default function Home() {
               </button>
 
               <div className="flex-1 relative bg-primary overflow-hidden group/modal">
+                <div className="absolute top-6 left-0 right-0 z-30 flex justify-center gap-4">
+                  <button
+                    onClick={() => setFinish('bw')}
+                    data-testid="button-finish-bw"
+                    className={cn(
+                      "px-4 py-2 rounded-full text-xs font-bold tracking-widest uppercase transition-all border",
+                      finish === 'bw'
+                        ? "bg-white text-black border-white shadow-lg scale-105"
+                        : "bg-black/40 text-white/60 border-white/20 hover:bg-black/60"
+                    )}
+                  >
+                    Preto e Branco
+                  </button>
+                  <button
+                    onClick={() => setFinish('color')}
+                    data-testid="button-finish-color"
+                    className={cn(
+                      "px-4 py-2 rounded-full text-xs font-bold tracking-widest uppercase transition-all border",
+                      finish === 'color'
+                        ? "bg-white text-black border-white shadow-lg scale-105"
+                        : "bg-black/40 text-white/60 border-white/20 hover:bg-black/60"
+                    )}
+                  >
+                    Colorido
+                  </button>
+                </div>
+
                 <div className="absolute inset-0 flex transition-transform duration-500 ease-in-out" style={{ transform: `translateX(${selectedSubStyle === 'classico' ? '0%' : '-100%'})` }}>
                   {/* Classico View */}
                   <div className="min-w-full h-full relative border-r border-white/5">
