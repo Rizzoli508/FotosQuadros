@@ -21,8 +21,9 @@ const CATEGORIES = [
     slots: 2,
     roles: ['Pessoa 1', 'Pessoa 2'],
     molds: [
-      { id: '2p_1', label: 'Retrato Clássico' },
-      { id: '2p_2', label: 'Retrato Íntimo' },
+      { id: '2p_1', label: 'Em breve' },
+      { id: '2p_2', label: 'Em breve' },
+      { id: '2p_3', label: 'Em breve' },
     ],
   },
   {
@@ -30,8 +31,9 @@ const CATEGORIES = [
     slots: 3,
     roles: ['Pessoa 1', 'Pessoa 2', 'Pessoa 3'],
     molds: [
-      { id: '3p_1', label: 'Retrato Clássico' },
-      { id: '3p_2', label: 'Retrato Íntimo' },
+      { id: '3p_1', label: 'Em breve' },
+      { id: '3p_2', label: 'Em breve' },
+      { id: '3p_3', label: 'Em breve' },
     ],
   },
   {
@@ -39,8 +41,9 @@ const CATEGORIES = [
     slots: 4,
     roles: ['Pessoa 1', 'Pessoa 2', 'Pessoa 3', 'Pessoa 4'],
     molds: [
-      { id: '4p_1', label: 'Retrato Clássico' },
-      { id: '4p_2', label: 'Retrato Íntimo' },
+      { id: '4p_1', label: 'Em breve' },
+      { id: '4p_2', label: 'Em breve' },
+      { id: '4p_3', label: 'Em breve' },
     ],
   },
   {
@@ -48,8 +51,9 @@ const CATEGORIES = [
     slots: 2,
     roles: ['Pessoa', 'Pet'],
     molds: [
-      { id: 'pet_1', label: 'Retrato Clássico' },
-      { id: 'pet_2', label: 'Retrato Íntimo' },
+      { id: 'pet_1', label: 'Em breve' },
+      { id: 'pet_2', label: 'Em breve' },
+      { id: 'pet_3', label: 'Em breve' },
     ],
   },
 ];
@@ -111,6 +115,7 @@ function FaceUploadSlot({ slot, onUpload, onRemove }: { slot: FaceSlot; onUpload
 
 export default function Home() {
   const [openStyleId, setOpenStyleId] = useState<string | null>(null);
+  const [selectedSubStyle, setSelectedSubStyle] = useState<'classico' | 'intimo'>('classico');
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [faceSlots, setFaceSlots] = useState<FaceSlot[]>([]);
   const [finish, setFinish] = useState<'bw' | 'color'>('bw');
@@ -123,6 +128,7 @@ export default function Home() {
   const handleOpenStyle = (moldId: string, category: typeof CATEGORIES[number]) => {
     setFaceSlots(category.roles.map(role => ({ role, file: null, preview: null })));
     setOpenStyleId(moldId);
+    setSelectedSubStyle('classico');
   };
 
   const handleCloseModal = () => {
@@ -160,7 +166,7 @@ export default function Home() {
   const handleSubmit = () => {
     if (!openStyleId || !hasAtLeastOnePhoto) return;
     createOrder.mutate({
-      style: openStyleId,
+      style: `${openStyleId}_${selectedSubStyle}`,
       finish,
       photos: faceSlots.map(s => ({ role: s.role, filename: s.file?.name }))
     });
@@ -402,15 +408,35 @@ export default function Home() {
                 <X className="w-5 h-5" />
               </button>
 
-              <div className="flex-1 relative bg-primary">
-                <div className="absolute inset-8 border border-white/10 flex items-center justify-center">
-                  <Camera className="w-16 h-16 text-white/10" />
+              <div className="flex-1 relative bg-primary overflow-hidden group/modal">
+                <div className="absolute inset-0 flex transition-transform duration-500 ease-in-out" style={{ transform: `translateX(${selectedSubStyle === 'classico' ? '0%' : '-100%'})` }}>
+                  {/* Classico View */}
+                  <div className="min-w-full h-full relative border-r border-white/5">
+                    <div className="absolute inset-8 border border-white/10 flex items-center justify-center">
+                      <Camera className="w-16 h-16 text-white/10" />
+                    </div>
+                  </div>
+                  {/* Intimo View */}
+                  <div className="min-w-full h-full relative">
+                    <div className="absolute inset-8 border border-white/10 flex items-center justify-center bg-white/5">
+                      <Star className="w-16 h-16 text-white/10" />
+                    </div>
+                  </div>
                 </div>
+
+                <button 
+                  onClick={() => setSelectedSubStyle(prev => prev === 'classico' ? 'intimo' : 'classico')}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 z-20 bg-white/20 backdrop-blur-md text-white rounded-full p-2 hover:bg-white/30 transition-all shadow-lg"
+                >
+                  <ChevronRight className={cn("w-6 h-6 transition-transform duration-500", selectedSubStyle === 'intimo' && "rotate-180")} />
+                </button>
 
                 <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent pt-24 pb-6 px-6">
                   <div className="mb-6 text-center">
                     <span className="text-white font-serif text-2xl md:text-3xl block">{openMold.categoryTitle}</span>
-                    <span className="text-white/60 text-sm mt-1 uppercase tracking-widest">{openMold.label}</span>
+                    <span className="text-white/60 text-sm mt-1 uppercase tracking-widest">
+                      {selectedSubStyle === 'classico' ? 'Retrato Clássico' : 'Retrato Íntimo'}
+                    </span>
                   </div>
 
                   <p className="text-white/70 text-xs text-center mb-4 font-medium tracking-wide leading-relaxed">
