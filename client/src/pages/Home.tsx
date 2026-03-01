@@ -472,9 +472,8 @@ export default function Home() {
                 )}
 
                 <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent pt-24 pb-6 px-6">
-                  <div className="mb-6 text-center">
-                    <span className="text-white font-serif text-2xl md:text-3xl block">{openMold.categoryTitle}</span>
-                    <span className="text-white/60 text-sm mt-1 uppercase tracking-widest">
+                  <div className="mb-2 text-center">
+                    <span className="text-white font-serif text-2xl md:text-3xl block">
                       {selectedSubStyle === 'classico' ? 'Retrato Clássico' : 'Retrato Íntimo'}
                     </span>
                   </div>
