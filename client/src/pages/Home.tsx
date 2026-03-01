@@ -402,38 +402,40 @@ export default function Home() {
               <button
                 onClick={handleCloseModal}
                 data-testid="button-close-modal"
-                className="absolute top-4 right-4 z-40 bg-white/10 backdrop-blur-md text-white rounded-full p-2 hover:bg-white/20 transition-all shadow-lg"
+                className="absolute top-4 right-4 z-40 bg-white/10 backdrop-blur-md text-white rounded-full p-1.5 hover:bg-white/20 transition-all shadow-lg"
                 aria-label="Fechar"
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4" />
               </button>
 
               <div className="flex-1 relative bg-primary overflow-hidden group/modal">
-                <div className="absolute top-6 left-0 right-0 z-30 flex justify-center gap-0">
-                  <button
-                    onClick={() => setFinish('bw')}
-                    data-testid="button-finish-bw"
-                    className={cn(
-                      "w-40 py-2.5 text-[10px] font-bold tracking-widest uppercase transition-all border border-white/20 rounded-l-full",
-                      finish === 'bw'
-                        ? "bg-white text-black border-white shadow-lg"
-                        : "bg-black/40 text-white/60 hover:bg-black/60"
-                    )}
-                  >
-                    Preto e Branco
-                  </button>
-                  <button
-                    onClick={() => setFinish('color')}
-                    data-testid="button-finish-color"
-                    className={cn(
-                      "w-40 py-2.5 text-[10px] font-bold tracking-widest uppercase transition-all border border-l-0 border-white/20 rounded-r-full",
-                      finish === 'color'
-                        ? "bg-white text-black border-white shadow-lg"
-                        : "bg-black/40 text-white/60 hover:bg-black/60"
-                    )}
-                  >
-                    Colorido
-                  </button>
+                <div className="absolute top-6 left-0 right-0 z-30 flex justify-center">
+                  <div className="flex bg-[#f5f5f0] p-1 border border-[#b8973a] rounded-full">
+                    <button
+                      onClick={() => setFinish('bw')}
+                      data-testid="button-finish-bw"
+                      className={cn(
+                        "px-6 py-2 rounded-full text-[13px] font-serif uppercase tracking-[0.15em] transition-all duration-300",
+                        finish === 'bw'
+                          ? "bg-[#b8973a] text-[#f5f5f0]"
+                          : "bg-transparent text-[#1a1a1a] hover:bg-black/5"
+                      )}
+                    >
+                      Preto e Branco
+                    </button>
+                    <button
+                      onClick={() => setFinish('color')}
+                      data-testid="button-finish-color"
+                      className={cn(
+                        "px-6 py-2 rounded-full text-[13px] font-serif uppercase tracking-[0.15em] transition-all duration-300",
+                        finish === 'color'
+                          ? "bg-[#b8973a] text-[#f5f5f0]"
+                          : "bg-transparent text-[#1a1a1a] hover:bg-black/5"
+                      )}
+                    >
+                      Colorido
+                    </button>
+                  </div>
                 </div>
 
                 <div className="absolute inset-0 flex transition-transform duration-500 ease-in-out" style={{ transform: `translateX(${selectedSubStyle === 'classico' ? '0%' : '-100%'})` }}>
