@@ -402,22 +402,22 @@ export default function Home() {
               <button
                 onClick={handleCloseModal}
                 data-testid="button-close-modal"
-                className="absolute top-4 right-4 z-20 bg-white/10 backdrop-blur-md text-white rounded-full p-2 hover-elevate active-elevate-2"
+                className="absolute top-4 right-4 z-40 bg-white/10 backdrop-blur-md text-white rounded-full p-2 hover:bg-white/20 transition-all shadow-lg"
                 aria-label="Fechar"
               >
                 <X className="w-5 h-5" />
               </button>
 
               <div className="flex-1 relative bg-primary overflow-hidden group/modal">
-                <div className="absolute top-6 left-0 right-0 z-30 flex justify-center gap-4">
+                <div className="absolute top-6 left-0 right-0 z-30 flex justify-center gap-0">
                   <button
                     onClick={() => setFinish('bw')}
                     data-testid="button-finish-bw"
                     className={cn(
-                      "px-4 py-2 rounded-full text-xs font-bold tracking-widest uppercase transition-all border",
+                      "w-40 py-2.5 text-[10px] font-bold tracking-widest uppercase transition-all border border-white/20 rounded-l-full",
                       finish === 'bw'
-                        ? "bg-white text-black border-white shadow-lg scale-105"
-                        : "bg-black/40 text-white/60 border-white/20 hover:bg-black/60"
+                        ? "bg-white text-black border-white shadow-lg"
+                        : "bg-black/40 text-white/60 hover:bg-black/60"
                     )}
                   >
                     Preto e Branco
@@ -426,10 +426,10 @@ export default function Home() {
                     onClick={() => setFinish('color')}
                     data-testid="button-finish-color"
                     className={cn(
-                      "px-4 py-2 rounded-full text-xs font-bold tracking-widest uppercase transition-all border",
+                      "w-40 py-2.5 text-[10px] font-bold tracking-widest uppercase transition-all border border-l-0 border-white/20 rounded-r-full",
                       finish === 'color'
-                        ? "bg-white text-black border-white shadow-lg scale-105"
-                        : "bg-black/40 text-white/60 border-white/20 hover:bg-black/60"
+                        ? "bg-white text-black border-white shadow-lg"
+                        : "bg-black/40 text-white/60 hover:bg-black/60"
                     )}
                   >
                     Colorido
