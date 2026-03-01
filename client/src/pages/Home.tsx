@@ -410,15 +410,15 @@ export default function Home() {
 
               <div className="flex-1 relative bg-primary overflow-hidden group/modal">
                 <div className="absolute top-12 left-0 right-0 z-30 flex justify-center">
-                  <div className="flex bg-[#f5f5f0] p-1 border border-[#b8973a] rounded-full">
+                  <div className="flex bg-black/40 backdrop-blur-md p-1 border border-white/10 rounded-full">
                     <button
                       onClick={() => setFinish('bw')}
                       data-testid="button-finish-bw"
                       className={cn(
                         "px-6 py-2 rounded-full text-[13px] font-serif uppercase tracking-[0.15em] transition-all duration-300",
                         finish === 'bw'
-                          ? "bg-[#b8973a] text-[#f5f5f0]"
-                          : "bg-transparent text-[#1a1a1a] hover:bg-black/5"
+                          ? "bg-white text-black shadow-lg"
+                          : "bg-transparent text-white/60 hover:text-white"
                       )}
                     >
                       Preto e Branco
@@ -429,8 +429,8 @@ export default function Home() {
                       className={cn(
                         "px-6 py-2 rounded-full text-[13px] font-serif uppercase tracking-[0.15em] transition-all duration-300",
                         finish === 'color'
-                          ? "bg-[#b8973a] text-[#f5f5f0]"
-                          : "bg-transparent text-[#1a1a1a] hover:bg-black/5"
+                          ? "bg-white text-black shadow-lg"
+                          : "bg-transparent text-white/70 hover:text-white"
                       )}
                     >
                       Colorido
