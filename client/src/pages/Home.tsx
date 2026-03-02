@@ -4,6 +4,7 @@ import { Camera, Check, ChevronDown, Star, X, Plus, User, ChevronRight } from 'l
 import { useCreateOrder } from '@/hooks/use-orders';
 import { cn } from '@/lib/utils';
 import { useDropzone } from 'react-dropzone';
+import couple2pImg from '@assets/image_1772413625804.png';
 
 const FAQ = [
   { q: 'Como funciona?', a: 'Escolha a composição, anexe as fotos e gere sua prévia gratuitamente, sem cadastro ou pagamento. Nossa IA cria seu retrato em segundos. Gostou? Finalize a compra e receba seu retrato.' },
@@ -21,7 +22,7 @@ const CATEGORIES = [
     slots: 2,
     roles: ['Pessoa 1', 'Pessoa 2'],
     molds: [
-      { id: '2p_1', label: 'Em breve' },
+      { id: '2p_1', label: 'Em breve', image: couple2pImg },
       { id: '2p_2', label: 'Em breve' },
       { id: '2p_3', label: 'Em breve' },
     ],
@@ -278,9 +279,13 @@ export default function Home() {
                             className="group flex-shrink-0 w-[160px] md:w-[180px] flex flex-col text-left hover-elevate active-elevate-2"
                           >
                             <div className="w-full aspect-[3/4] bg-primary rounded-sm shadow-xl relative overflow-hidden mb-3">
-                              <div className="absolute inset-4 border border-white/10 flex items-center justify-center">
-                                <Camera className="w-6 h-6 text-white/20" />
-                              </div>
+                              {mold.image ? (
+                                <img src={mold.image} alt={mold.label} className="absolute inset-0 w-full h-full object-cover" />
+                              ) : (
+                                <div className="absolute inset-4 border border-white/10 flex items-center justify-center">
+                                  <Camera className="w-6 h-6 text-white/20" />
+                                </div>
+                              )}
                               <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex items-end p-3">
                                 <span className="text-white/60 font-sans text-xs">{mold.label}</span>
                               </div>
