@@ -23,7 +23,7 @@ const CATEGORIES = [
     slots: 2,
     roles: ['Pessoa 1', 'Pessoa 2'],
     molds: [
-      { id: '2p_1', label: 'CASAL', image: couple2pImg, intimoImage: couple2pIntimoImg },
+      { id: '2p_1', label: 'Casal', image: couple2pImg, intimoImage: couple2pIntimoImg },
       { id: '2p_2', label: 'Em breve' },
       { id: '2p_3', label: 'Em breve' },
     ],
