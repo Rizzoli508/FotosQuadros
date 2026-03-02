@@ -5,6 +5,7 @@ import { useCreateOrder } from '@/hooks/use-orders';
 import { cn } from '@/lib/utils';
 import { useDropzone } from 'react-dropzone';
 import couple2pImg from '@assets/image_1772413625804.png';
+import couple2pIntimoImg from '@assets/image_1772415279589.png';
 
 const FAQ = [
   { q: 'Como funciona?', a: 'Escolha a composição, anexe as fotos e gere sua prévia gratuitamente, sem cadastro ou pagamento. Nossa IA cria seu retrato em segundos. Gostou? Finalize a compra e receba seu retrato.' },
@@ -22,7 +23,7 @@ const CATEGORIES = [
     slots: 2,
     roles: ['Pessoa 1', 'Pessoa 2'],
     molds: [
-      { id: '2p_1', label: 'Em breve', image: couple2pImg },
+      { id: '2p_1', label: 'Em breve', image: couple2pImg, intimoImage: couple2pIntimoImg },
       { id: '2p_2', label: 'Em breve' },
       { id: '2p_3', label: 'Em breve' },
     ],
@@ -456,9 +457,13 @@ export default function Home() {
                   </div>
                   {/* Intimo View */}
                   <div className="min-w-full h-full relative">
-                    <div className="absolute inset-8 border border-white/10 flex items-center justify-center bg-white/5">
-                      <Star className="w-16 h-16 text-white/10" />
-                    </div>
+                    {openMold?.intimoImage ? (
+                      <img src={openMold.intimoImage} alt="Retrato Íntimo" className="absolute inset-0 w-full h-full object-cover" />
+                    ) : (
+                      <div className="absolute inset-8 border border-white/10 flex items-center justify-center bg-white/5">
+                        <Star className="w-16 h-16 text-white/10" />
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -480,7 +485,7 @@ export default function Home() {
                   </button>
                 )}
 
-                <div className="absolute inset-x-0 bottom-0 pointer-events-none" style={{ height: '50%', background: 'linear-gradient(to top, #000000 0%, #000000 15%, rgba(0,0,0,0.6) 50%, transparent 100%)' }} />
+                <div className="absolute inset-x-0 bottom-0 pointer-events-none" style={{ height: '45%', background: 'linear-gradient(to top, #000000 0%, #000000 12%, rgba(0,0,0,0.5) 45%, transparent 100%)' }} />
 
                 <div className="absolute bottom-0 left-0 right-0 pt-24 pb-6 px-6">
                   <div className="mb-2 text-center">
