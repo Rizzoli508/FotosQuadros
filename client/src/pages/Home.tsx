@@ -413,7 +413,7 @@ export default function Home() {
                 <X className="w-6 h-6" />
               </button>
 
-              <div className="flex-1 relative bg-black overflow-hidden group/modal">
+              <div className="flex-1 relative bg-black overflow-hidden group/modal -mb-[3px] pb-[3px]">
                 <div className="absolute top-12 left-0 right-0 z-30 flex justify-center">
                   <div className="flex bg-black/40 backdrop-blur-md p-1 border border-white/10 rounded-full">
                     <button
