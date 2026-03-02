@@ -413,7 +413,7 @@ export default function Home() {
                 <X className="w-6 h-6" />
               </button>
 
-              <div className="flex-1 relative bg-black overflow-hidden group/modal -mb-[3px] pb-[3px]">
+              <div className="flex-1 relative bg-black overflow-hidden group/modal">
                 <div className="absolute top-12 left-0 right-0 z-30 flex justify-center">
                   <div className="flex bg-black/40 backdrop-blur-md p-1 border border-white/10 rounded-full">
                     <button
@@ -480,7 +480,7 @@ export default function Home() {
                   </button>
                 )}
 
-                <div className="absolute inset-x-0 -bottom-64 pointer-events-none" style={{ height: 'calc(100% + 512px)', background: 'linear-gradient(to top, #000000 0%, #000000 45%, rgba(0,0,0,0.95) 60%, rgba(0,0,0,0.4) 75%, transparent 95%)' }} />
+                <div className="absolute inset-x-0 bottom-0 pointer-events-none" style={{ height: '50%', background: 'linear-gradient(to top, #000000 0%, #000000 15%, rgba(0,0,0,0.6) 50%, transparent 100%)' }} />
 
                 <div className="absolute bottom-0 left-0 right-0 pt-24 pb-6 px-6">
                   <div className="mb-2 text-center">
