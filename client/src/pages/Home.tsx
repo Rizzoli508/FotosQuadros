@@ -10,6 +10,8 @@ import motherBabyImg from '@assets/image_1772415958867.png';
 import motherBabyIntimoImg from '@assets/image_1772416033787.png';
 import motherDaughterImg from '@assets/image_1772416406966.png';
 import motherDaughterIntimoImg from '@assets/image_1772416427369.png';
+import fatherDaughterImg from '@assets/image_1772416675383.png';
+import fatherDaughterIntimoImg from '@assets/image_1772416681533.png';
 
 const FAQ = [
   { q: 'Como funciona?', a: 'Escolha a composição, anexe as fotos e gere sua prévia gratuitamente, sem cadastro ou pagamento. Nossa IA cria seu retrato em segundos. Gostou? Finalize a compra e receba seu retrato.' },
@@ -30,6 +32,7 @@ const CATEGORIES = [
       { id: '2p_1', label: 'Casal', image: couple2pImg, intimoImage: couple2pIntimoImg },
       { id: '2p_2', label: 'Mãe & Bebê', image: motherBabyImg, intimoImage: motherBabyIntimoImg },
       { id: '2p_3', label: 'Mãe & Filha', image: motherDaughterImg, intimoImage: motherDaughterIntimoImg },
+      { id: '2p_4', label: 'Pai & Filha', image: fatherDaughterImg, intimoImage: fatherDaughterIntimoImg },
     ],
   },
   {
