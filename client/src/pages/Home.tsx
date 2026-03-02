@@ -446,9 +446,13 @@ export default function Home() {
                 <div className="absolute inset-0 flex transition-transform duration-500 ease-in-out" style={{ transform: `translateX(${selectedSubStyle === 'classico' ? '0%' : '-100%'})` }}>
                   {/* Classico View */}
                   <div className="min-w-full h-full relative border-r border-white/5">
-                    <div className="absolute inset-8 border border-white/10 flex items-center justify-center">
-                      <Camera className="w-16 h-16 text-white/10" />
-                    </div>
+                    {openMold?.image ? (
+                      <img src={openMold.image} alt="Retrato Clássico" className="absolute inset-0 w-full h-full object-cover" />
+                    ) : (
+                      <div className="absolute inset-8 border border-white/10 flex items-center justify-center">
+                        <Camera className="w-16 h-16 text-white/10" />
+                      </div>
+                    )}
                   </div>
                   {/* Intimo View */}
                   <div className="min-w-full h-full relative">
