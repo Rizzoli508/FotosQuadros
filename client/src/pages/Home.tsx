@@ -480,7 +480,7 @@ export default function Home() {
                   </button>
                 )}
 
-                <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(to top, #000000 0%, #000000 15%, rgba(0,0,0,0.85) 35%, rgba(0,0,0,0.4) 55%, transparent 75%)' }} />
+                <div className="absolute inset-x-0 -bottom-64 pointer-events-none" style={{ height: 'calc(100% + 512px)', background: 'linear-gradient(to top, #000000 0%, #000000 45%, rgba(0,0,0,0.95) 60%, rgba(0,0,0,0.4) 75%, transparent 95%)' }} />
 
                 <div className="absolute bottom-0 left-0 right-0 pt-24 pb-6 px-6">
                   <div className="mb-2 text-center">
