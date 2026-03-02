@@ -480,6 +480,17 @@ export default function Home() {
                   </button>
                 )}
 
+                <div
+                  className="absolute bottom-0 left-0 right-0 pointer-events-none"
+                  style={{
+                    height: '55%',
+                    backdropFilter: 'blur(12px)',
+                    WebkitBackdropFilter: 'blur(12px)',
+                    maskImage: 'linear-gradient(to top, black 40%, transparent 100%)',
+                    WebkitMaskImage: 'linear-gradient(to top, black 40%, transparent 100%)',
+                  }}
+                />
+
                 <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent pt-24 pb-6 px-6">
                   <div className="mb-2 text-center">
                     <span className="text-white font-serif text-2xl md:text-3xl block">
