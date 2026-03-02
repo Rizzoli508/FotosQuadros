@@ -7,6 +7,7 @@ import { useDropzone } from 'react-dropzone';
 import couple2pImg from '@assets/image_1772413625804.png';
 import couple2pIntimoImg from '@assets/image_1772415279589.png';
 import motherBabyImg from '@assets/image_1772415958867.png';
+import motherBabyIntimoImg from '@assets/image_1772416033787.png';
 
 const FAQ = [
   { q: 'Como funciona?', a: 'Escolha a composição, anexe as fotos e gere sua prévia gratuitamente, sem cadastro ou pagamento. Nossa IA cria seu retrato em segundos. Gostou? Finalize a compra e receba seu retrato.' },
@@ -25,7 +26,7 @@ const CATEGORIES = [
     roles: ['Pessoa 1', 'Pessoa 2'],
     molds: [
       { id: '2p_1', label: 'Casal', image: couple2pImg, intimoImage: couple2pIntimoImg },
-      { id: '2p_2', label: 'Mãe & Bebê', image: motherBabyImg },
+      { id: '2p_2', label: 'Mãe & Bebê', image: motherBabyImg, intimoImage: motherBabyIntimoImg },
       { id: '2p_3', label: 'Em breve' },
     ],
   },
