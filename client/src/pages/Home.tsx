@@ -480,19 +480,9 @@ export default function Home() {
                   </button>
                 )}
 
-                <div
-                  className="absolute bottom-0 left-0 right-0 pointer-events-none"
-                  style={{
-                    height: '40%',
-                    backdropFilter: 'blur(5px)',
-                    WebkitBackdropFilter: 'blur(5px)',
-                    background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.3) 60%, transparent 100%)',
-                    maskImage: 'linear-gradient(to top, black 50%, transparent 100%)',
-                    WebkitMaskImage: 'linear-gradient(to top, black 50%, transparent 100%)',
-                  }}
-                />
+                <div className="absolute bottom-0 left-0 right-0 pointer-events-none" style={{ height: '60%', background: 'linear-gradient(to top, #000000 0%, #000000 20%, rgba(0,0,0,0.7) 55%, transparent 100%)' }} />
 
-                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent pt-24 pb-6 px-6">
+                <div className="absolute bottom-0 left-0 right-0 pt-24 pb-6 px-6">
                   <div className="mb-2 text-center">
                     <span className="text-white font-serif text-2xl md:text-3xl block">
                       {selectedSubStyle === 'classico' ? 'Retrato Clássico' : 'Retrato Íntimo'}
