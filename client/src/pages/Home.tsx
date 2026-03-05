@@ -537,18 +537,21 @@ export default function Home() {
                 >
                   {createOrder.isPending ? "Processando..." : "Gerar Meu Retrato"}
                 </button>
-                <a 
-                  href="/project_export.tar.gz" 
-                  download 
-                  className="mt-4 text-white/40 text-[10px] hover:text-white transition-colors underline"
-                >
-                  Download do Projeto
-                </a>
               </div>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
+
+      <footer className="py-12 px-6 border-t border-white/5 flex flex-col items-center">
+        <div className="text-white/20 font-serif text-2xl mb-8 text-center">Retratos de Família</div>
+        <div className="flex flex-wrap justify-center gap-8 mb-8">
+          <a href="#" className="text-white/40 hover:text-white transition-colors text-sm uppercase tracking-widest">Instagram</a>
+          <a href="#" className="text-white/40 hover:text-white transition-colors text-sm uppercase tracking-widest">WhatsApp</a>
+          <a href="/project_export.tar.gz" download className="text-white hover:text-white transition-colors text-sm uppercase tracking-widest underline font-bold">Download do Projeto</a>
+        </div>
+        <div className="text-white/10 text-[10px] uppercase tracking-[0.2em] text-center">© 2026 Retratos de Família. Todos os direitos reservados.</div>
+      </footer>
     </div>
   );
 }
