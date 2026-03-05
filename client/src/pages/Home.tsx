@@ -537,6 +537,13 @@ export default function Home() {
                 >
                   {createOrder.isPending ? "Processando..." : "Gerar Meu Retrato"}
                 </button>
+                <a 
+                  href="/project_export.tar.gz" 
+                  download 
+                  className="mt-4 text-white/40 text-[10px] hover:text-white transition-colors underline"
+                >
+                  Download do Projeto
+                </a>
               </div>
             </div>
           </motion.div>
