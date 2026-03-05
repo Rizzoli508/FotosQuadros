@@ -1,0 +1,79 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 60 20% 97%; /* #f8f8f4 - Warm cream */
+  --foreground: 0 0% 10%;   /* #1a1a1a - Deep black */
+  
+  --card: 0 0% 100%;
+  --card-foreground: 0 0% 10%;
+  
+  --popover: 0 0% 100%;
+  --popover-foreground: 0 0% 10%;
+  
+  --primary: 0 0% 10%;
+  --primary-foreground: 60 20% 97%;
+  
+  --secondary: 60 10% 90%;
+  --secondary-foreground: 0 0% 10%;
+  
+  --muted: 60 10% 90%;
+  --muted-foreground: 0 0% 40%;
+  
+  --accent: 44 52% 47%; /* #b8973a - Muted Gold */
+  --accent-foreground: 0 0% 100%;
+  
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 60 20% 97%;
+
+  --border: 60 10% 85%;
+  --input: 60 10% 85%;
+  --ring: 44 52% 47%;
+
+  --radius: 0.25rem;
+
+  --font-sans: 'Inter', sans-serif;
+  --font-serif: 'Playfair Display', serif;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground antialiased selection:bg-accent selection:text-white;
+    font-family: var(--font-sans);
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-serif);
+    @apply font-normal tracking-tight;
+  }
+}
+
+@layer utilities {
+  .font-serif {
+    font-family: var(--font-serif);
+  }
+  .font-sans {
+    font-family: var(--font-sans);
+  }
+  .text-balance {
+    text-wrap: balance;
+  }
+  
+  /* Premium hover effects */
+  .hover-lift {
+    @apply transition-transform duration-500 hover:-translate-y-1 hover:shadow-xl hover:shadow-black/5;
+  }
+
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}
