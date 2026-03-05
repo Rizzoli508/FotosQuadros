@@ -290,9 +290,9 @@ export default function Home() {
                             key={mold.id}
                             data-testid={`button-style-${mold.id}`}
                             onClick={() => handleOpenStyle(mold.id, category)}
-                            className="group flex-shrink-0 w-[160px] md:w-[180px] flex flex-col text-left hover-elevate active-elevate-2"
+                            className="group flex-shrink-0 w-[200px] md:w-[240px] flex flex-col text-left hover-elevate active-elevate-2 transition-all duration-300"
                           >
-                            <div className="w-full aspect-[3/4] bg-primary rounded-sm shadow-xl relative overflow-hidden mb-3">
+                            <div className="w-full aspect-[3/4] bg-primary rounded-xl shadow-xl relative overflow-hidden mb-3 border border-white/5">
                               {mold.image ? (
                                 <img src={mold.image} alt={mold.label} className="absolute inset-0 w-full h-full object-cover" />
                               ) : (
