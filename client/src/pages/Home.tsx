@@ -548,7 +548,7 @@ export default function Home() {
         <div className="flex flex-wrap justify-center gap-8 mb-8">
           <a href="#" className="text-white/40 hover:text-white transition-colors text-sm uppercase tracking-widest">Instagram</a>
           <a href="#" className="text-white/40 hover:text-white transition-colors text-sm uppercase tracking-widest">WhatsApp</a>
-          <a href="/project_export.tar.gz" download className="text-white hover:text-white transition-colors text-sm uppercase tracking-widest underline font-bold">Download do Projeto</a>
+          <a href="/lumina_export.zip" download className="text-white hover:text-white transition-colors text-sm uppercase tracking-widest underline font-bold">Download do Projeto</a>
         </div>
         <div className="text-white/10 text-[10px] uppercase tracking-[0.2em] text-center">© 2026 Retratos de Família. Todos os direitos reservados.</div>
       </footer>
