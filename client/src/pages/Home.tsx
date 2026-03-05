@@ -292,7 +292,7 @@ export default function Home() {
                             onClick={() => handleOpenStyle(mold.id, category)}
                             className="group flex-shrink-0 w-[200px] md:w-[240px] flex flex-col text-left hover-elevate active-elevate-2 transition-all duration-300"
                           >
-                            <div className="w-full aspect-[3/4] bg-primary rounded-xl shadow-xl relative overflow-hidden mb-3 border border-white/5">
+                            <div className="w-full aspect-[3/4] bg-primary rounded-xl shadow-xl relative overflow-hidden mb-3">
                               {mold.image ? (
                                 <img src={mold.image} alt={mold.label} className="absolute inset-0 w-full h-full object-cover" />
                               ) : (
