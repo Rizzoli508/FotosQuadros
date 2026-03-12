@@ -19,6 +19,7 @@ import fatherSonIntimoImg from '@assets/image_1772417022001.png';
 import threePeopleImg1 from '@assets/image_1773277080699.png';
 import threePeopleImg2 from '@assets/image_1773277087900.png';
 import threePeopleImg3 from '@assets/image_1773277094604.png';
+import threePeopleImg4 from '@assets/image_1773277175350.png';
 
 const FAQ = [
   { q: 'Como funciona?', a: 'Escolha a composição, anexe as fotos e gere sua prévia gratuitamente, sem cadastro ou pagamento. Nossa IA cria seu retrato em segundos. Gostou? Finalize a compra e receba seu retrato.' },
@@ -52,6 +53,7 @@ const CATEGORIES = [
       { id: '3p_1', label: 'Estilo 1', image: threePeopleImg1, intimoImage: threePeopleImg1 },
       { id: '3p_2', label: 'Estilo 2', image: threePeopleImg2, intimoImage: threePeopleImg2 },
       { id: '3p_3', label: 'Estilo 3', image: threePeopleImg3, intimoImage: threePeopleImg3 },
+      { id: '3p_4', label: 'Estilo 4', image: threePeopleImg4, intimoImage: threePeopleImg4 },
     ],
   },
   {
