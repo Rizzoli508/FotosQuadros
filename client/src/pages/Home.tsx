@@ -20,6 +20,10 @@ import threePeopleImg1 from '@assets/image_1773277080699.png';
 import threePeopleImg2 from '@assets/image_1773277087900.png';
 import threePeopleImg3 from '@assets/image_1773277094604.png';
 import threePeopleImg4 from '@assets/image_1773277175350.png';
+import fourPeopleImg1 from '@assets/image_1773277448108.png';
+import fourPeopleImg2 from '@assets/image_1773277453558.png';
+import fourPeopleImg3 from '@assets/image_1773277459347.png';
+import fourPeopleImg4 from '@assets/image_1773277470645.png';
 
 const FAQ = [
   { q: 'Como funciona?', a: 'Escolha a composição, anexe as fotos e gere sua prévia gratuitamente, sem cadastro ou pagamento. Nossa IA cria seu retrato em segundos. Gostou? Finalize a compra e receba seu retrato.' },
@@ -61,9 +65,10 @@ const CATEGORIES = [
     slots: 4,
     roles: ['Pessoa 1', 'Pessoa 2', 'Pessoa 3', 'Pessoa 4'],
     molds: [
-      { id: '4p_1', label: 'Em breve' },
-      { id: '4p_2', label: 'Em breve' },
-      { id: '4p_3', label: 'Em breve' },
+      { id: '4p_1', label: 'Estilo 1', image: fourPeopleImg1, intimoImage: fourPeopleImg1 },
+      { id: '4p_2', label: 'Estilo 2', image: fourPeopleImg2, intimoImage: fourPeopleImg2 },
+      { id: '4p_3', label: 'Estilo 3', image: fourPeopleImg3, intimoImage: fourPeopleImg3 },
+      { id: '4p_4', label: 'Estilo 4', image: fourPeopleImg4, intimoImage: fourPeopleImg4 },
     ],
   },
   {
