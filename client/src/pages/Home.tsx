@@ -27,7 +27,6 @@ import fourPeopleImg4 from '@assets/image_1773277470645.png';
 import petImg1 from '@assets/image_1774899957224.png';
 import petImg2 from '@assets/image_1774899962861.png';
 import petImg3 from '@assets/image_1774899972392.png';
-import siteBgImg from '@assets/image_1774904779397.png';
 
 const FAQ = [
   { q: 'Como funciona?', a: 'Escolha a composição, anexe as fotos e gere sua prévia gratuitamente, sem cadastro ou pagamento. Nossa IA cria seu retrato em segundos. Gostou? Finalize a compra e receba seu retrato.' },
@@ -428,7 +427,7 @@ export default function Home() {
             data-testid="modal-style-overlay"
           >
             <img 
-              src={siteBgImg} 
+              src="/bg-modal.png" 
               alt="background" 
               className="absolute inset-0 w-full h-full object-cover z-0"
             />
