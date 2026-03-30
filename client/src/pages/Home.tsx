@@ -474,7 +474,7 @@ export default function Home() {
                   {/* Classico View */}
                   <div className="min-w-full h-full relative border-r border-white/5">
                     {openMold?.image ? (
-                      <img src={openMold.image} alt="Retrato Clássico" className="absolute inset-0 w-full h-full object-cover" />
+                      <img src={openMold.image} alt="Retrato Clássico" className="absolute inset-0 w-full h-full object-contain" />
                     ) : (
                       <div className="absolute inset-8 border border-white/10 flex items-center justify-center">
                         <Camera className="w-16 h-16 text-white/10" />
@@ -484,7 +484,7 @@ export default function Home() {
                   {/* Intimo View */}
                   <div className="min-w-full h-full relative">
                     {openMold?.intimoImage ? (
-                      <img src={openMold.intimoImage} alt="Retrato Íntimo" className="absolute inset-0 w-full h-full object-cover" />
+                      <img src={openMold.intimoImage} alt="Retrato Íntimo" className="absolute inset-0 w-full h-full object-contain" />
                     ) : (
                       <div className="absolute inset-8 border border-white/10 flex items-center justify-center bg-white/5">
                         <Star className="w-16 h-16 text-white/10" />
