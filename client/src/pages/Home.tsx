@@ -27,6 +27,7 @@ import fourPeopleImg4 from '@assets/image_1773277470645.png';
 import petImg1 from '@assets/image_1774899957224.png';
 import petImg2 from '@assets/image_1774899962861.png';
 import petImg3 from '@assets/image_1774899972392.png';
+import siteBgImg from '@assets/image_1774904779397.png';
 
 const FAQ = [
   { q: 'Como funciona?', a: 'Escolha a composição, anexe as fotos e gere sua prévia gratuitamente, sem cadastro ou pagamento. Nossa IA cria seu retrato em segundos. Gostou? Finalize a compra e receba seu retrato.' },
@@ -422,7 +423,14 @@ export default function Home() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
-            className="fixed inset-0 z-50 flex flex-col bg-black/95"
+            className="fixed inset-0 z-50 flex flex-col"
+            style={{
+              backgroundImage: `url('${siteBgImg}')`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              backgroundColor: 'rgba(0, 0, 0, 0.95)',
+              backgroundBlendMode: 'overlay'
+            }}
             onClick={handleCloseModal}
             data-testid="modal-style-overlay"
           >
