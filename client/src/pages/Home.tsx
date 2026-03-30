@@ -24,6 +24,9 @@ import fourPeopleImg1 from '@assets/image_1773277448108.png';
 import fourPeopleImg2 from '@assets/image_1773277453558.png';
 import fourPeopleImg3 from '@assets/image_1773277459347.png';
 import fourPeopleImg4 from '@assets/image_1773277470645.png';
+import petImg1 from '@assets/image_1774899957224.png';
+import petImg2 from '@assets/image_1774899962861.png';
+import petImg3 from '@assets/image_1774899972392.png';
 
 const FAQ = [
   { q: 'Como funciona?', a: 'Escolha a composição, anexe as fotos e gere sua prévia gratuitamente, sem cadastro ou pagamento. Nossa IA cria seu retrato em segundos. Gostou? Finalize a compra e receba seu retrato.' },
@@ -76,9 +79,9 @@ const CATEGORIES = [
     slots: 2,
     roles: ['Pessoa', 'Pet'],
     molds: [
-      { id: 'pet_1', label: 'Em breve' },
-      { id: 'pet_2', label: 'Em breve' },
-      { id: 'pet_3', label: 'Em breve' },
+      { id: 'pet_1', label: 'Estilo 1', image: petImg1, intimoImage: petImg1 },
+      { id: 'pet_2', label: 'Estilo 2', image: petImg2, intimoImage: petImg2 },
+      { id: 'pet_3', label: 'Estilo 3', image: petImg3, intimoImage: petImg3 },
     ],
   },
 ];
