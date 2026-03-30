@@ -424,18 +424,19 @@ export default function Home() {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
             className="fixed inset-0 z-50 flex flex-col"
-            style={{
-              backgroundImage: `url('${siteBgImg}')`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-              backgroundColor: 'rgba(0, 0, 0, 0.95)',
-              backgroundBlendMode: 'overlay'
-            }}
             onClick={handleCloseModal}
             data-testid="modal-style-overlay"
           >
+            <img 
+              src={siteBgImg} 
+              alt="background" 
+              className="absolute inset-0 w-full h-full object-cover z-0"
+            />
+            <div 
+              className="absolute inset-0 bg-black/80 z-10 pointer-events-none"
+            />
             <div
-              className="relative flex-1 flex flex-col"
+              className="relative flex-1 flex flex-col z-20"
               onClick={(e) => e.stopPropagation()}
               data-testid="modal-style-content"
             >
