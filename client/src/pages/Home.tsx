@@ -946,7 +946,7 @@ export default function Home() {
                     {/* Texto */}
                     <div className="text-center space-y-2">
                       <p className="font-serif text-2xl sm:text-4xl italic" style={{ color: '#2d2620' }}>Criando sua obra...</p>
-                      <p className="text-xs sm:text-sm tracking-widest uppercase" style={{ color: 'rgba(45,38,32,0.4)' }}>Pode levar até 2 minutos</p>
+                      <p className="text-xs sm:text-sm tracking-widest uppercase" style={{ color: 'rgba(45,38,32,0.4)' }}>Pode levar até 30 segundos</p>
                     </div>
 
                     {/* Barra de progresso */}
