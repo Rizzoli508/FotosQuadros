@@ -323,6 +323,7 @@ export default function Home() {
   const [checkoutLoading, setCheckoutLoading] = useState(false);
   const [checkoutError, setCheckoutError] = useState('');
   const [pixData, setPixData] = useState<{ qrCode: string; pixCopyPaste: string } | null>(null);
+  const [pixOrderId, setPixOrderId] = useState<number | null>(null);
   const [boletoUrl, setBoletoUrl] = useState('');
   const [form, setForm] = useState({ name: '', email: '', cpf: '', phone: '', cep: '', street: '', number: '', complement: '', neighborhood: '', city: '', state: '' });
   const [cepLoading, setCepLoading] = useState(false);
@@ -391,6 +392,7 @@ export default function Home() {
         const data = await res.json();
         if (!res.ok) { setCheckoutError(data.message || 'Erro ao gerar Pix.'); return; }
         setPixData({ qrCode: data.qrCode, pixCopyPaste: data.pixCopyPaste });
+        setPixOrderId(data.orderId || null);
         setPixTimer(30 * 60);
         const totalPix = getPackCredits(checkoutProduct.description);
         const remainingPix = totalPix - 1;
@@ -478,6 +480,22 @@ export default function Home() {
     const t = setInterval(() => setPixTimer(p => Math.max(0, p - 1)), 1000);
     return () => clearInterval(t);
   }, [checkoutStep, pixTimer]);
+
+  // Polling de confirmação do Pix
+  useEffect(() => {
+    if (checkoutStep !== 'pix' || !pixOrderId) return;
+    const interval = setInterval(async () => {
+      try {
+        const res = await fetch(`/api/payments/status/${pixOrderId}`);
+        const data = await res.json();
+        if (data.paid) {
+          clearInterval(interval);
+          setCheckoutStep('success');
+        }
+      } catch { /* silently ignore */ }
+    }, 4000);
+    return () => clearInterval(interval);
+  }, [checkoutStep, pixOrderId]);
 
   useEffect(() => {
     try {

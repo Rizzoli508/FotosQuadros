@@ -95,6 +95,15 @@ export async function appmaxCreateBoleto(orderId: number, customerId: number, cp
   };
 }
 
+// Consulta status do pedido
+export async function appmaxGetOrderStatus(orderId: number): Promise<string> {
+  const res = await fetch(`${BASE}/order/${orderId}`, { headers });
+  const json = await res.json() as any;
+  if (!json.success) throw new Error(json.text || 'Erro ao consultar pedido');
+  // status possíveis: waiting_payment, paid, cancelled, refunded
+  return json.data?.status || 'unknown';
+}
+
 // Cartão de crédito
 export async function appmaxCreateCreditCard(
   orderId: number,

@@ -10,6 +10,7 @@ import {
   appmaxCreatePix,
   appmaxCreateBoleto,
   appmaxCreateCreditCard,
+  appmaxGetOrderStatus,
 } from "./appmax";
 import {
   savePortrait,
@@ -71,10 +72,23 @@ export async function registerRoutes(
       const customer = await appmaxGetOrCreateCustomer({ name, email, cpf, phone: phone || '11999999999' });
       const order = await appmaxCreateOrder(customer.id, description, amount);
       const pix = await appmaxCreatePix(order.id, customer.id, cpf);
-      return res.json({ qrCode: pix.qrCode, pixCopyPaste: pix.pixCopyPaste, expiresAt: pix.expiresAt });
+      return res.json({ qrCode: pix.qrCode, pixCopyPaste: pix.pixCopyPaste, expiresAt: pix.expiresAt, orderId: order.id });
     } catch (err: any) {
       console.error('AppMax Pix error:', err.message);
       res.status(500).json({ message: err.message || 'Erro ao gerar Pix.' });
+    }
+  });
+
+  // ── Consulta status do pagamento ──
+  app.get('/api/payments/status/:orderId', async (req, res) => {
+    try {
+      const orderId = parseInt(req.params.orderId);
+      if (!orderId) return res.status(400).json({ message: 'orderId inválido.' });
+      const status = await appmaxGetOrderStatus(orderId);
+      const paid = status === 'paid' || status === 'PAID' || status === 'aprovado' || status === 'APPROVED';
+      return res.json({ status, paid });
+    } catch (err: any) {
+      return res.status(500).json({ message: err.message });
     }
   });
 
