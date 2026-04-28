@@ -1899,13 +1899,26 @@ export default function Home() {
                   {checkoutStep === 'success' && (
                     <div className="flex flex-col items-center gap-5 py-8 text-center">
                       <div>
-                        <p className="font-serif text-2xl text-gray-900 mb-2">Pagamento Aprovado! 🎉</p>
-                        <p className="text-sm text-gray-500 leading-relaxed">
-                          {packCredits > 0
-                            ? `Seu 1º retrato está pronto. Você ainda tem ${packCredits} retrato${packCredits > 1 ? 's' : ''} no seu pack!`
-                            : 'Clique abaixo para baixar seu retrato.'}
+                        <p className="font-serif text-2xl mb-2" style={{ color: '#2d2620' }}>Pagamento Aprovado! 🎉</p>
+                        <p className="text-sm leading-relaxed" style={{ color: '#7a6a5a' }}>
+                          {checkoutProduct?.isPhysical
+                            ? 'Seu quadro está sendo preparado e em breve será enviado para entrega.'
+                            : packCredits > 0
+                              ? `Seu 1º retrato está pronto. Você ainda tem ${packCredits} retrato${packCredits > 1 ? 's' : ''} no seu pack!`
+                              : 'Seu retrato está pronto! Baixe ou receba no WhatsApp.'}
                         </p>
                       </div>
+
+                      {/* Aviso produto físico */}
+                      {checkoutProduct?.isPhysical && (
+                        <div className="w-full rounded-2xl p-4 text-left space-y-1" style={{ background: '#fdf6ec', border: '1px solid #e8d5b0' }}>
+                          <p className="font-semibold text-sm" style={{ color: '#8a6a2a' }}>📦 Pedido de impressão recebido</p>
+                          <p className="text-xs leading-relaxed" style={{ color: '#7a6a5a' }}>
+                            Seu retrato digital está pronto abaixo. O quadro impresso será produzido e enviado para o endereço informado no prazo de 5–10 dias úteis. Você receberá atualizações no WhatsApp.
+                          </p>
+                        </div>
+                      )}
+
                       {generatedImage ? (
                         <motion.div
                           initial={{ scale: 0.8, opacity: 0 }}
@@ -1914,7 +1927,7 @@ export default function Home() {
                           className="relative w-full rounded-2xl overflow-hidden shadow-xl"
                         >
                           <img src={generatedImage} alt="Seu retrato" className="w-full h-full object-cover" />
-                          <div className="absolute top-2 right-2 w-8 h-8 rounded-full bg-green-500 flex items-center justify-center shadow-md">
+                          <div className="absolute top-2 right-2 w-8 h-8 rounded-full flex items-center justify-center shadow-md" style={{ background: '#C9A96E' }}>
                             <Check className="w-4 h-4 text-white" />
                           </div>
                         </motion.div>
@@ -1924,17 +1937,18 @@ export default function Home() {
                           animate={{ scale: 1 }}
                           transition={{ type: 'spring', stiffness: 200, damping: 15 }}
                           className="w-20 h-20 rounded-full flex items-center justify-center"
-                          style={{ background: '#f0fdf4' }}
+                          style={{ background: '#fdf6ec' }}
                         >
-                          <Check className="w-10 h-10 text-green-600" />
+                          <Check className="w-10 h-10" style={{ color: '#C9A96E' }} />
                         </motion.div>
                       )}
+
                       {generatedImage && (
                         <a
                           href={generatedImage}
                           download="retrato-retravium.jpg"
                           className="w-full py-4 rounded-2xl font-bold text-base text-white shadow-lg flex items-center justify-center gap-2"
-                          style={{ background: '#22c55e' }}
+                          style={{ background: '#C9A96E' }}
                         >
                           <Download className="w-5 h-5" />
                           Baixar Retrato
@@ -1944,25 +1958,32 @@ export default function Home() {
                       {/* ── Botão Receber no WhatsApp ── */}
                       {portraitId && generatedImage && (
                         <div className="w-full space-y-2">
-                          {/* Campo de WhatsApp caso não tenha sido preenchido no formulário */}
-                          {!form.phone.trim() && whatsappStatus !== 'sent' && (
-                            <input
-                              type="tel"
-                              placeholder="(11) 99999-9999"
-                              className="w-full border border-gray-200 rounded-xl px-4 py-3 text-base outline-none"
-                              value={successPhone}
-                              onChange={e => setSuccessPhone(e.target.value)}
-                            />
+                          {/* Telefone — sempre mostra com opção de corrigir */}
+                          {whatsappStatus !== 'sent' && (
+                            <div className="space-y-1">
+                              <label className="text-xs font-medium text-left block" style={{ color: '#7a6a5a' }}>
+                                WhatsApp para receber o retrato:
+                              </label>
+                              <input
+                                type="tel"
+                                placeholder="(11) 99999-9999"
+                                className="w-full border rounded-xl px-4 py-3 text-base outline-none"
+                                style={{ borderColor: '#e8d5b0' }}
+                                value={successPhone || form.phone}
+                                onChange={e => setSuccessPhone(e.target.value)}
+                              />
+                              <p className="text-xs text-left" style={{ color: '#aaa' }}>Número errado? Edite acima antes de enviar.</p>
+                            </div>
                           )}
                           {whatsappStatus === 'sent' ? (
-                            <div className="w-full py-4 rounded-2xl font-bold text-base flex items-center justify-center gap-2 text-green-700" style={{ background: '#dcfce7' }}>
-                              ✅ Enviado para o seu WhatsApp!
+                            <div className="w-full py-4 rounded-2xl font-bold text-base flex items-center justify-center gap-2" style={{ background: '#fdf6ec', color: '#8a6a2a' }}>
+                              ✅ Enviado para {successPhone || form.phone}
                             </div>
                           ) : (
                             <button
                               disabled={whatsappStatus === 'sending'}
                               onClick={async () => {
-                                const phoneToSend = form.phone.trim() || successPhone.trim();
+                                const phoneToSend = (successPhone || form.phone).trim();
                                 if (!phoneToSend) { setCheckoutError('Informe seu WhatsApp.'); return; }
                                 setWhatsappStatus('sending');
                                 setCheckoutError('');
@@ -1974,6 +1995,17 @@ export default function Home() {
                                   });
                                   if (res.ok) {
                                     setWhatsappStatus('sent');
+                                    // Para produtos físicos, envia também mensagem sobre o quadro
+                                    if (checkoutProduct?.isPhysical) {
+                                      fetch('/api/whatsapp/text', {
+                                        method: 'POST',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify({
+                                          phone: phoneToSend,
+                                          message: `Olá ${form.name || ''}! 📦\n\nSeu pedido de impressão *retravium* foi confirmado!\n\nSeu quadro está sendo preparado com carinho e será enviado para entrega em breve. Assim que despacharmos, você receberá o código de rastreio aqui. 🎨\n\nQualquer dúvida é só falar!`.trim(),
+                                        }),
+                                      }).catch(() => {});
+                                    }
                                   } else {
                                     const data = await res.json().catch(() => ({}));
                                     setWhatsappStatus('error');
@@ -2028,8 +2060,10 @@ export default function Home() {
                     onClick={() => {
                       if (checkoutFormPage === 1) {
                         if (!form.name.trim()) { setCheckoutError('Informe seu nome completo.'); return; }
-                        if (!form.cpf.trim()) { setCheckoutError('Informe seu CPF.'); return; }
-                        if (!form.phone.trim()) { setCheckoutError('Informe seu WhatsApp para receber o retrato.'); return; }
+                        const cpfDigits = form.cpf.replace(/\D/g, '');
+                        if (cpfDigits.length !== 11) { setCheckoutError('CPF inválido — deve ter 11 dígitos.'); return; }
+                        const phoneDigits = form.phone.replace(/\D/g, '');
+                        if (phoneDigits.length < 10 || phoneDigits.length > 11) { setCheckoutError('WhatsApp inválido — informe DDD + número (ex: 11 99999-9999).'); return; }
                         setCheckoutError('');
                       }
                       if (!checkoutIsLastPage) {

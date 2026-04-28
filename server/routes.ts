@@ -208,6 +208,29 @@ export async function registerRoutes(
     }
   });
 
+  // ── WhatsApp: mensagem de texto (pedidos físicos) ─────────────────────────────
+  app.post('/api/whatsapp/text', async (req, res) => {
+    const { phone, message } = req.body;
+    if (!phone || !message) return res.status(400).json({ message: 'phone e message são obrigatórios.' });
+    const { ZAPI_INSTANCE_ID, ZAPI_TOKEN, ZAPI_CLIENT_TOKEN } = process.env;
+    if (!ZAPI_INSTANCE_ID || !ZAPI_TOKEN || !ZAPI_CLIENT_TOKEN) return res.status(500).json({ message: 'Z-API não configurado.' });
+    const rawPhone = phone.replace(/\D/g, '');
+    const normalizedPhone = rawPhone.startsWith('55') ? rawPhone : `55${rawPhone}`;
+    try {
+      const zapiUrl = `https://api.z-api.io/instances/${ZAPI_INSTANCE_ID}/token/${ZAPI_TOKEN}/send-text`;
+      const response = await fetch(zapiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Client-Token': ZAPI_CLIENT_TOKEN },
+        body: JSON.stringify({ phone: normalizedPhone, message }),
+        signal: AbortSignal.timeout(15_000),
+      });
+      if (!response.ok) throw new Error(`Z-API ${response.status}`);
+      return res.json({ success: true });
+    } catch (err: any) {
+      return res.status(502).json({ message: err.message });
+    }
+  });
+
   // Inicialização: cria bucket no Supabase e limpa metadados antigos
   ensureBucket();
   cleanupOldPortraits();
