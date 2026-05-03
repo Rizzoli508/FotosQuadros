@@ -1939,7 +1939,7 @@ export default function Home() {
                         <div className="w-full rounded-2xl p-4 text-left space-y-1" style={{ background: '#fdf6ec', border: '1px solid #e8d5b0' }}>
                           <p className="font-semibold text-sm" style={{ color: '#8a6a2a' }}>📦 Pedido de impressão recebido</p>
                           <p className="text-xs leading-relaxed" style={{ color: '#7a6a5a' }}>
-                            Seu retrato digital está pronto abaixo. O quadro impresso será produzido e enviado para o endereço informado no prazo de 5–10 dias úteis. Você receberá atualizações no WhatsApp.
+                            Seu retrato digital está pronto abaixo. O quadro impresso será produzido e enviado para o endereço informado no prazo de 1–7 dias úteis. Você receberá atualizações no WhatsApp.
                           </p>
                         </div>
                       )}
