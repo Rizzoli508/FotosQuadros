@@ -663,8 +663,8 @@ export default function Home() {
       });
 
       if (!response.ok) {
-        const errText = await response.text().catch(() => '');
-        throw new Error(`n8n retornou ${response.status}: ${errText}`);
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.message || `Erro ${response.status} ao gerar retrato.`);
       }
 
       const data = await response.json();
@@ -698,7 +698,7 @@ export default function Home() {
     } catch (err: any) {
       console.error('[Geração] Erro:', err.message);
       setIsGenerating(false);
-      alert('Erro ao gerar retrato. Verifique se o n8n está rodando e tente novamente.');
+      alert(`Erro ao gerar retrato: ${err.message || 'Tente novamente.'}`);
     }
   };
 
