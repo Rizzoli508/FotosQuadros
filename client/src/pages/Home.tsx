@@ -457,11 +457,11 @@ export default function Home() {
   };
 
   const SIZES = [
-    { label: 'A5 (15×20 cm)', fineArtPrice: 1,  canvasPrice: 1 },
-    { label: 'A4 (20×30 cm)', fineArtPrice: 1,  canvasPrice: 1 },
-    { label: 'A3 (30×40 cm)', fineArtPrice: 1, canvasPrice: 1 },
-    { label: 'A2 (40×60 cm)', fineArtPrice: 1, canvasPrice: 1 },
-    { label: 'A1 (60×90 cm)', fineArtPrice: 1, canvasPrice: 1 },
+    { label: 'A5 (15×20 cm)', fineArtPrice: 79,  canvasPrice: 119 },
+    { label: 'A4 (20×30 cm)', fineArtPrice: 99,  canvasPrice: 159 },
+    { label: 'A3 (30×40 cm)', fineArtPrice: 139, canvasPrice: 199 },
+    { label: 'A2 (40×60 cm)', fineArtPrice: 219, canvasPrice: 349 },
+    { label: 'A1 (60×90 cm)', fineArtPrice: 329, canvasPrice: 599 },
   ];
   const createOrder = useCreateOrder();
 
@@ -1326,7 +1326,7 @@ export default function Home() {
                       ))}
                     </ul>
                     <button
-                      onClick={() => openCheckout('Retrato Digital HD retravium', 1, false)}
+                      onClick={() => openCheckout('Retrato Digital HD retravium', 29, false)}
                       className="w-full py-4 bg-primary text-white font-sans font-bold text-sm uppercase tracking-widest rounded-xl text-center hover:bg-primary/90 transition-colors flex items-center justify-center gap-2 mb-3"
                     >
                       <Download className="w-4 h-4" />
@@ -2198,7 +2198,7 @@ export default function Home() {
                       ))}
                     </ul>
                     <button
-                      onClick={() => { setPlansOpen(false); openCheckout('Retrato Digital HD retravium', 1, false); }}
+                      onClick={() => { setPlansOpen(false); openCheckout('Retrato Digital HD retravium', 29, false); }}
                       className="w-full py-4 rounded-xl font-bold text-sm transition-all duration-200 border-2 border-gray-900 text-gray-900 hover:bg-gray-900 hover:text-white"
                     >
                       Começar →
@@ -2235,7 +2235,7 @@ export default function Home() {
                       ))}
                     </ul>
                     <button
-                      onClick={() => { setPlansOpen(false); openCheckout('Pack Família — 3 Retratos HD retravium', 1, false); }}
+                      onClick={() => { setPlansOpen(false); openCheckout('Pack Família — 3 Retratos HD retravium', 49, false); }}
                       className="w-full py-4 rounded-xl font-bold text-sm transition-all duration-200 hover:opacity-90 shadow-md text-white"
                       style={{ background: '#C9A96E' }}
                     >
@@ -2273,7 +2273,7 @@ export default function Home() {
                       ))}
                     </ul>
                     <button
-                      onClick={() => { setPlansOpen(false); openCheckout('Pack Memórias — 6 Retratos HD retravium', 1, false); }}
+                      onClick={() => { setPlansOpen(false); openCheckout('Pack Memórias — 6 Retratos HD retravium', 89, false); }}
                       className="w-full py-4 rounded-xl font-bold text-sm transition-all duration-200 border-2 border-gray-900 text-gray-900 hover:bg-gray-900 hover:text-white"
                     >
                       Escolher Studio Pack →
