@@ -25,6 +25,12 @@ import {
 import { generatePortrait } from "./generate";
 import { appendOrderToSheet, ensureSheetHeaders } from "./sheets";
 
+const VALID_PRICES = new Set([29, 49, 89, 79, 99, 139, 219, 329, 119, 159, 199, 349, 599, 1]);
+
+function validatePrice(amount: number): boolean {
+  return VALID_PRICES.has(Number(amount));
+}
+
 export async function registerRoutes(
   httpServer: Server,
   app: Express
@@ -68,6 +74,9 @@ export async function registerRoutes(
       if (!name || !cpf || !amount || !description) {
         return res.status(400).json({ message: 'Preencha todos os campos obrigatórios.' });
       }
+      if (!validatePrice(amount)) {
+        return res.status(400).json({ message: 'Valor inválido.' });
+      }
       // Gera email placeholder se não informado
       if (!email) email = `${cpf.replace(/\D/g, '')}@cliente.retravium.com`;
       const customer = await appmaxGetOrCreateCustomer({ name, email, cpf, phone: phone || '11999999999' });
@@ -100,6 +109,9 @@ export async function registerRoutes(
       if (!name || !email || !cpf || !amount || !description) {
         return res.status(400).json({ message: 'Preencha todos os campos obrigatórios.' });
       }
+      if (!validatePrice(amount)) {
+        return res.status(400).json({ message: 'Valor inválido.' });
+      }
       const customer = await appmaxGetOrCreateCustomer({ name, email, cpf, phone: phone || '11999999999' });
       const order = await appmaxCreateOrder(customer.id, description, amount);
       const boleto = await appmaxCreateBoleto(order.id, customer.id, cpf);
@@ -116,6 +128,9 @@ export async function registerRoutes(
       const { name, email, cpf, phone, amount, description, card } = req.body;
       if (!name || !email || !cpf || !amount || !description || !card) {
         return res.status(400).json({ message: 'Preencha todos os campos obrigatórios.' });
+      }
+      if (!validatePrice(amount)) {
+        return res.status(400).json({ message: 'Valor inválido.' });
       }
       const customer = await appmaxGetOrCreateCustomer({ name, email, cpf, phone: phone || '11999999999' });
       const order = await appmaxCreateOrder(customer.id, description, amount);
