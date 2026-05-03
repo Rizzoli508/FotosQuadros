@@ -378,6 +378,29 @@ export default function Home() {
     setWhatsappStatus('idle');
   };
 
+  const saveOrderToSheet = async (orderId?: number) => {
+    if (!checkoutProduct) return;
+    try {
+      await fetch('/api/orders/sheet', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          nome: form.name,
+          cpf: form.cpf,
+          telefone: form.phone,
+          produto: checkoutProduct.description,
+          cep: form.cep,
+          rua: form.street,
+          numero: form.number,
+          complemento: form.complement,
+          cidade: form.city,
+          estado: form.state,
+          orderId,
+        }),
+      });
+    } catch { /* silently ignore */ }
+  };
+
   const handlePayment = async () => {
     if (!checkoutProduct) return;
     setCheckoutLoading(true);
@@ -422,6 +445,7 @@ export default function Home() {
           setCheckoutStep('form');
           setPackScreenOpen(true);
         } else {
+          await saveOrderToSheet();
           setCheckoutStep('success');
         }
       }
@@ -490,6 +514,7 @@ export default function Home() {
         const data = await res.json();
         if (data.paid) {
           clearInterval(interval);
+          await saveOrderToSheet(pixOrderId ?? undefined);
           setCheckoutStep('success');
         }
       } catch { /* silently ignore */ }

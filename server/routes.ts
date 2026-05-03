@@ -23,6 +23,7 @@ import {
   ensureBucket,
 } from "./portraits";
 import { generatePortrait } from "./generate";
+import { appendOrderToSheet, ensureSheetHeaders } from "./sheets";
 
 export async function registerRoutes(
   httpServer: Server,
@@ -231,9 +232,24 @@ export async function registerRoutes(
     }
   });
 
+  // ── Salvar pedido no Google Sheets ───────────────────────────────────────────
+  app.post('/api/orders/sheet', async (req, res) => {
+    try {
+      const { nome, cpf, telefone, produto, cep, rua, numero, complemento, cidade, estado, portraitId, orderId } = req.body;
+      if (!nome || !cpf || !telefone || !produto) {
+        return res.status(400).json({ message: 'Dados incompletos.' });
+      }
+      await appendOrderToSheet({ nome, cpf, telefone, produto, cep, rua, numero, complemento, cidade, estado, portraitId, orderId });
+      return res.json({ success: true });
+    } catch (err: any) {
+      return res.status(500).json({ message: err.message });
+    }
+  });
+
   // Inicialização: cria bucket no Supabase e limpa metadados antigos
   ensureBucket();
   cleanupOldPortraits();
+  ensureSheetHeaders();
 
   return httpServer;
 }
