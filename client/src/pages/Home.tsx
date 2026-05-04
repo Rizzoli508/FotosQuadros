@@ -446,6 +446,7 @@ export default function Home() {
           setPackScreenOpen(true);
         } else {
           await saveOrderToSheet();
+          (window as any).fbq?.('track', 'Purchase', { value: checkoutProduct?.amount, currency: 'BRL' });
           setCheckoutStep('success');
         }
       }
@@ -515,6 +516,7 @@ export default function Home() {
         if (data.paid) {
           clearInterval(interval);
           await saveOrderToSheet(pixOrderId ?? undefined);
+          (window as any).fbq?.('track', 'Purchase', { value: checkoutProduct?.amount, currency: 'BRL' });
           setCheckoutStep('success');
         }
       } catch { /* silently ignore */ }
