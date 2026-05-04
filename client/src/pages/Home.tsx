@@ -366,6 +366,7 @@ export default function Home() {
     setCheckoutProduct({ description, amount, isPhysical });
     setCheckoutOpen(true);
     setCheckoutStep('form');
+    (window as any).fbq?.('track', 'InitiateCheckout', { value: amount, currency: 'BRL', content_name: description });
     setPayMethod('PIX');
     setCheckoutError('');
     setPixData(null);
@@ -405,6 +406,7 @@ export default function Home() {
     if (!checkoutProduct) return;
     setCheckoutLoading(true);
     setCheckoutError('');
+    (window as any).fbq?.('track', 'AddPaymentInfo', { value: checkoutProduct.amount, currency: 'BRL' });
     try {
       if (payMethod === 'PIX') {
         const res = await fetch('/api/payments/pix', {
@@ -636,6 +638,7 @@ export default function Home() {
     setIsGenerating(true);
     setGeneratedImage(null);
     setPortraitId(null);
+    (window as any).fbq?.('trackCustom', 'GeneratePortrait');
     setWhatsappStatus('idle');
 
     try {
