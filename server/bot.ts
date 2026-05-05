@@ -91,7 +91,7 @@ function generateCpfFromPhone(phone: string): string {
 // ── Chama o Gemini Flash (texto) ──────────────────────────────────────────────
 async function callGemini(history: Message[], userMessage: string): Promise<string> {
   const apiKey = process.env.GEMINI_API_KEY;
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
 
   const contents = [
     ...history,
@@ -109,9 +109,14 @@ async function callGemini(history: Message[], userMessage: string): Promise<stri
     signal: AbortSignal.timeout(30_000),
   });
 
-  if (!res.ok) throw new Error(`Gemini error: ${res.status}`);
+  if (!res.ok) {
+    const errText = await res.text().catch(() => '');
+    throw new Error(`Gemini error: ${res.status} - ${errText}`);
+  }
   const data = await res.json() as any;
-  return data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '';
+  const text = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '';
+  if (!text) console.error('[Bot] Gemini retornou vazio:', JSON.stringify(data).slice(0, 300));
+  return text;
 }
 
 // ── Envia texto via Z-API (suporta múltiplas mensagens separadas por |) ───────
