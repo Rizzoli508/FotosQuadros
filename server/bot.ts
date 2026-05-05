@@ -151,45 +151,29 @@ async function callGemini(history: Message[], userMessage: string): Promise<stri
   return text;
 }
 
-// ── Mostra "digitando..." via Z-API e aguarda a duração ──────────────────────
-async function sendTyping(phone: string, durationMs: number) {
-  const { ZAPI_INSTANCE_ID, ZAPI_TOKEN, ZAPI_CLIENT_TOKEN } = process.env;
-  try {
-    await fetch(
-      `https://api.z-api.io/instances/${ZAPI_INSTANCE_ID}/token/${ZAPI_TOKEN}/send-typing`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Client-Token': ZAPI_CLIENT_TOKEN! },
-        body: JSON.stringify({ phone, duration: durationMs }),
-        signal: AbortSignal.timeout(8_000),
-      }
-    );
-  } catch { /* não crítico — continua sem o indicador se falhar */ }
-  await new Promise(r => setTimeout(r, durationMs));
-}
-
-// ── Envia texto via Z-API (suporta múltiplas mensagens separadas por |) ───────
+// ── Envia texto via Z-API com indicador "digitando..." embutido ──────────────
+// delayTyping = segundos exibindo "digitando" antes de entregar a mensagem (0-15)
 async function sendText(phone: string, message: string) {
   const { ZAPI_INSTANCE_ID, ZAPI_TOKEN, ZAPI_CLIENT_TOKEN } = process.env;
   const parts = message.split('|').map(p => p.trim()).filter(Boolean);
 
   for (const part of parts) {
-    // Typing proporcional ao tamanho: ~40ms/char, mín 1.5s, máx 4s
-    const typingMs = Math.min(Math.max(part.length * 40, 1500), 4000);
-    await sendTyping(phone, typingMs);
+    // ~1s para cada 25 chars, mínimo 2s, máximo 10s
+    const delayTyping = Math.min(Math.max(Math.ceil(part.length / 25), 2), 10);
 
     const res = await fetch(
       `https://api.z-api.io/instances/${ZAPI_INSTANCE_ID}/token/${ZAPI_TOKEN}/send-text`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Client-Token': ZAPI_CLIENT_TOKEN! },
-        body: JSON.stringify({ phone, message: part }),
-        signal: AbortSignal.timeout(15_000),
+        body: JSON.stringify({ phone, message: part, delayTyping }),
+        // timeout maior pois a API espera o delayTyping antes de responder
+        signal: AbortSignal.timeout(30_000),
       }
     );
     if (!res.ok) throw new Error(`Z-API send-text error: ${res.status}`);
-    // Pausa entre partes separadas por |
-    if (parts.length > 1) await new Promise(r => setTimeout(r, 1000));
+    // Pequena pausa extra entre partes
+    if (parts.length > 1) await new Promise(r => setTimeout(r, 800));
   }
 }
 
