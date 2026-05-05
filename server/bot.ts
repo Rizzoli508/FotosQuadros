@@ -25,6 +25,7 @@ interface ConversationState {
   orderId?: number;
   pixCopyPaste?: string;
   createdAt: number;
+  lastActivity: number;
 }
 
 const conversations = new Map<string, ConversationState>();
@@ -304,16 +305,20 @@ export async function handleIncomingMessage(phone: string, userMessage: string) 
   const rawPhone = phone.replace(/\D/g, '');
   const normalizedPhone = rawPhone.startsWith('55') ? rawPhone : `55${rawPhone}`;
 
-  // Inicializa conversa
-  if (!conversations.has(normalizedPhone)) {
+  // Inicializa ou reseta conversa (15s sem atividade = reset — só em testes)
+  const INACTIVITY_RESET_MS = 15_000;
+  const existing = conversations.get(normalizedPhone);
+  if (!existing || (Date.now() - existing.lastActivity > INACTIVITY_RESET_MS && existing.status !== 'paid')) {
     conversations.set(normalizedPhone, {
       status: 'talking',
       history: [],
       createdAt: Date.now(),
+      lastActivity: Date.now(),
     });
   }
 
   const state = conversations.get(normalizedPhone)!;
+  state.lastActivity = Date.now();;
 
   // Já pagou
   if (state.status === 'paid') {
