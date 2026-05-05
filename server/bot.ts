@@ -103,37 +103,47 @@ function generateCpfFromPhone(phone: string): string {
 // ── Chama o Gemini Flash (texto) ──────────────────────────────────────────────
 async function callGemini(history: Message[], userMessage: string): Promise<string> {
   const apiKey = process.env.GEMINI_API_KEY;
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+  if (!apiKey) throw new Error('GEMINI_API_KEY não configurada');
 
-  // Sistema injetado como primeira mensagem user/model para máxima compatibilidade
-  const systemTurn: Message[] = [
-    { role: 'user', parts: [{ text: `[INSTRUÇÕES DO SISTEMA]\n${SYSTEM_PROMPT}` }] },
-    { role: 'model', parts: [{ text: 'Entendido. Vou seguir essas instruções.' }] },
-  ];
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`;
 
+  // Conversa: histórico + nova mensagem do usuário
   const contents = [
-    ...systemTurn,
     ...history,
     { role: 'user', parts: [{ text: userMessage }] },
   ];
 
+  const body = {
+    systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
+    contents,
+    generationConfig: { temperature: 0.75, maxOutputTokens: 600 },
+  };
+
   const res = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      contents,
-      generationConfig: { temperature: 0.75, maxOutputTokens: 600 },
-    }),
+    body: JSON.stringify(body),
     signal: AbortSignal.timeout(30_000),
   });
 
   if (!res.ok) {
     const errText = await res.text().catch(() => '');
-    throw new Error(`Gemini error: ${res.status} - ${errText}`);
+    throw new Error(`Gemini error ${res.status}: ${errText.slice(0, 400)}`);
   }
+
   const data = await res.json() as any;
-  const text = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '';
-  if (!text) console.error('[Bot] Gemini retornou vazio:', JSON.stringify(data).slice(0, 300));
+  const candidate = data?.candidates?.[0];
+
+  if (!candidate) {
+    console.error('[Bot] Gemini sem candidatos:', JSON.stringify(data).slice(0, 500));
+    return '';
+  }
+
+  const text = candidate?.content?.parts?.[0]?.text?.trim() || '';
+  if (!text) {
+    console.error('[Bot] Gemini texto vazio. finishReason:', candidate?.finishReason,
+      '| safetyRatings:', JSON.stringify(candidate?.safetyRatings));
+  }
   return text;
 }
 
@@ -153,8 +163,8 @@ async function sendText(phone: string, message: string) {
       }
     );
     if (!res.ok) throw new Error(`Z-API send-text error: ${res.status}`);
-    // Pequena pausa entre mensagens para parecer mais humano
-    if (parts.length > 1) await new Promise(r => setTimeout(r, 1200));
+    // Pausa entre mensagens para parecer mais humano
+    if (parts.length > 1) await new Promise(r => setTimeout(r, 2500));
   }
 }
 
@@ -267,17 +277,17 @@ export async function handleIncomingMessage(phone: string, userMessage: string) 
   // ── PRIMEIRO CONTATO: mensagens fixas + PIX automático ───────────────────
   if (state.history.length === 0 && state.status === 'talking') {
     await sendText(normalizedPhone, MSG_1);
-    await new Promise(r => setTimeout(r, 2000));
+    await new Promise(r => setTimeout(r, 4000));
     await sendText(normalizedPhone, MSG_2);
-    await new Promise(r => setTimeout(r, 2000));
+    await new Promise(r => setTimeout(r, 5000));
     await sendText(normalizedPhone, MSG_3);
-    await new Promise(r => setTimeout(r, 800));
+    await new Promise(r => setTimeout(r, 2000));
 
     try {
       const pixCode = await generatePix(normalizedPhone, state);
       // Código PIX sozinho para facilitar cópia
       await sendText(normalizedPhone, pixCode);
-      await new Promise(r => setTimeout(r, 800));
+      await new Promise(r => setTimeout(r, 2000));
       await sendText(normalizedPhone, `_Válido por 30 minutos_ ⏳\n\nAssim que o pagamento confirmar eu já mando tudo pra você 💗`);
     } catch (err: any) {
       console.error('[Bot] Erro ao gerar PIX:', err.message);
