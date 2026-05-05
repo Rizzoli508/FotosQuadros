@@ -274,7 +274,6 @@ export async function registerRoutes(
   // ── Webhook Z-API: mensagens recebidas (bot @dojeitodelaps) ──────────────────
   app.post('/api/whatsapp/webhook', async (req, res) => {
     try {
-      // Sempre responde 200 pro Z-API imediatamente
       res.json({ ok: true });
 
       const body = req.body;
@@ -282,12 +281,14 @@ export async function registerRoutes(
       // Ignora mensagens enviadas pelo próprio bot
       if (body.fromMe) return;
 
-      // Pega o telefone do remetente
+      // Pega telefone e texto da mensagem
       const phone = body.phone || body.from || body.sender;
-      if (!phone) return;
+      const message = body.text?.message || body.body || body.message || '';
+
+      if (!phone || !message) return;
 
       // Processa em background
-      handleIncomingMessage(phone).catch(console.error);
+      handleIncomingMessage(phone, message).catch(console.error);
     } catch (err) {
       console.error('[Webhook] Erro:', err);
     }
