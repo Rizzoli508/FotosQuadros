@@ -91,7 +91,7 @@ function generateCpfFromPhone(phone: string): string {
 // ── Chama o Gemini Flash (texto) ──────────────────────────────────────────────
 async function callGemini(history: Message[], userMessage: string): Promise<string> {
   const apiKey = process.env.GEMINI_API_KEY;
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+  const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
 
   const contents = [
     ...history,
