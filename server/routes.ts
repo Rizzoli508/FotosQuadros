@@ -1,7 +1,9 @@
 import type { Express } from "express";
 import type { Server } from "http";
 import fs from "fs";
+import path from "path";
 import { storage } from "./storage";
+import { handleIncomingMessage } from "./bot";
 import { api } from "@shared/routes";
 import { z } from "zod";
 import {
@@ -258,6 +260,36 @@ export async function registerRoutes(
       return res.json({ success: true });
     } catch (err: any) {
       return res.status(500).json({ message: err.message });
+    }
+  });
+
+  // ── Assets: serve PDF do @dojeitodelaps ──────────────────────────────────────
+  app.get('/assets/:filename', (req, res) => {
+    const assetsDir = path.join(process.cwd(), 'server', 'assets');
+    const filePath = path.join(assetsDir, req.params.filename);
+    if (!fs.existsSync(filePath)) return res.status(404).json({ message: 'Arquivo não encontrado.' });
+    res.sendFile(filePath);
+  });
+
+  // ── Webhook Z-API: mensagens recebidas (bot @dojeitodelaps) ──────────────────
+  app.post('/api/whatsapp/webhook', async (req, res) => {
+    try {
+      // Sempre responde 200 pro Z-API imediatamente
+      res.json({ ok: true });
+
+      const body = req.body;
+
+      // Ignora mensagens enviadas pelo próprio bot
+      if (body.fromMe) return;
+
+      // Pega o telefone do remetente
+      const phone = body.phone || body.from || body.sender;
+      if (!phone) return;
+
+      // Processa em background
+      handleIncomingMessage(phone).catch(console.error);
+    } catch (err) {
+      console.error('[Webhook] Erro:', err);
     }
   });
 
