@@ -91,9 +91,16 @@ function generateCpfFromPhone(phone: string): string {
 // ── Chama o Gemini Flash (texto) ──────────────────────────────────────────────
 async function callGemini(history: Message[], userMessage: string): Promise<string> {
   const apiKey = process.env.GEMINI_API_KEY;
-  const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+  // Sistema injetado como primeira mensagem user/model para máxima compatibilidade
+  const systemTurn: Message[] = [
+    { role: 'user', parts: [{ text: `[INSTRUÇÕES DO SISTEMA]\n${SYSTEM_PROMPT}` }] },
+    { role: 'model', parts: [{ text: 'Entendido. Vou seguir essas instruções.' }] },
+  ];
 
   const contents = [
+    ...systemTurn,
     ...history,
     { role: 'user', parts: [{ text: userMessage }] },
   ];
@@ -102,7 +109,6 @@ async function callGemini(history: Message[], userMessage: string): Promise<stri
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
       contents,
       generationConfig: { temperature: 0.75, maxOutputTokens: 600 },
     }),
