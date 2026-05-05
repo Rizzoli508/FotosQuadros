@@ -74,10 +74,12 @@ COMO AGIR:
 - Perguntou sobre o PIX → diga que o código ainda está válido e reenvie se necessário
 - Dificuldade técnica → oriente com calma
 
-REGRAS:
-- Máximo 2 linhas por mensagem — sempre curto e direto
-- Se precisar falar mais de uma coisa, separe com | (ex: "Claro! 🌸|O guia tem 7 dias...")
-- Prefira 2 mensagens curtas a 1 mensagem longa
+FORMATO — SIGA EXATAMENTE:
+- Cada bloco de texto = no máximo 1 frase curta ou 2 linhas
+- Use | para separar cada mensagem. SEMPRE que for dizer mais de uma coisa, use |
+- EXEMPLO CERTO: "É um guia de 7 dias de autoconhecimento. 🌸|Cada dia tem um texto meu, uma reflexão e uma tarefa pequena.|Por R$14,90 ele é seu agora 💕"
+- EXEMPLO ERRADO: "É um guia de 7 dias de autoconhecimento com texto meu, reflexão e tarefa pequena, por R$14,90."
+- Nunca escreva parágrafos. Nunca escreva mais de 2 linhas seguidas sem usar |
 - Nunca diga que é bot ou IA
 - Nunca mencione "sistema" ou "automático"
 - Nunca pressione para comprar`;
@@ -274,6 +276,29 @@ function startPaymentPolling(phone: string, orderId: number, state: Conversation
   }, 5_000);
 }
 
+// ── Garante que respostas longas sejam quebradas em mensagens curtas ──────────
+function autoSplit(text: string): string {
+  // Se já usa | ou é curto o suficiente, usa como está
+  if (text.includes('|') || text.length <= 140) return text;
+
+  // Divide nas pontuações de fim de frase
+  const sentences = text.split(/(?<=[.!?])\s+/);
+  const parts: string[] = [];
+  let current = '';
+
+  for (const s of sentences) {
+    if (current && (current + ' ' + s).length > 140) {
+      parts.push(current.trim());
+      current = s;
+    } else {
+      current = current ? current + ' ' + s : s;
+    }
+  }
+  if (current.trim()) parts.push(current.trim());
+
+  return parts.length > 1 ? parts.join('|') : text;
+}
+
 // ── Handler principal de mensagens ────────────────────────────────────────────
 export async function handleIncomingMessage(phone: string, userMessage: string) {
   const rawPhone = phone.replace(/\D/g, '');
@@ -345,7 +370,7 @@ export async function handleIncomingMessage(phone: string, userMessage: string) 
     return;
   }
 
-  const cleanResponse = aiResponse.trim();
+  const cleanResponse = autoSplit(aiResponse.trim());
 
   // Atualiza histórico
   state.history.push({ role: 'user', parts: [{ text: userMessage }] });
