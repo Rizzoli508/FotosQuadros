@@ -266,21 +266,27 @@ export async function handleIncomingMessage(phone: string, userMessage: string) 
 
   // ── PRIMEIRO CONTATO: mensagens fixas + PIX automático ───────────────────
   if (state.history.length === 0 && state.status === 'talking') {
-    state.history.push({ role: 'user', parts: [{ text: userMessage }] });
-
     await sendText(normalizedPhone, MSG_1);
-    await new Promise(r => setTimeout(r, 1500));
+    await new Promise(r => setTimeout(r, 2000));
     await sendText(normalizedPhone, MSG_2);
-    await new Promise(r => setTimeout(r, 1500));
+    await new Promise(r => setTimeout(r, 2000));
     await sendText(normalizedPhone, MSG_3);
+    await new Promise(r => setTimeout(r, 800));
 
     try {
       const pixCode = await generatePix(normalizedPhone, state);
-      await sendText(normalizedPhone, `${pixCode}\n\n_Válido por 30 minutos_ ⏳\n\nAssim que o pagamento confirmar eu já mando tudo pra você 💗`);
+      // Código PIX sozinho para facilitar cópia
+      await sendText(normalizedPhone, pixCode);
+      await new Promise(r => setTimeout(r, 800));
+      await sendText(normalizedPhone, `_Válido por 30 minutos_ ⏳\n\nAssim que o pagamento confirmar eu já mando tudo pra você 💗`);
     } catch (err: any) {
       console.error('[Bot] Erro ao gerar PIX:', err.message);
       await sendText(normalizedPhone, 'Tive um probleminha pra gerar o PIX 😅 Tenta de novo em alguns segundos!').catch(() => {});
     }
+
+    // Salva histórico do primeiro contato para o agente ter contexto
+    state.history.push({ role: 'user', parts: [{ text: userMessage }] });
+    state.history.push({ role: 'model', parts: [{ text: `${MSG_1}\n\n${MSG_2}\n\nPor R$14,90 o guia é seu agora. Enviei o código PIX. Assim que confirmar mando o PDF.` }] });
     return;
   }
 
