@@ -75,8 +75,9 @@ COMO AGIR:
 - Dificuldade técnica → oriente com calma
 
 REGRAS:
-- Mensagens curtas — máximo 4 linhas por mensagem
-- Se precisar de mais de uma mensagem, separe com |
+- Máximo 2 linhas por mensagem — sempre curto e direto
+- Se precisar falar mais de uma coisa, separe com | (ex: "Claro! 🌸|O guia tem 7 dias...")
+- Prefira 2 mensagens curtas a 1 mensagem longa
 - Nunca diga que é bot ou IA
 - Nunca mencione "sistema" ou "automático"
 - Nunca pressione para comprar`;
@@ -116,7 +117,7 @@ async function callGemini(history: Message[], userMessage: string): Promise<stri
   const body = {
     systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
     contents,
-    generationConfig: { temperature: 0.75, maxOutputTokens: 600 },
+    generationConfig: { temperature: 0.75, maxOutputTokens: 300 },
   };
 
   const res = await fetch(url, {
@@ -147,12 +148,33 @@ async function callGemini(history: Message[], userMessage: string): Promise<stri
   return text;
 }
 
+// ── Mostra "digitando..." via Z-API e aguarda a duração ──────────────────────
+async function sendTyping(phone: string, durationMs: number) {
+  const { ZAPI_INSTANCE_ID, ZAPI_TOKEN, ZAPI_CLIENT_TOKEN } = process.env;
+  try {
+    await fetch(
+      `https://api.z-api.io/instances/${ZAPI_INSTANCE_ID}/token/${ZAPI_TOKEN}/send-typing`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Client-Token': ZAPI_CLIENT_TOKEN! },
+        body: JSON.stringify({ phone, duration: durationMs }),
+        signal: AbortSignal.timeout(8_000),
+      }
+    );
+  } catch { /* não crítico — continua sem o indicador se falhar */ }
+  await new Promise(r => setTimeout(r, durationMs));
+}
+
 // ── Envia texto via Z-API (suporta múltiplas mensagens separadas por |) ───────
 async function sendText(phone: string, message: string) {
   const { ZAPI_INSTANCE_ID, ZAPI_TOKEN, ZAPI_CLIENT_TOKEN } = process.env;
   const parts = message.split('|').map(p => p.trim()).filter(Boolean);
 
   for (const part of parts) {
+    // Typing proporcional ao tamanho: ~40ms/char, mín 1.5s, máx 4s
+    const typingMs = Math.min(Math.max(part.length * 40, 1500), 4000);
+    await sendTyping(phone, typingMs);
+
     const res = await fetch(
       `https://api.z-api.io/instances/${ZAPI_INSTANCE_ID}/token/${ZAPI_TOKEN}/send-text`,
       {
@@ -163,8 +185,8 @@ async function sendText(phone: string, message: string) {
       }
     );
     if (!res.ok) throw new Error(`Z-API send-text error: ${res.status}`);
-    // Pausa entre mensagens para parecer mais humano
-    if (parts.length > 1) await new Promise(r => setTimeout(r, 2500));
+    // Pausa entre partes separadas por |
+    if (parts.length > 1) await new Promise(r => setTimeout(r, 1000));
   }
 }
 
@@ -276,18 +298,20 @@ export async function handleIncomingMessage(phone: string, userMessage: string) 
 
   // ── PRIMEIRO CONTATO: mensagens fixas + PIX automático ───────────────────
   if (state.history.length === 0 && state.status === 'talking') {
-    await sendText(normalizedPhone, MSG_1);
-    await new Promise(r => setTimeout(r, 4000));
-    await sendText(normalizedPhone, MSG_2);
+    // Espera inicial de 5s antes de começar a responder
     await new Promise(r => setTimeout(r, 5000));
+    await sendText(normalizedPhone, MSG_1);
+    await new Promise(r => setTimeout(r, 1200));
+    await sendText(normalizedPhone, MSG_2);
+    await new Promise(r => setTimeout(r, 1200));
     await sendText(normalizedPhone, MSG_3);
-    await new Promise(r => setTimeout(r, 2000));
+    await new Promise(r => setTimeout(r, 800));
 
     try {
       const pixCode = await generatePix(normalizedPhone, state);
       // Código PIX sozinho para facilitar cópia
       await sendText(normalizedPhone, pixCode);
-      await new Promise(r => setTimeout(r, 2000));
+      await new Promise(r => setTimeout(r, 800));
       await sendText(normalizedPhone, `_Válido por 30 minutos_ ⏳\n\nAssim que o pagamento confirmar eu já mando tudo pra você 💗`);
     } catch (err: any) {
       console.error('[Bot] Erro ao gerar PIX:', err.message);
