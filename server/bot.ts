@@ -289,10 +289,8 @@ export async function handleIncomingMessage(phone: string, userMessage: string) 
   const rawPhone = phone.replace(/\D/g, '');
   const normalizedPhone = rawPhone.startsWith('55') ? rawPhone : `55${rawPhone}`;
 
-  // Inicializa ou reseta conversa (15s sem atividade = reset — só em testes)
-  const INACTIVITY_RESET_MS = 15_000;
-  const existing = conversations.get(normalizedPhone);
-  if (!existing || (Date.now() - existing.lastActivity > INACTIVITY_RESET_MS && existing.status !== 'paid')) {
+  // Inicializa conversa se não existir
+  if (!conversations.has(normalizedPhone)) {
     conversations.set(normalizedPhone, {
       status: 'talking',
       history: [],
