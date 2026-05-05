@@ -29,45 +29,57 @@ interface ConversationState {
 
 const conversations = new Map<string, ConversationState>();
 
-// ── System prompt ─────────────────────────────────────────────────────────────
-const SYSTEM_PROMPT = `Você é um agente de vendas do @dojeitodelaps, perfil do Instagram sobre amor próprio e autoestima criado por Laps.
+// ── Mensagens fixas de abertura ───────────────────────────────────────────────
+const MSG_1 = `Oi 🌸 que bom que você veio até aqui.
+Se você clicou no anúncio, é porque alguma parte de você tá cansada. De pensar demais, de se sentir sobrecarregada, de não conseguir nem explicar o que tá sentindo.
+Eu entendo isso.`;
 
-Fale com a mesma voz da criadora: acolhedora, honesta, leve, próxima. Como uma amiga que entende o que a pessoa está sentindo.
+const MSG_2 = `O *7 Dias Do Jeito Dela* é um guia de autoconhecimento que eu criei pra ser leve e honesto, do jeito que eu sempre falo por aqui.
+São 7 dias, cada um com um tema diferente:
+🌀 Pensar Demais
+🌿 Presença
+🌊 Emoções
+🛡️ Limites
+🔥 Burnout
+💛 Gratidão
+🌸 Recomeço
+Cada dia tem um texto meu, uma reflexão e uma tarefa pequena. Nada pesado, prometo.`;
+
+const MSG_3 = `Por R$14,90 o guia é seu agora.
+Aqui está o PIX 👇`;
+
+// ── System prompt (usado após o primeiro contato) ─────────────────────────────
+const SYSTEM_PROMPT = `Você é a Laps, criadora do @dojeitodelaps — perfil do Instagram sobre amor próprio e autoestima.
+
+TOM DE VOZ:
+- Direto e emocional — sem enrolação, mas cada mensagem toca em algo real
+- Acolhedor e humano, como se fosse a própria criadora falando
+- Nunca robótico, nunca genérico
+- Emojis com leveza (🌸 💕 💗) — só quando fizer sentido
+
+CONTEXTO:
+A pessoa já recebeu a apresentação do produto e o código PIX.
+Ela pode estar com dúvidas, pode ter saído do assunto, pode estar com dificuldade de pagar.
 
 PRODUTO:
-- Nome: "7 Dias Do Jeito Dela"
-- O que é: guia em PDF de autoconhecimento com 7 temas
-- Temas: 🌀 Pensar Demais | 🌿 Presença | 🌊 Emoções | 🛡️ Limites | 🔥 Burnout | 💛 Gratidão | 🌸 Recomeço
-- Cada dia tem um texto da Laps, uma reflexão e uma tarefa pequena e poderosa
-- Preço: R$ 14,90
-- Entrega: PDF enviado automaticamente no WhatsApp após pagamento via PIX
+- "7 Dias Do Jeito Dela" — guia PDF de autoconhecimento
+- 7 dias: 🌀 Pensar Demais | 🌿 Presença | 🌊 Emoções | 🛡️ Limites | 🔥 Burnout | 💛 Gratidão | 🌸 Recomeço
+- Cada dia: texto da Laps + reflexão + tarefa pequena
+- R$ 14,90 — entrega automática no WhatsApp após o PIX
 
-FLUXO IDEAL:
-1. Acolhe a pessoa — ela veio de um anúncio, algo nela está cansado
-2. Apresenta o produto com leveza e honestidade
-3. Quando perceber que a pessoa está pronta (disse "quero", "vou", "como pago", etc.) inclua [GERAR_PIX] no final da mensagem
-4. Se a pessoa perguntar sobre o PIX pendente, diga que o código ainda está válido
-
-RECONEXÃO AO FUNIL:
-- Se a pessoa fugir do assunto, acolha o que ela disse e reconecte com empatia ao produto
-- Se fizer perguntas sobre o produto, responda com honestidade
-- Se demonstrar dúvida, ofereça mais contexto sobre o conteúdo
-- Se reclamar do preço, reforce o valor e o impacto do guia
+COMO AGIR:
+- Dúvida sobre o produto → responda com honestidade e calor
+- Saiu do assunto → acolha o que ela disse e reconecte ao produto com empatia
+- Reclamou do preço → reforce o valor, não desconte
+- Perguntou sobre o PIX → diga que o código ainda está válido e reenvie se necessário
+- Dificuldade técnica → oriente com calma
 
 REGRAS:
-- Nunca pressione para comprar
-- Mensagens curtas e humanas, sem ser fria
-- Emojis com leveza (🌸 💕 💗) — não exagere
-- Nunca diga que é um bot ou IA
+- Mensagens curtas — máximo 4 linhas por mensagem
+- Se precisar de mais de uma mensagem, separe com |
+- Nunca diga que é bot ou IA
 - Nunca mencione "sistema" ou "automático"
-- Limite cada mensagem a no máximo 5 linhas
-- Se precisar de mais conteúdo, quebre em mensagens separadas usando | como separador
-
-QUANDO INCLUIR [GERAR_PIX]:
-- A pessoa disse que quer comprar
-- Perguntou como pagar
-- Confirmou interesse de forma clara
-- Coloque [GERAR_PIX] no FINAL da última mensagem — será removido automaticamente`;
+- Nunca pressione para comprar`;
 
 // ── Gera CPF válido a partir do telefone ──────────────────────────────────────
 function generateCpfFromPhone(phone: string): string {
@@ -252,6 +264,37 @@ export async function handleIncomingMessage(phone: string, userMessage: string) 
     return;
   }
 
+  // ── PRIMEIRO CONTATO: mensagens fixas + PIX automático ───────────────────
+  if (state.history.length === 0 && state.status === 'talking') {
+    state.history.push({ role: 'user', parts: [{ text: userMessage }] });
+
+    await sendText(normalizedPhone, MSG_1);
+    await new Promise(r => setTimeout(r, 1500));
+    await sendText(normalizedPhone, MSG_2);
+    await new Promise(r => setTimeout(r, 1500));
+    await sendText(normalizedPhone, MSG_3);
+
+    try {
+      const pixCode = await generatePix(normalizedPhone, state);
+      await sendText(normalizedPhone, `${pixCode}\n\n_Válido por 30 minutos_ ⏳\n\nAssim que o pagamento confirmar eu já mando tudo pra você 💗`);
+    } catch (err: any) {
+      console.error('[Bot] Erro ao gerar PIX:', err.message);
+      await sendText(normalizedPhone, 'Tive um probleminha pra gerar o PIX 😅 Tenta de novo em alguns segundos!').catch(() => {});
+    }
+    return;
+  }
+
+  // ── MENSAGENS SEGUINTES: agente com Gemini ────────────────────────────────
+
+  // Se tem PIX pendente e a pessoa pede o código
+  if (state.status === 'awaiting_payment' && state.pixCopyPaste) {
+    const lower = userMessage.toLowerCase();
+    if (lower.includes('pix') || lower.includes('código') || lower.includes('codigo') || lower.includes('pagar') || lower.includes('copiar')) {
+      await sendText(normalizedPhone, `Aqui está o código PIX 👇\n\n${state.pixCopyPaste}\n\n_Válido por 30 minutos_ ⏳`);
+      return;
+    }
+  }
+
   // Chama o Gemini
   let aiResponse = '';
   try {
@@ -262,40 +305,12 @@ export async function handleIncomingMessage(phone: string, userMessage: string) 
     return;
   }
 
-  // Detecta se deve gerar PIX
-  const shouldGeneratePix = aiResponse.includes('[GERAR_PIX]');
-  const cleanResponse = aiResponse.replace('[GERAR_PIX]', '').trim();
+  const cleanResponse = aiResponse.trim();
 
   // Atualiza histórico
   state.history.push({ role: 'user', parts: [{ text: userMessage }] });
   state.history.push({ role: 'model', parts: [{ text: cleanResponse }] });
-  // Limita a 20 mensagens
   if (state.history.length > 20) state.history = state.history.slice(-20);
 
-  // Envia resposta do agente
   if (cleanResponse) await sendText(normalizedPhone, cleanResponse);
-
-  // Gera PIX se solicitado e não tem um pendente
-  if (shouldGeneratePix && state.status !== 'awaiting_payment') {
-    try {
-      const pixCode = await generatePix(normalizedPhone, state);
-      await new Promise(r => setTimeout(r, 800));
-      await sendText(
-        normalizedPhone,
-        `📋 Copia e cola o código PIX:\n\n${pixCode}\n\n_Válido por 30 minutos_ ⏳\n\nAssim que confirmar, o guia chega aqui pra você 💗`
-      );
-    } catch (err: any) {
-      console.error('[Bot] Erro ao gerar PIX:', err.message);
-      await sendText(normalizedPhone, 'Tive um probleminha pra gerar o PIX 😅 Tenta de novo em alguns segundos!').catch(() => {});
-    }
-  }
-
-  // Se tem PIX pendente e a pessoa pergunta sobre o código
-  if (state.status === 'awaiting_payment' && state.pixCopyPaste) {
-    const lower = userMessage.toLowerCase();
-    if (lower.includes('pix') || lower.includes('código') || lower.includes('codigo') || lower.includes('pagar') || lower.includes('copiar')) {
-      await new Promise(r => setTimeout(r, 600));
-      await sendText(normalizedPhone, `Aqui está o código PIX 👇\n\n${state.pixCopyPaste}\n\n_Válido por 30 minutos_ ⏳`);
-    }
-  }
 }
