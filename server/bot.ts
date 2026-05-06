@@ -33,9 +33,20 @@ const conversations = new Map<string, ConversationState>();
 // ── Mensagens fixas de abertura ───────────────────────────────────────────────
 const MSG_1 = `Oi 🌸 que bom que você veio até aqui.`;
 
-const MSG_2 = `se você chegou até aqui, é porque alguma parte de você tá pedindo uma pausa. de pensar demais, de se sentir sobrecarregada, de carregar tudo sozinha sem conseguir nem explicar o que tá sentindo. eu entendo isso.`;
+const MSG_2 = `se você chegou até aqui, é porque alguma parte de você tá pedindo uma pausa. de pensar demais, de se sentir sobrecarregada, de carregar tudo sozinha sem conseguir nem explicar o que tá sentindo. eu entendo isso. 💕`;
 
-const MSG_3 = `esse guia foi feito com muito carinho pra te acompanhar nesses 7 dias. ele pode ser seu agora por R$14,90 💗 aqui está o pix 👇`;
+const MSG_3 = `O *7 Dias Do Jeito Dela* é um guia de autoconhecimento que eu criei pra ser leve e honesto, do jeito que eu sempre falo por aqui.
+São 7 dias, cada um com um tema diferente:
+🌀 Pensar Demais
+🌿 Presença
+🌊 Emoções
+🛡️ Limites
+🔥 Burnout
+💛 Gratidão
+🌸 Recomeço
+Cada dia tem um texto meu, uma reflexão e uma tarefa pequena. Nada pesado, prometo.`;
+
+const MSG_4 = `esse guia foi feito com muito carinho pra te acompanhar nesses 7 dias. ele pode ser seu agora por R$14,90 💗 aqui está o pix 👇`;
 
 // ── System prompt (usado após o primeiro contato) ─────────────────────────────
 const SYSTEM_PROMPT = `Você é a Laps, criadora do @dojeitodelaps — perfil do Instagram sobre amor próprio e autoestima.
@@ -176,7 +187,7 @@ async function sendPdf(phone: string) {
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Client-Token': ZAPI_CLIENT_TOKEN! },
-      body: JSON.stringify({ phone, document: pdfBase64, fileName: '7 Dias Do Jeito Dela.pdf' }),
+      body: JSON.stringify({ phone, document: pdfBase64, fileName: '7 Dias Do Jeito Dela' }),
       signal: AbortSignal.timeout(60_000),
     }
   );
@@ -290,13 +301,7 @@ export async function handleIncomingMessage(phone: string, userMessage: string) 
   const state = conversations.get(normalizedPhone)!;
   state.lastActivity = Date.now();;
 
-  // Já pagou
-  if (state.status === 'paid') {
-    await sendText(normalizedPhone, 'Você já tem o guia! 🌸 Está nas mensagens anteriores por aqui.\n\nQualquer dúvida é só chamar. 💕');
-    return;
-  }
-
-  // ── Gatilhos secretos de teste ────────────────────────────────────────────
+  // ── Gatilhos secretos de teste (antes de qualquer outra lógica) ──────────
   const lowerMsg = userMessage.toLowerCase();
 
   // "farinhha" ou "farinha" → reseta a conversa
@@ -324,6 +329,12 @@ export async function handleIncomingMessage(phone: string, userMessage: string) 
     return;
   }
 
+  // Já pagou
+  if (state.status === 'paid') {
+    await sendText(normalizedPhone, 'Você já tem o guia! 🌸 Está nas mensagens anteriores por aqui.\n\nQualquer dúvida é só chamar. 💕');
+    return;
+  }
+
   // ── PRIMEIRO CONTATO: mensagens fixas + PIX automático ───────────────────
   if (state.history.length === 0 && state.status === 'talking') {
     // Espera inicial de 5s antes de começar a responder
@@ -331,15 +342,16 @@ export async function handleIncomingMessage(phone: string, userMessage: string) 
     await sendText(normalizedPhone, MSG_1);
     await new Promise(r => setTimeout(r, 1200));
     await sendText(normalizedPhone, MSG_2);
-    await new Promise(r => setTimeout(r, 1200));
+    await new Promise(r => setTimeout(r, 2000));
     await sendText(normalizedPhone, MSG_3);
-    await new Promise(r => setTimeout(r, 1200));
+    await new Promise(r => setTimeout(r, 2000));
+    await sendText(normalizedPhone, MSG_4);
+    await new Promise(r => setTimeout(r, 2000));
 
     try {
       const pixCode = await generatePix(normalizedPhone, state);
-      // Código PIX sozinho para facilitar cópia
       await sendText(normalizedPhone, pixCode);
-      await new Promise(r => setTimeout(r, 1200));
+      await new Promise(r => setTimeout(r, 2000));
       await sendText(normalizedPhone, `assim que confirmar, eu já mando tudo pra você. o link fica disponível por 30 minutinhos 🌸`);
     } catch (err: any) {
       console.error('[Bot] Erro ao gerar PIX:', err.message);
@@ -348,7 +360,7 @@ export async function handleIncomingMessage(phone: string, userMessage: string) 
 
     // Salva histórico do primeiro contato para o agente ter contexto
     state.history.push({ role: 'user', parts: [{ text: userMessage }] });
-    state.history.push({ role: 'model', parts: [{ text: `${MSG_1}\n\n${MSG_2}\n\nPor R$14,90 o guia é seu agora. Enviei o código PIX. Assim que confirmar mando o PDF.` }] });
+    state.history.push({ role: 'model', parts: [{ text: `${MSG_1}\n\n${MSG_2}\n\n${MSG_3}\n\nEnviei o código PIX. Assim que confirmar mando o PDF.` }] });
     return;
   }
 
