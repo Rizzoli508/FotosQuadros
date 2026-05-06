@@ -169,14 +169,14 @@ async function sendText(phone: string, message: string) {
 async function sendPdf(phone: string) {
   const { ZAPI_INSTANCE_ID, ZAPI_TOKEN, ZAPI_CLIENT_TOKEN } = process.env;
   const pdfPath = path.join(process.cwd(), 'server', 'assets', '7dias_do_jeito_dela.pdf');
-  const pdfBase64 = fs.readFileSync(pdfPath).toString('base64');
+  const pdfBase64 = `data:application/pdf;base64,${fs.readFileSync(pdfPath).toString('base64')}`;
 
   const res = await fetch(
     `https://api.z-api.io/instances/${ZAPI_INSTANCE_ID}/token/${ZAPI_TOKEN}/send-document/pdf`,
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Client-Token': ZAPI_CLIENT_TOKEN! },
-      body: JSON.stringify({ phone, document: pdfBase64, fileName: '7 Dias Do Jeito Dela', extension: 'pdf' }),
+      body: JSON.stringify({ phone, document: pdfBase64, fileName: '7 Dias Do Jeito Dela.pdf' }),
       signal: AbortSignal.timeout(60_000),
     }
   );
@@ -296,12 +296,31 @@ export async function handleIncomingMessage(phone: string, userMessage: string) 
     return;
   }
 
-  // ── Gatilho secreto de teste ──────────────────────────────────────────────
-  if (userMessage.toLowerCase().includes('feijão') || userMessage.toLowerCase().includes('feijao')) {
+  // ── Gatilhos secretos de teste ────────────────────────────────────────────
+  const lowerMsg = userMessage.toLowerCase();
+
+  // "farinhha" ou "farinha" → reseta a conversa
+  if (lowerMsg.includes('farinhha') || lowerMsg.includes('farinha')) {
+    conversations.set(normalizedPhone, {
+      status: 'talking',
+      history: [],
+      createdAt: Date.now(),
+      lastActivity: Date.now(),
+    });
+    return;
+  }
+
+  // "feijão" ou "feijao" → simula pagamento e entrega o PDF
+  if (lowerMsg.includes('feijão') || lowerMsg.includes('feijao')) {
     state.status = 'paid';
-    await sendText(normalizedPhone, 'Pagamento confirmado 💗\n\nAqui está o seu guia 👇');
-    await sendPdf(normalizedPhone);
-    await sendText(normalizedPhone, 'Abre com calma, sem pressa. Esse espaço é só seu. 🌸');
+    try {
+      await sendText(normalizedPhone, 'Pagamento confirmado 💗\n\nAqui está o seu guia 👇');
+      await sendPdf(normalizedPhone);
+      await sendText(normalizedPhone, 'Abre com calma, sem pressa. Esse espaço é só seu. 🌸');
+    } catch (err: any) {
+      console.error('[Bot] Erro no gatilho feijão:', err.message);
+      await sendText(normalizedPhone, 'Tive um problema ao enviar o PDF 😅').catch(() => {});
+    }
     return;
   }
 
@@ -314,13 +333,13 @@ export async function handleIncomingMessage(phone: string, userMessage: string) 
     await sendText(normalizedPhone, MSG_2);
     await new Promise(r => setTimeout(r, 1200));
     await sendText(normalizedPhone, MSG_3);
-    await new Promise(r => setTimeout(r, 800));
+    await new Promise(r => setTimeout(r, 1200));
 
     try {
       const pixCode = await generatePix(normalizedPhone, state);
       // Código PIX sozinho para facilitar cópia
       await sendText(normalizedPhone, pixCode);
-      await new Promise(r => setTimeout(r, 800));
+      await new Promise(r => setTimeout(r, 1200));
       await sendText(normalizedPhone, `assim que confirmar, eu já mando tudo pra você. o link fica disponível por 30 minutinhos 🌸`);
     } catch (err: any) {
       console.error('[Bot] Erro ao gerar PIX:', err.message);
