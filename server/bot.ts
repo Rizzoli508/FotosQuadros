@@ -474,8 +474,14 @@ export async function handleIncomingMessage(phone: string, userMessage: string) 
   // Se tem PIX pendente e a pessoa pede o código
   if (state.status === 'awaiting_payment' && state.pixCopyPaste) {
     const lower = userMessage.toLowerCase();
-    if (lower.includes('pix') || lower.includes('código') || lower.includes('codigo') || lower.includes('pagar') || lower.includes('copiar')) {
-      await sendText(normalizedPhone, `Aqui está o código PIX 👇\n\n${state.pixCopyPaste}\n\n_Válido por 30 minutos_ ⏳`);
+    const querCodigo = lower.includes('pix') || lower.includes('código') || lower.includes('codigo') ||
+      lower.includes('pagar') || lower.includes('paga') || lower.includes('pago') ||
+      lower.includes('copiar') || lower.includes('como') || lower.includes('valor') ||
+      lower.includes('quanto') || lower.includes('cadê') || lower.includes('cade') ||
+      lower.includes('onde') || lower.includes('manda') || lower.includes('mandar') ||
+      lower.includes('enviar') || lower.includes('código') || lower.includes('chave');
+    if (querCodigo) {
+      await sendText(normalizedPhone, `Aqui está o código PIX 👇\n\n${state.pixCopyPaste}`);
       return;
     }
   }
