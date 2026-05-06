@@ -31,23 +31,11 @@ interface ConversationState {
 const conversations = new Map<string, ConversationState>();
 
 // ── Mensagens fixas de abertura ───────────────────────────────────────────────
-const MSG_1 = `Oi 🌸 que bom que você veio até aqui.
-Se você clicou no anúncio, é porque alguma parte de você tá cansada. De pensar demais, de se sentir sobrecarregada, de não conseguir nem explicar o que tá sentindo.
-Eu entendo isso.`;
+const MSG_1 = `Oi 🌸 que bom que você veio até aqui.`;
 
-const MSG_2 = `O *7 Dias Do Jeito Dela* é um guia de autoconhecimento que eu criei pra ser leve e honesto, do jeito que eu sempre falo por aqui.
-São 7 dias, cada um com um tema diferente:
-🌀 Pensar Demais
-🌿 Presença
-🌊 Emoções
-🛡️ Limites
-🔥 Burnout
-💛 Gratidão
-🌸 Recomeço
-Cada dia tem um texto meu, uma reflexão e uma tarefa pequena. Nada pesado, prometo.`;
+const MSG_2 = `se você chegou até aqui, é porque alguma parte de você tá pedindo uma pausa. de pensar demais, de se sentir sobrecarregada, de carregar tudo sozinha sem conseguir nem explicar o que tá sentindo. eu entendo isso.`;
 
-const MSG_3 = `Por R$14,90 o guia é seu agora.
-Aqui está o PIX 👇`;
+const MSG_3 = `esse guia foi feito com muito carinho pra te acompanhar nesses 7 dias. ele pode ser seu agora por R$14,90 💗 aqui está o pix 👇`;
 
 // ── System prompt (usado após o primeiro contato) ─────────────────────────────
 const SYSTEM_PROMPT = `Você é a Laps, criadora do @dojeitodelaps — perfil do Instagram sobre amor próprio e autoestima.
@@ -324,7 +312,7 @@ export async function handleIncomingMessage(phone: string, userMessage: string) 
       // Código PIX sozinho para facilitar cópia
       await sendText(normalizedPhone, pixCode);
       await new Promise(r => setTimeout(r, 800));
-      await sendText(normalizedPhone, `_Válido por 30 minutos_ ⏳\n\nAssim que o pagamento confirmar eu já mando tudo pra você 💗`);
+      await sendText(normalizedPhone, `assim que confirmar, eu já mando tudo pra você. o link fica disponível por 30 minutinhos 🌸`);
     } catch (err: any) {
       console.error('[Bot] Erro ao gerar PIX:', err.message);
       await sendText(normalizedPhone, 'Tive um probleminha pra gerar o PIX 😅 Tenta de novo em alguns segundos!').catch(() => {});
