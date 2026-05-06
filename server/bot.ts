@@ -422,13 +422,13 @@ export async function handleIncomingMessage(phone: string, userMessage: string) 
       await sendText(normalizedPhone, MSG_3);
       await new Promise(r => setTimeout(r, 26000));
       await sendText(normalizedPhone, MSG_4);
-      await new Promise(r => setTimeout(r, 2000));
+      await new Promise(r => setTimeout(r, 3500));
 
       const pixCode = await generatePix(normalizedPhone, state);
       await sendText(normalizedPhone, pixCode);
-      await new Promise(r => setTimeout(r, 2000));
+      await new Promise(r => setTimeout(r, 3500));
       await sendText(normalizedPhone, `e se depois dos 7 dias você sentir que o guia não te ajudou em nada, é só me chamar que eu devolvo teu dinheiro sem perguntas 🤍`);
-      await new Promise(r => setTimeout(r, 2000));
+      await new Promise(r => setTimeout(r, 3500));
       await sendText(normalizedPhone, `assim que confirmar, eu já mando tudo pra você 💫`);
 
       // Atualiza histórico real ao final
