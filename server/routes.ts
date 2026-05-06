@@ -284,8 +284,28 @@ export async function registerRoutes(
       // Pega telefone e texto da mensagem
       const phone = body.phone || body.from || body.sender;
       const message = body.text?.message || body.body || body.message || '';
+      const type = body.type || body.messageType || '';
 
-      if (!phone || !message) return;
+      if (!phone) return;
+
+      // Áudio → avisa que não consegue escutar
+      if (type === 'audio' || type === 'ptt' || body.audio || body.ptt) {
+        const { ZAPI_INSTANCE_ID, ZAPI_TOKEN, ZAPI_CLIENT_TOKEN } = process.env;
+        const rawPhone = phone.replace(/\D/g, '');
+        const normalizedPhone = rawPhone.startsWith('55') ? rawPhone : `55${rawPhone}`;
+        fetch(`https://api.z-api.io/instances/${ZAPI_INSTANCE_ID}/token/${ZAPI_TOKEN}/send-text`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Client-Token': ZAPI_CLIENT_TOKEN! },
+          body: JSON.stringify({ phone: normalizedPhone, message: 'Aqui eu não consigo escutar áudios 🙈 pode escrever pra mim? 💕', delayTyping: 2 }),
+          signal: AbortSignal.timeout(15_000),
+        }).catch(() => {});
+        return;
+      }
+
+      // Imagem → ignora (provavelmente comprovante, o pagamento é automático)
+      if (type === 'image' || body.image) return;
+
+      if (!message) return;
 
       // Processa em background
       handleIncomingMessage(phone, message).catch(console.error);
