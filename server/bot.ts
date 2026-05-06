@@ -352,9 +352,9 @@ export async function handleIncomingMessage(phone: string, userMessage: string) 
       const pixCode = await generatePix(normalizedPhone, state);
       await sendText(normalizedPhone, pixCode);
       await new Promise(r => setTimeout(r, 2000));
-      await sendText(normalizedPhone, `e se depois dos 7 dias você sentir que o guia não te ajudou em nada, é só me chamar que eu devolvo teu dinheiro sem perguntas 💗`);
+      await sendText(normalizedPhone, `e se depois dos 7 dias você sentir que o guia não te ajudou em nada, é só me chamar que eu devolvo teu dinheiro sem perguntas 🤍`);
       await new Promise(r => setTimeout(r, 2000));
-      await sendText(normalizedPhone, `assim que confirmar, eu já mando tudo pra você 🌸`);
+      await sendText(normalizedPhone, `assim que confirmar, eu já mando tudo pra você 💫`);
     } catch (err: any) {
       console.error('[Bot] Erro ao gerar PIX:', err.message);
       await sendText(normalizedPhone, 'Tive um probleminha pra gerar o PIX 😅 Tenta de novo em alguns segundos!').catch(() => {});
