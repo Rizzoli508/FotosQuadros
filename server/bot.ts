@@ -429,7 +429,7 @@ export async function handleIncomingMessage(phone: string, userMessage: string) 
       await new Promise(r => setTimeout(r, 3500));
       await sendText(normalizedPhone, `e se depois dos 7 dias você sentir que o guia não te ajudou em nada, é só me chamar que eu devolvo teu dinheiro sem perguntas 🤍`);
       await new Promise(r => setTimeout(r, 3500));
-      await sendText(normalizedPhone, `assim que confirmar, eu já mando tudo pra você 💫`);
+      await sendText(normalizedPhone, `mal posso esperar pra você começar 🌸 assim que você fizer o pix eu já mando tudo na hora, não precisa nem enviar comprovante.`);
 
       // Atualiza histórico real ao final
       state.history = [
