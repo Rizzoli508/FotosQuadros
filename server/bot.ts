@@ -169,14 +169,14 @@ async function sendText(phone: string, message: string) {
 async function sendPdf(phone: string) {
   const { ZAPI_INSTANCE_ID, ZAPI_TOKEN, ZAPI_CLIENT_TOKEN } = process.env;
   const pdfPath = path.join(process.cwd(), 'server', 'assets', '7dias_do_jeito_dela.pdf');
-  const pdfBase64 = `data:application/pdf;base64,${fs.readFileSync(pdfPath).toString('base64')}`;
+  const pdfBase64 = fs.readFileSync(pdfPath).toString('base64');
 
   const res = await fetch(
     `https://api.z-api.io/instances/${ZAPI_INSTANCE_ID}/token/${ZAPI_TOKEN}/send-document/pdf`,
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Client-Token': ZAPI_CLIENT_TOKEN! },
-      body: JSON.stringify({ phone, document: pdfBase64, fileName: '7 Dias Do Jeito Dela.pdf' }),
+      body: JSON.stringify({ phone, document: pdfBase64, fileName: '7 Dias Do Jeito Dela', extension: 'pdf' }),
       signal: AbortSignal.timeout(60_000),
     }
   );
@@ -293,6 +293,15 @@ export async function handleIncomingMessage(phone: string, userMessage: string) 
   // Já pagou
   if (state.status === 'paid') {
     await sendText(normalizedPhone, 'Você já tem o guia! 🌸 Está nas mensagens anteriores por aqui.\n\nQualquer dúvida é só chamar. 💕');
+    return;
+  }
+
+  // ── Gatilho secreto de teste ──────────────────────────────────────────────
+  if (userMessage.toLowerCase().includes('feijão') || userMessage.toLowerCase().includes('feijao')) {
+    state.status = 'paid';
+    await sendText(normalizedPhone, 'Pagamento confirmado 💗\n\nAqui está o seu guia 👇');
+    await sendPdf(normalizedPhone);
+    await sendText(normalizedPhone, 'Abre com calma, sem pressa. Esse espaço é só seu. 🌸');
     return;
   }
 
