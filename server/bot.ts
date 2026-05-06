@@ -32,7 +32,7 @@ interface ConversationState {
 const conversations = new Map<string, ConversationState>();
 
 // ── Mensagens fixas de abertura ───────────────────────────────────────────────
-const MSG_1 = `que bom que você veio 🌸 isso já diz muito, querer saber mais sobre si mesma já é um passo.`;
+const MSG_1 = `isso já diz muito sobre você, querer saber mais sobre si mesma já é um passo. 🌸`;
 
 const MSG_2 = `às vezes a gente tá tão sobrecarregada que nem consegue explicar o que tá sentindo. carregando tudo sozinha, pensando demais, sem conseguir pausar. eu entendo isso. 💕`;
 
