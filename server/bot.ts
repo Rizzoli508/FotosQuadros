@@ -344,7 +344,7 @@ export async function handleIncomingMessage(phone: string, userMessage: string) 
     await sendText(normalizedPhone, MSG_2);
     await new Promise(r => setTimeout(r, 4000));
     await sendText(normalizedPhone, MSG_3);
-    await new Promise(r => setTimeout(r, 4000));
+    await new Promise(r => setTimeout(r, 8000));
     await sendText(normalizedPhone, MSG_4);
     await new Promise(r => setTimeout(r, 2000));
 
