@@ -6,6 +6,7 @@
 
 import fs from 'fs';
 import path from 'path';
+import crypto from 'crypto';
 import {
   appmaxGetOrCreateCustomer,
   appmaxCreateOrder,
@@ -243,6 +244,8 @@ function startPaymentPolling(phone: string, orderId: number, state: Conversation
         clearInterval(interval);
         if (state.status !== 'paid') {
           state.status = 'paid';
+          // Dispara evento de compra na Meta CAPI (em background, sem bloquear entrega)
+          sendCapiPurchaseEvent(phone).catch(() => {});
           await sendText(phone, 'Pagamento confirmado 💗\n\nAqui está o seu guia 👇');
           await sendPdf(phone);
           await sendText(phone, 'Abre com calma, sem pressa. Esse espaço é só seu. 🌸');
@@ -258,6 +261,57 @@ function startPaymentPolling(phone: string, orderId: number, state: Conversation
       console.error('[Bot] Erro ao verificar pagamento:', err.message);
     }
   }, 5_000);
+}
+
+// ── Dispara evento Purchase na Meta Conversions API ──────────────────────────
+async function sendCapiPurchaseEvent(phone: string) {
+  const pixelId = process.env.CAPI_PIXEL_ID;
+  const accessToken = process.env.CAPI_ACCESS_TOKEN;
+  if (!pixelId || !accessToken) {
+    console.warn('[CAPI] Variáveis não configuradas, evento não enviado.');
+    return;
+  }
+
+  // Normaliza telefone para E.164 sem "+" (ex: 5511999990000) e aplica SHA-256
+  const normalized = phone.replace(/\D/g, '');
+  const hashedPhone = crypto.createHash('sha256').update(normalized).digest('hex');
+
+  const payload = {
+    data: [{
+      event_name: 'Purchase',
+      event_time: Math.floor(Date.now() / 1000),
+      action_source: 'other',
+      user_data: {
+        ph: [hashedPhone],
+      },
+      custom_data: {
+        value: 14.90,
+        currency: 'BRL',
+        content_name: '7 Dias Do Jeito Dela',
+        content_type: 'product',
+      },
+    }],
+  };
+
+  try {
+    const res = await fetch(
+      `https://graph.facebook.com/v19.0/${pixelId}/events?access_token=${accessToken}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+        signal: AbortSignal.timeout(10_000),
+      }
+    );
+    const data = await res.json() as any;
+    if (data?.events_received) {
+      console.log(`[CAPI] ✅ Purchase event enviado — events_received: ${data.events_received}`);
+    } else {
+      console.warn('[CAPI] Resposta inesperada:', JSON.stringify(data));
+    }
+  } catch (err: any) {
+    console.error('[CAPI] Erro ao enviar evento Purchase:', err.message);
+  }
 }
 
 // ── Garante que respostas longas sejam quebradas em mensagens curtas ──────────
