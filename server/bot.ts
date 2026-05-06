@@ -337,32 +337,41 @@ export async function handleIncomingMessage(phone: string, userMessage: string) 
 
   // ── PRIMEIRO CONTATO: mensagens fixas + PIX automático ───────────────────
   if (state.history.length === 0 && state.status === 'talking') {
-    // Espera inicial de 5s antes de começar a responder
-    await new Promise(r => setTimeout(r, 5000));
-    await sendText(normalizedPhone, MSG_1);
-    await new Promise(r => setTimeout(r, 1200));
-    await sendText(normalizedPhone, MSG_2);
-    await new Promise(r => setTimeout(r, 4000));
-    await sendText(normalizedPhone, MSG_3);
-    await new Promise(r => setTimeout(r, 8000));
-    await sendText(normalizedPhone, MSG_4);
-    await new Promise(r => setTimeout(r, 2000));
+    // Marca histórico imediatamente para evitar execução concorrente
+    // (Z-API pode disparar webhook duplicado para confirmação de entrega)
+    state.history.push({ role: 'user', parts: [{ text: userMessage }] });
+    state.history.push({ role: 'model', parts: [{ text: 'iniciando fluxo...' }] });
 
     try {
+      // Espera inicial de 5s antes de começar a responder
+      await new Promise(r => setTimeout(r, 5000));
+      await sendText(normalizedPhone, MSG_1);
+      await new Promise(r => setTimeout(r, 1200));
+      await sendText(normalizedPhone, MSG_2);
+      await new Promise(r => setTimeout(r, 4000));
+      await sendText(normalizedPhone, MSG_3);
+      await new Promise(r => setTimeout(r, 8000));
+      await sendText(normalizedPhone, MSG_4);
+      await new Promise(r => setTimeout(r, 2000));
+
       const pixCode = await generatePix(normalizedPhone, state);
       await sendText(normalizedPhone, pixCode);
       await new Promise(r => setTimeout(r, 2000));
       await sendText(normalizedPhone, `e se depois dos 7 dias você sentir que o guia não te ajudou em nada, é só me chamar que eu devolvo teu dinheiro sem perguntas 🤍`);
       await new Promise(r => setTimeout(r, 2000));
       await sendText(normalizedPhone, `assim que confirmar, eu já mando tudo pra você 💫`);
-    } catch (err: any) {
-      console.error('[Bot] Erro ao gerar PIX:', err.message);
-      await sendText(normalizedPhone, 'Tive um probleminha pra gerar o PIX 😅 Tenta de novo em alguns segundos!').catch(() => {});
-    }
 
-    // Salva histórico do primeiro contato para o agente ter contexto
-    state.history.push({ role: 'user', parts: [{ text: userMessage }] });
-    state.history.push({ role: 'model', parts: [{ text: `${MSG_1}\n\n${MSG_2}\n\n${MSG_3}\n\nEnviei o código PIX. Assim que confirmar mando o PDF.` }] });
+      // Atualiza histórico real ao final
+      state.history = [
+        { role: 'user', parts: [{ text: userMessage }] },
+        { role: 'model', parts: [{ text: `${MSG_1}\n\n${MSG_2}\n\n${MSG_3}\n\nEnviei o código PIX. Assim que confirmar mando o PDF.` }] },
+      ];
+    } catch (err: any) {
+      console.error('[Bot] Erro no fluxo de abertura:', err.message);
+      // Reseta histórico para permitir nova tentativa
+      state.history = [];
+      await sendText(normalizedPhone, 'Tive um probleminha aqui 😅 Pode mandar oi de novo?').catch(() => {});
+    }
     return;
   }
 
