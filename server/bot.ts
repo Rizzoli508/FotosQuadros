@@ -326,6 +326,30 @@ export async function handleIncomingMessage(phone: string, userMessage: string) 
 
   // ── MENSAGENS SEGUINTES: agente com Gemini ────────────────────────────────
 
+  // PIX expirou e pessoa quer pagar de novo → gera novo PIX
+  if (state.status === 'talking' && state.history.length > 0) {
+    const lower = userMessage.toLowerCase();
+    const querPagar = lower.includes('pix') || lower.includes('pagar') || lower.includes('quero') ||
+      lower.includes('sim') || lower.includes('novo') || lower.includes('de novo') ||
+      lower.includes('dnv') || lower.includes('comprar') || lower.includes('gerar') ||
+      lower.includes('pode') || lower.includes('bora') || lower.includes('vamo');
+    if (querPagar) {
+      try {
+        await sendText(normalizedPhone, 'Claro! Gerando um novo PIX pra você 🌸');
+        const pixCode = await generatePix(normalizedPhone, state);
+        await sendText(normalizedPhone, pixCode);
+        await new Promise(r => setTimeout(r, 800));
+        await sendText(normalizedPhone, `assim que confirmar, eu já mando tudo pra você. o link fica disponível por 30 minutinhos 🌸`);
+        state.history.push({ role: 'user', parts: [{ text: userMessage }] });
+        state.history.push({ role: 'model', parts: [{ text: 'Gerei um novo código PIX. Assim que o pagamento confirmar mando o PDF.' }] });
+      } catch (err: any) {
+        console.error('[Bot] Erro ao gerar novo PIX:', err.message);
+        await sendText(normalizedPhone, 'Tive um probleminha pra gerar o PIX 😅 Tenta de novo em alguns segundos!').catch(() => {});
+      }
+      return;
+    }
+  }
+
   // Se tem PIX pendente e a pessoa pede o código
   if (state.status === 'awaiting_payment' && state.pixCopyPaste) {
     const lower = userMessage.toLowerCase();
