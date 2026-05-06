@@ -59,8 +59,12 @@ TOM DE VOZ:
 - Emojis com leveza (🌸 💕 💗) — só quando fizer sentido
 
 CONTEXTO:
-A pessoa já recebeu a apresentação do produto e o código PIX.
-Ela pode estar com dúvidas, pode ter saído do assunto, pode estar com dificuldade de pagar.
+A pessoa pode estar em dois momentos:
+1. Já recebeu o PIX e ainda não pagou — pode ter dúvidas, dificuldade ou só estar conversando
+2. Já pagou e recebeu o guia — agradeceu, tem dúvidas sobre o conteúdo ou só está interagindo
+
+Se ela disse "obrigada", "amei", "que lindo" ou algo positivo após receber o guia → responda com calor e carinho, comemore junto, deseje uma boa jornada.
+Se ela perguntou sobre o conteúdo do guia → responda com empolgação e encoraje ela a começar.
 
 PRODUTO:
 - "7 Dias Do Jeito Dela" — guia PDF de autoconhecimento
@@ -385,8 +389,16 @@ export async function handleIncomingMessage(phone: string, userMessage: string) 
 
   // Já pagou
   if (state.status === 'paid') {
-    await sendText(normalizedPhone, 'Você já tem o guia! 🌸 Está nas mensagens anteriores por aqui.\n\nQualquer dúvida é só chamar. 💕');
-    return;
+    const lower = userMessage.toLowerCase();
+    const pedindoArquivo = lower.includes('pdf') || lower.includes('guia') || lower.includes('arquivo') ||
+      lower.includes('mandar') || lower.includes('manda') || lower.includes('link') ||
+      lower.includes('onde') || lower.includes('não recebi') || lower.includes('nao recebi') ||
+      lower.includes('cadê') || lower.includes('cade') || lower.includes('baixar');
+    if (pedindoArquivo) {
+      await sendText(normalizedPhone, 'Seu guia está nas mensagens anteriores aqui no WhatsApp! 🌸\n\nÉ o arquivo PDF chamado *7 Dias Do Jeito Dela*. Qualquer dúvida é só chamar. 💕');
+      return;
+    }
+    // Para qualquer outra mensagem, deixa o Gemini responder naturalmente
   }
 
   // ── PRIMEIRO CONTATO: mensagens fixas + PIX automático ───────────────────
