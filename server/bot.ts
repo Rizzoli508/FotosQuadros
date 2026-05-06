@@ -32,9 +32,9 @@ interface ConversationState {
 const conversations = new Map<string, ConversationState>();
 
 // ── Mensagens fixas de abertura ───────────────────────────────────────────────
-const MSG_1 = `Oi 🌸 que bom que você veio até aqui.`;
+const MSG_1 = `que bom que você veio 🌸 isso já diz muito, querer saber mais sobre si mesma já é um passo.`;
 
-const MSG_2 = `se você chegou até aqui, é porque alguma parte de você tá pedindo uma pausa. de pensar demais, de se sentir sobrecarregada, de carregar tudo sozinha sem conseguir nem explicar o que tá sentindo. eu entendo isso. 💕`;
+const MSG_2 = `às vezes a gente tá tão sobrecarregada que nem consegue explicar o que tá sentindo. carregando tudo sozinha, pensando demais, sem conseguir pausar. eu entendo isso. 💕`;
 
 const MSG_3 = `O *7 Dias Do Jeito Dela* é um guia de autoconhecimento que eu criei pra ser leve e honesto, do jeito que eu sempre falo por aqui.
 São 7 dias, cada um com um tema diferente:
