@@ -262,14 +262,6 @@ export async function registerRoutes(
     }
   });
 
-  // ── Assets: serve PDF do @dojeitodelaps ──────────────────────────────────────
-  app.get('/assets/:filename', (req, res) => {
-    const assetsDir = path.join(process.cwd(), 'server', 'assets');
-    const filePath = path.join(assetsDir, req.params.filename);
-    if (!fs.existsSync(filePath)) return res.status(404).json({ message: 'Arquivo não encontrado.' });
-    res.sendFile(filePath);
-  });
-
   // Inicialização: cria bucket no Supabase e limpa metadados antigos
   ensureBucket();
   cleanupOldPortraits();
