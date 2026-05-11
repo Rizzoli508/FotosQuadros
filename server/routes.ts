@@ -3,7 +3,6 @@ import type { Server } from "http";
 import fs from "fs";
 import path from "path";
 import { storage } from "./storage";
-import { handleIncomingMessage } from "./bot";
 import { api } from "@shared/routes";
 import { z } from "zod";
 import {
@@ -269,49 +268,6 @@ export async function registerRoutes(
     const filePath = path.join(assetsDir, req.params.filename);
     if (!fs.existsSync(filePath)) return res.status(404).json({ message: 'Arquivo não encontrado.' });
     res.sendFile(filePath);
-  });
-
-  // ── Webhook Z-API: mensagens recebidas (bot @dojeitodelaps) ──────────────────
-  app.post('/api/whatsapp/webhook', async (req, res) => {
-    try {
-      res.json({ ok: true });
-
-      const body = req.body;
-
-      // Ignora mensagens enviadas pelo próprio bot
-      if (body.fromMe) return;
-
-      // Pega telefone e texto da mensagem
-      const phone = body.phone || body.from || body.sender;
-      const message = body.text?.message || body.body || body.message || '';
-      const type = body.type || body.messageType || '';
-
-      if (!phone) return;
-
-      // Áudio → avisa que não consegue escutar
-      if (type === 'audio' || type === 'ptt' || body.audio || body.ptt) {
-        const { ZAPI_INSTANCE_ID, ZAPI_TOKEN, ZAPI_CLIENT_TOKEN } = process.env;
-        const rawPhone = phone.replace(/\D/g, '');
-        const normalizedPhone = rawPhone.startsWith('55') ? rawPhone : `55${rawPhone}`;
-        fetch(`https://api.z-api.io/instances/${ZAPI_INSTANCE_ID}/token/${ZAPI_TOKEN}/send-text`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Client-Token': ZAPI_CLIENT_TOKEN! },
-          body: JSON.stringify({ phone: normalizedPhone, message: 'Aqui eu não consigo escutar áudios 🙈 pode escrever pra mim? 💕', delayTyping: 2 }),
-          signal: AbortSignal.timeout(15_000),
-        }).catch(() => {});
-        return;
-      }
-
-      // Imagem → ignora (provavelmente comprovante, o pagamento é automático)
-      if (type === 'image' || body.image) return;
-
-      if (!message) return;
-
-      // Processa em background
-      handleIncomingMessage(phone, message).catch(console.error);
-    } catch (err) {
-      console.error('[Webhook] Erro:', err);
-    }
   });
 
   // Inicialização: cria bucket no Supabase e limpa metadados antigos
