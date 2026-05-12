@@ -814,11 +814,11 @@ export default function Home() {
 
   // Frases ciclicas durante o carregamento
   const loadingPhrases = [
-    'Preparando a composição...',
-    'Aplicando as primeiras pinceladas...',
-    'Renderizando no estilo escolhido...',
-    'Refinando os detalhes...',
-    'Finalizando sua obra...',
+    'Analisando as fotos enviadas...',
+    'Gerando seu retrato exclusivo...',
+    'Aplicando o estilo escolhido...',
+    'Ajustando os detalhes do rosto...',
+    'Finalizando sua obra de arte...',
   ];
   useEffect(() => {
     if (!isGenerating) { setLoadingPhraseIdx(0); return; }
