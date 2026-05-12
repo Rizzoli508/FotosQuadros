@@ -1580,21 +1580,6 @@ export default function Home() {
                 </button>
               </div>
 
-              {/* ── Prova social ── */}
-              <div className="rounded-2xl overflow-hidden mb-14" style={{ background: '#111' }}>
-                <div className="py-10 px-6 text-center">
-                  <p className="font-serif italic text-2xl md:text-3xl mb-5" style={{ color: '#f5f0e8', letterSpacing: '0.01em' }}>
-                    Escolhido por mais de 10.000 famílias
-                  </p>
-                  <div className="flex items-center justify-center gap-1.5">
-                    {[1,2,3,4,5].map(i => (
-                      <Star key={i} className="w-5 h-5" style={{ fill: '#C9A96E', color: '#C9A96E' }} />
-                    ))}
-                    <span className="ml-3 text-sm font-medium" style={{ color: 'rgba(255,255,255,0.45)' }}>4.9 · Avaliações verificadas</span>
-                  </div>
-                </div>
-              </div>
-
               {/* Seção de formatos */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -1770,6 +1755,19 @@ export default function Home() {
 
                 </div>
               </motion.div>
+            </div>
+
+            {/* ── Prova social ── */}
+            <div className="py-12 px-6 text-center" style={{ background: '#f3ede3', borderTop: '1px solid rgba(45,38,32,0.08)' }}>
+              <p className="font-serif italic text-2xl md:text-3xl mb-4" style={{ color: '#2d2620' }}>
+                Escolhido por mais de 10.000 famílias
+              </p>
+              <div className="flex items-center justify-center gap-1.5">
+                {[1,2,3,4,5].map(i => (
+                  <Star key={i} className="w-5 h-5" style={{ fill: '#C9A96E', color: '#C9A96E' }} />
+                ))}
+                <span className="ml-3 text-sm font-medium" style={{ color: 'rgba(45,38,32,0.45)' }}>4.9 · Avaliações verificadas</span>
+              </div>
             </div>
 
             {/* ── FOOTER ── */}
