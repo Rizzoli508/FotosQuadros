@@ -984,188 +984,269 @@ export default function Home() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
-            className="fixed inset-0 z-50 flex flex-col md:flex-row overflow-hidden"
+            className="fixed inset-0 z-50 overflow-y-auto"
+            style={{ background: '#faf8f4' }}
             data-testid="modal-style-overlay"
           >
-            {/* ── ESQUERDA: Imagem ── */}
-            <div className="relative flex-shrink-0 w-full md:w-[58%] h-[46vh] md:h-full overflow-hidden" style={{ background: '#111' }}>
-              <AnimatePresence mode="crossfade">
-                <motion.img
-                  key={finish + '-' + selectedSubStyle}
-                  src={
-                    selectedSubStyle === 'intimo'
-                      ? (finish === 'color' ? ((openMold as any).intimoColorImage || (openMold as any).colorImage || openMold.intimoImage) : openMold.intimoImage)
-                      : (finish === 'color' ? ((openMold as any).colorImage || openMold.image) : openMold.image)
-                  }
-                  alt={openMold.label}
-                  className="absolute inset-0 w-full h-full object-cover"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.5 }}
-                />
-              </AnimatePresence>
-              {/* Gradiente mobile (fundo do painel de imagem) */}
-              <div className="absolute bottom-0 inset-x-0 h-10 md:hidden" style={{ background: 'linear-gradient(to top, #faf8f4, transparent)' }} />
-            </div>
-
-            {/* ── DIREITA: Controles ── */}
-            <div
-              className="relative flex-1 flex flex-col justify-center px-8 md:px-14 py-10 md:py-16 overflow-y-auto"
-              style={{ background: '#faf8f4' }}
-              data-testid="modal-style-content"
+            {/* Botão fechar (fixo) */}
+            <button
+              onClick={handleCloseModal}
+              data-testid="button-close-modal"
+              className="fixed top-4 right-4 md:top-6 md:right-6 z-[60] transition-all"
+              style={{ color: 'rgba(45,38,32,0.4)' }}
+              aria-label="Fechar"
             >
-              {/* Overlay: geração em andamento */}
-              {isGenerating && (
-                <div className="absolute inset-0 z-40 flex flex-col items-center justify-center px-6" style={{ background: '#faf8f4' }}>
-                  <div className="w-full max-w-md sm:max-w-2xl rounded-3xl px-8 py-10 sm:px-20 sm:py-16 flex flex-col items-center gap-7 sm:gap-10" style={{ background: 'white', border: '1.5px solid #ddd6c8', boxShadow: '0 8px 48px rgba(100,80,50,0.13), 0 2px 8px rgba(100,80,50,0.07)' }}>
-                    <div className="relative flex items-center justify-center w-20 h-20 sm:w-28 sm:h-28">
-                      <div className="absolute inset-0 rounded-full border-2 border-black/5" />
-                      <div className="absolute inset-0 rounded-full border-2 border-t-transparent animate-spin" style={{ borderColor: 'rgba(201,169,110,0.2)', borderTopColor: '#C9A96E' }} />
-                      <Camera className="absolute w-7 h-7 sm:w-10 sm:h-10" style={{ color: '#C9A96E' }} />
-                    </div>
-                    <div className="text-center space-y-2">
-                      <p className="font-serif text-2xl sm:text-4xl italic" style={{ color: '#2d2620' }}>Criando sua obra...</p>
-                      <p className="text-xs sm:text-sm tracking-widest uppercase" style={{ color: 'rgba(45,38,32,0.4)' }}>Pode levar até 30 segundos</p>
-                    </div>
-                    <div className="w-full space-y-2">
-                      <div className="h-px rounded-full overflow-hidden" style={{ background: 'rgba(45,38,32,0.1)' }}>
-                        <div className="h-full rounded-full transition-all duration-700 ease-out" style={{ background: 'linear-gradient(90deg, #C9A96E, #e8c98a)', width: `${genProgress}%` }} />
+              <X className="w-5 h-5" />
+            </button>
+
+            {/* ── Split-screen (ocupa a tela inteira) ── */}
+            <div className="flex flex-col md:flex-row md:h-screen">
+
+              {/* ── ESQUERDA: Imagem ── */}
+              <div className="relative flex-shrink-0 w-full md:w-[58%] h-[46vh] md:h-full overflow-hidden" style={{ background: '#111' }}>
+                <AnimatePresence mode="crossfade">
+                  <motion.img
+                    key={finish}
+                    src={finish === 'color' ? ((openMold as any).colorImage || openMold.image) : openMold.image}
+                    alt={openMold.label}
+                    className="absolute inset-0 w-full h-full object-cover"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.5 }}
+                  />
+                </AnimatePresence>
+                {/* Gradiente mobile */}
+                <div className="absolute bottom-0 inset-x-0 h-10 md:hidden" style={{ background: 'linear-gradient(to top, #faf8f4, transparent)' }} />
+              </div>
+
+              {/* ── DIREITA: Controles ── */}
+              <div
+                className="relative flex-1 flex flex-col justify-center px-8 md:px-14 py-10 md:py-16"
+                style={{ background: '#faf8f4' }}
+                data-testid="modal-style-content"
+              >
+                {/* Overlay: geração em andamento */}
+                {isGenerating && (
+                  <div className="absolute inset-0 z-40 flex flex-col items-center justify-center px-6" style={{ background: '#faf8f4' }}>
+                    <div className="w-full max-w-md sm:max-w-2xl rounded-3xl px-8 py-10 sm:px-20 sm:py-16 flex flex-col items-center gap-7 sm:gap-10" style={{ background: 'white', border: '1.5px solid #ddd6c8', boxShadow: '0 8px 48px rgba(100,80,50,0.13), 0 2px 8px rgba(100,80,50,0.07)' }}>
+                      <div className="relative flex items-center justify-center w-20 h-20 sm:w-28 sm:h-28">
+                        <div className="absolute inset-0 rounded-full border-2 border-black/5" />
+                        <div className="absolute inset-0 rounded-full border-2 border-t-transparent animate-spin" style={{ borderColor: 'rgba(201,169,110,0.2)', borderTopColor: '#C9A96E' }} />
+                        <Camera className="absolute w-7 h-7 sm:w-10 sm:h-10" style={{ color: '#C9A96E' }} />
                       </div>
-                      <p className="text-center text-xs sm:text-sm font-medium" style={{ color: '#C9A96E' }}>{Math.round(genProgress)}%</p>
-                    </div>
-                    <div className="w-full h-px" style={{ background: 'rgba(45,38,32,0.08)' }} />
-                    <div className="w-full">
-                      <AnimatePresence mode="wait">
-                        <motion.div
-                          key={reviewIndex}
-                          initial={{ opacity: 0, y: 8 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -8 }}
-                          transition={{ duration: 0.4 }}
-                          className="flex items-stretch gap-5"
-                        >
-                          <div className="flex-shrink-0 w-24 h-32 sm:w-36 sm:h-52 rounded-2xl overflow-hidden shadow-lg">
-                            {(LOADING_REVIEWS[reviewIndex] as any).photo ? (
-                              <img src={(LOADING_REVIEWS[reviewIndex] as any).photo} alt={LOADING_REVIEWS[reviewIndex].name} className="w-full h-full object-cover" style={(LOADING_REVIEWS[reviewIndex] as any).photo === reviewDogImg ? { transform: 'scale(1.08)', transformOrigin: 'left center' } : {}} />
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center text-white text-2xl sm:text-3xl font-bold" style={{ background: `linear-gradient(135deg, ${LOADING_REVIEWS[reviewIndex].color}, ${LOADING_REVIEWS[reviewIndex].color}99)` }}>
-                                {LOADING_REVIEWS[reviewIndex].initials}
-                              </div>
-                            )}
-                          </div>
-                          <div className="flex flex-col justify-center gap-1.5 sm:gap-2">
-                            <div className="flex gap-0.5">{[1,2,3,4,5].map(s => <span key={s} style={{ color: '#C9A96E', fontSize: '16px' }}>★</span>)}</div>
-                            <p className="text-base sm:text-lg font-semibold leading-tight" style={{ color: 'rgba(45,38,32,0.85)' }}>{LOADING_REVIEWS[reviewIndex].name}</p>
-                            <p className="text-xs sm:text-sm" style={{ color: 'rgba(45,38,32,0.35)' }}>{LOADING_REVIEWS[reviewIndex].location}</p>
-                            <p className="text-sm sm:text-base leading-relaxed italic mt-1" style={{ color: 'rgba(45,38,32,0.6)' }}>{LOADING_REVIEWS[reviewIndex].text}</p>
-                          </div>
-                        </motion.div>
-                      </AnimatePresence>
-                      <div className="flex justify-center gap-1.5 mt-4">
-                        {LOADING_REVIEWS.map((_, i) => (
-                          <div
-                            key={i}
-                            className="rounded-full transition-all duration-300"
-                            style={{
-                              width: i === reviewIndex ? '16px' : '5px',
-                              height: '5px',
-                              background: i === reviewIndex ? '#C9A96E' : 'rgba(45,38,32,0.15)',
-                            }}
-                          />
-                        ))}
+                      <div className="text-center space-y-2">
+                        <p className="font-serif text-2xl sm:text-4xl italic" style={{ color: '#2d2620' }}>Criando sua obra...</p>
+                        <p className="text-xs sm:text-sm tracking-widest uppercase" style={{ color: 'rgba(45,38,32,0.4)' }}>Pode levar até 30 segundos</p>
                       </div>
-                    </div>
+                      <div className="w-full space-y-2">
+                        <div className="h-px rounded-full overflow-hidden" style={{ background: 'rgba(45,38,32,0.1)' }}>
+                          <div className="h-full rounded-full transition-all duration-700 ease-out" style={{ background: 'linear-gradient(90deg, #C9A96E, #e8c98a)', width: `${genProgress}%` }} />
+                        </div>
+                        <p className="text-center text-xs sm:text-sm font-medium" style={{ color: '#C9A96E' }}>{Math.round(genProgress)}%</p>
+                      </div>
+                      <div className="w-full h-px" style={{ background: 'rgba(45,38,32,0.08)' }} />
+                      <div className="w-full">
+                        <AnimatePresence mode="wait">
+                          <motion.div
+                            key={reviewIndex}
+                            initial={{ opacity: 0, y: 8 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -8 }}
+                            transition={{ duration: 0.4 }}
+                            className="flex items-stretch gap-5"
+                          >
+                            <div className="flex-shrink-0 w-24 h-32 sm:w-36 sm:h-52 rounded-2xl overflow-hidden shadow-lg">
+                              {(LOADING_REVIEWS[reviewIndex] as any).photo ? (
+                                <img src={(LOADING_REVIEWS[reviewIndex] as any).photo} alt={LOADING_REVIEWS[reviewIndex].name} className="w-full h-full object-cover" style={(LOADING_REVIEWS[reviewIndex] as any).photo === reviewDogImg ? { transform: 'scale(1.08)', transformOrigin: 'left center' } : {}} />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center text-white text-2xl sm:text-3xl font-bold" style={{ background: `linear-gradient(135deg, ${LOADING_REVIEWS[reviewIndex].color}, ${LOADING_REVIEWS[reviewIndex].color}99)` }}>
+                                  {LOADING_REVIEWS[reviewIndex].initials}
+                                </div>
+                              )}
+                            </div>
+                            <div className="flex flex-col justify-center gap-1.5 sm:gap-2">
+                              <div className="flex gap-0.5">{[1,2,3,4,5].map(s => <span key={s} style={{ color: '#C9A96E', fontSize: '16px' }}>★</span>)}</div>
+                              <p className="text-base sm:text-lg font-semibold leading-tight" style={{ color: 'rgba(45,38,32,0.85)' }}>{LOADING_REVIEWS[reviewIndex].name}</p>
+                              <p className="text-xs sm:text-sm" style={{ color: 'rgba(45,38,32,0.35)' }}>{LOADING_REVIEWS[reviewIndex].location}</p>
+                              <p className="text-sm sm:text-base leading-relaxed italic mt-1" style={{ color: 'rgba(45,38,32,0.6)' }}>{LOADING_REVIEWS[reviewIndex].text}</p>
+                            </div>
+                          </motion.div>
+                        </AnimatePresence>
+                        <div className="flex justify-center gap-1.5 mt-4">
+                          {LOADING_REVIEWS.map((_, i) => (
+                            <div
+                              key={i}
+                              className="rounded-full transition-all duration-300"
+                              style={{
+                                width: i === reviewIndex ? '16px' : '5px',
+                                height: '5px',
+                                background: i === reviewIndex ? '#C9A96E' : 'rgba(45,38,32,0.15)',
+                              }}
+                            />
+                          ))}
+                        </div>
+                      </div>
                     </div>{/* fim card */}
                   </div>
                 )}
-              {/* Botão fechar */}
-              <button
-                onClick={handleCloseModal}
-                data-testid="button-close-modal"
-                className="absolute top-4 right-4 md:top-6 md:right-6 z-40 transition-all"
-                style={{ color: 'rgba(45,38,32,0.4)' }}
-                aria-label="Fechar"
-              >
-                <X className="w-5 h-5" />
-              </button>
 
-              {/* Toggle P&B / Colorido */}
-              <div className="flex p-1 rounded-full border border-[#efe8d8] bg-white shadow-sm self-start mb-7">
-                <button
-                  onClick={() => setFinish('bw')}
-                  data-testid="button-finish-bw"
-                  className={cn("px-5 py-2 rounded-full text-[12px] font-serif uppercase tracking-[0.15em] transition-all duration-300", finish === 'bw' ? "shadow-md text-white" : "bg-transparent text-foreground/50 hover:text-foreground/80")}
-                  style={finish === 'bw' ? { background: '#C9A96E' } : {}}
-                >Preto e Branco</button>
-                <button
-                  onClick={() => setFinish('color')}
-                  data-testid="button-finish-color"
-                  className={cn("px-5 py-2 rounded-full text-[12px] font-serif uppercase tracking-[0.15em] transition-all duration-300", finish === 'color' ? "shadow-md text-white" : "bg-transparent text-foreground/50 hover:text-foreground/80")}
-                  style={finish === 'color' ? { background: '#C9A96E' } : {}}
-                >Colorido</button>
-              </div>
+                {/* Toggle P&B / Colorido */}
+                <div className="flex p-1 rounded-full border border-[#efe8d8] bg-white shadow-sm self-start mb-7">
+                  <button
+                    onClick={() => setFinish('bw')}
+                    data-testid="button-finish-bw"
+                    className={cn("px-5 py-2 rounded-full text-[12px] font-serif uppercase tracking-[0.15em] transition-all duration-300", finish === 'bw' ? "shadow-md text-white" : "bg-transparent text-foreground/50 hover:text-foreground/80")}
+                    style={finish === 'bw' ? { background: '#C9A96E' } : {}}
+                  >Preto e Branco</button>
+                  <button
+                    onClick={() => setFinish('color')}
+                    data-testid="button-finish-color"
+                    className={cn("px-5 py-2 rounded-full text-[12px] font-serif uppercase tracking-[0.15em] transition-all duration-300", finish === 'color' ? "shadow-md text-white" : "bg-transparent text-foreground/50 hover:text-foreground/80")}
+                    style={finish === 'color' ? { background: '#C9A96E' } : {}}
+                  >Colorido</button>
+                </div>
 
-              {/* Toggle Clássico / Íntimo (quando aplicável) */}
-              {(openMold.categoryTitle !== '2 Pessoas' || openMold.id === '2p_1') && (
-                <div className="flex gap-2 mb-7">
-                  {(['classico', 'intimo'] as const).map((s) => (
-                    <button
-                      key={s}
-                      onClick={() => setSelectedSubStyle(s)}
-                      className={cn(
-                        "px-4 py-1.5 text-xs font-serif uppercase tracking-widest border rounded-full transition-all",
-                        selectedSubStyle === s ? "border-primary/40 text-primary bg-white shadow-sm" : "border-transparent text-foreground/40 hover:text-foreground/60"
-                      )}
-                    >{s === 'classico' ? 'Clássico' : 'Íntimo'}</button>
+                {/* Headline */}
+                <h1 className="font-serif text-3xl md:text-4xl lg:text-5xl leading-tight mb-3" style={{ color: '#2d2620' }}>
+                  Eternize <em style={{ color: '#C9A96E' }}>{openMold.label}</em><br />
+                  em uma Obra Atemporal.
+                </h1>
+                <p className="text-sm mb-10 font-light" style={{ color: 'rgba(45,38,32,0.5)' }}>
+                  Prévia gratuita
+                </p>
+
+                {/* Upload */}
+                <p className="text-xs mb-5 font-medium tracking-wide" style={{ color: 'rgba(45,38,32,0.5)' }}>
+                  Envie uma foto do grupo ou uma foto separada de cada pessoa.
+                </p>
+                <div className="flex gap-5 mb-10 flex-wrap">
+                  {faceSlots.map((slot, index) => (
+                    <FaceUploadSlot
+                      key={slot.role}
+                      slot={slot}
+                      onUpload={(file) => handleFaceUpload(index, file)}
+                      onRemove={() => handleFaceRemove(index)}
+                    />
                   ))}
                 </div>
-              )}
 
-              {/* Headline */}
-              <h1 className="font-serif text-3xl md:text-4xl lg:text-5xl leading-tight mb-3" style={{ color: '#2d2620' }}>
-                Eternize <em style={{ color: '#C9A96E' }}>{openMold.label}</em><br />
-                em uma Obra Atemporal.
-              </h1>
-              <p className="text-sm mb-10 font-light" style={{ color: 'rgba(45,38,32,0.5)' }}>
-                Prévia gratuita
-              </p>
+                {/* Botão gerar */}
+                <button
+                  disabled={!hasAtLeastOnePhoto || isGenerating}
+                  onClick={handleGenerate}
+                  data-testid="button-submit-order"
+                  className={cn(
+                    "w-full max-w-sm py-4 font-sans font-semibold tracking-widest uppercase text-sm rounded-xl text-white transition-all",
+                    hasAtLeastOnePhoto && !isGenerating ? "cursor-pointer hover:opacity-90" : "opacity-40 cursor-not-allowed"
+                  )}
+                  style={{ background: '#C9A96E' }}
+                >
+                  {generatedImage ? "Gerar Novamente" : "Gerar Meu Retrato"}
+                </button>
 
-              {/* Upload */}
-              <p className="text-xs mb-5 font-medium tracking-wide" style={{ color: 'rgba(45,38,32,0.5)' }}>
-                Envie uma foto do grupo ou uma foto separada de cada pessoa.
-              </p>
-              <div className="flex gap-5 mb-10 flex-wrap">
-                {faceSlots.map((slot, index) => (
-                  <FaceUploadSlot
-                    key={slot.role}
-                    slot={slot}
-                    onUpload={(file) => handleFaceUpload(index, file)}
-                    onRemove={() => handleFaceRemove(index)}
-                  />
-                ))}
+                {/* Prova social */}
+                <div className="mt-8 flex items-center gap-3">
+                  <div className="flex gap-0.5">{[1,2,3,4,5].map(s => <span key={s} style={{ color: '#C9A96E', fontSize: '14px' }}>★</span>)}</div>
+                  <span className="text-xs font-light tracking-wide" style={{ color: 'rgba(45,38,32,0.4)' }}>Mais de 10.000 retratos gerados</span>
+                </div>
               </div>
+            </div>{/* fim split-screen */}
 
-              {/* Botão gerar */}
-              <button
-                disabled={!hasAtLeastOnePhoto || isGenerating}
-                onClick={handleGenerate}
-                data-testid="button-submit-order"
-                className={cn(
-                  "w-full max-w-sm py-4 font-sans font-semibold tracking-widest uppercase text-sm rounded-xl text-white transition-all",
-                  hasAtLeastOnePhoto && !isGenerating ? "cursor-pointer hover:opacity-90" : "opacity-40 cursor-not-allowed"
-                )}
-                style={{ background: '#C9A96E' }}
-              >
-                {generatedImage ? "Gerar Novamente" : "Gerar Meu Retrato"}
-              </button>
-
-              {/* Prova social */}
-              <div className="mt-8 flex items-center gap-3">
-                <div className="flex gap-0.5">{[1,2,3,4,5].map(s => <span key={s} style={{ color: '#C9A96E', fontSize: '14px' }}>★</span>)}</div>
-                <span className="text-xs font-light tracking-wide" style={{ color: 'rgba(45,38,32,0.4)' }}>Mais de 10.000 retratos gerados</span>
+            {/* ── Seção quote ── */}
+            <section className="py-24 md:py-36 bg-white border-y border-border/30">
+              <div className="max-w-5xl mx-auto px-8 flex flex-col md:flex-row items-center gap-12 md:gap-20">
+                <div className="flex-shrink-0 text-center md:text-left space-y-2">
+                  <p className="text-[10px] tracking-[0.3em] uppercase font-sans" style={{ color: '#C9A96E' }}>✦ eternize com a retravium</p>
+                  <p className="text-[10px] tracking-[0.25em] uppercase font-sans text-muted-foreground">IA · Arte · Memória</p>
+                </div>
+                <div className="hidden md:block w-px self-stretch flex-shrink-0" style={{ background: 'rgba(45,38,32,0.1)' }} />
+                <div>
+                  <blockquote className="font-serif text-3xl md:text-4xl lg:text-[2.75rem] italic leading-tight mb-4" style={{ color: '#2d2620' }}>
+                    "Momentos passam.<br /><span style={{ color: '#C9A96E' }}>Retratos ficam.</span>"
+                  </blockquote>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    Cada obra é criada pela nossa IA, exclusivamente para a sua família.
+                  </p>
+                </div>
               </div>
-            </div>
+            </section>
+
+            {/* ── FAQ ── */}
+            <section className="py-20 bg-white">
+              <div className="max-w-5xl mx-auto px-8 flex flex-col md:flex-row gap-16 md:gap-24">
+                <div className="flex-shrink-0 md:w-56">
+                  <p className="text-[10px] tracking-[0.25em] uppercase font-sans text-muted-foreground mb-4">Perguntas Frequentes</p>
+                  <h3 className="font-serif text-4xl md:text-5xl italic leading-tight" style={{ color: '#2d2620' }}>
+                    Dúvidas,<br />respondidas.
+                  </h3>
+                  <p className="text-sm text-muted-foreground mt-5 leading-relaxed">
+                    As perguntas mais comuns antes do primeiro retrato. Se precisar de mais, respondemos em minutos.
+                  </p>
+                </div>
+                <div className="flex-1 divide-y divide-border/50">
+                  {FAQ.map((item, i) => (
+                    <div key={i}>
+                      <button
+                        onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                        className="w-full flex items-center justify-between py-5 text-left"
+                      >
+                        <span className="font-serif text-lg pr-4" style={{ color: '#2d2620' }}>{item.q}</span>
+                        <ChevronDown className={cn("w-5 h-5 text-muted-foreground flex-shrink-0 transition-transform duration-300", openFaq === i && "rotate-180")} />
+                      </button>
+                      <AnimatePresence>
+                        {openFaq === i && (
+                          <motion.div
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: "auto", opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            transition={{ duration: 0.3, ease: "easeInOut" }}
+                            className="overflow-hidden"
+                          >
+                            <p className="pb-5 text-muted-foreground font-sans text-sm leading-relaxed">{item.a}</p>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </section>
+
+            {/* ── Footer ── */}
+            <footer className="bg-white border-t border-border/30">
+              <div className="text-center py-14 border-b border-border/30">
+                <span className="font-serif text-4xl italic" style={{ color: '#C9A96E', letterSpacing: '0.05em', fontWeight: 400 }}>retravium</span>
+                <div className="flex items-center justify-center gap-4 mt-3">
+                  <div className="h-px w-14" style={{ background: 'rgba(45,38,32,0.12)' }} />
+                  <span className="text-[9px] tracking-[0.35em] uppercase font-sans text-muted-foreground">por amor ao detalhe</span>
+                  <div className="h-px w-14" style={{ background: 'rgba(45,38,32,0.12)' }} />
+                </div>
+              </div>
+              <div className="max-w-5xl mx-auto px-8 py-14 grid grid-cols-1 md:grid-cols-3 gap-10">
+                <div>
+                  <p className="text-[10px] tracking-[0.25em] uppercase font-sans text-muted-foreground mb-4">Suporte</p>
+                  <a href="mailto:suporte@retravium.com" className="text-sm hover:text-accent transition-colors block" style={{ color: '#2d2620' }}>suporte@retravium.com</a>
+                </div>
+                <div>
+                  <p className="text-[10px] tracking-[0.25em] uppercase font-sans text-muted-foreground mb-4">Sobre a retravium</p>
+                  <p className="text-sm text-muted-foreground leading-relaxed">Retratos artísticos gerados por IA, entregues no seu WhatsApp em minutos. Feito com cuidado para cada família.</p>
+                </div>
+                <div>
+                  <p className="text-[10px] tracking-[0.25em] uppercase font-sans text-muted-foreground mb-4">Legal</p>
+                  <div className="space-y-2">
+                    <p className="text-sm text-muted-foreground">Termos de Uso</p>
+                    <p className="text-sm text-muted-foreground">Política de Privacidade</p>
+                  </div>
+                </div>
+              </div>
+              <div className="border-t border-border/30 py-5 px-8">
+                <p className="text-center text-[10px] tracking-[0.2em] uppercase text-muted-foreground">
+                  &copy; {new Date().getFullYear()} retravium · Todos os direitos reservados
+                </p>
+              </div>
+            </footer>
+
           </motion.div>
         )}
       </AnimatePresence>
