@@ -1337,10 +1337,13 @@ export default function Home() {
                       style={{ background: 'white', border: '1px solid rgba(45,38,32,0.07)' }}
                       variants={{ hidden: { opacity: 0, y: 24 }, visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] } } }}
                     >
-                      {/* Foto + nome */}
+                      {/* Avatar + nome */}
                       <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0">
-                          <img src={(review as any).photo} alt={review.name} className="w-full h-full object-cover" />
+                        <div
+                          className="w-11 h-11 rounded-full flex-shrink-0 flex items-center justify-center text-white text-sm font-bold"
+                          style={{ background: `linear-gradient(135deg, ${review.color}, ${review.color}bb)` }}
+                        >
+                          {review.initials}
                         </div>
                         <div>
                           <p className="text-sm font-semibold" style={{ color: '#2d2620' }}>{review.name}</p>
