@@ -543,10 +543,15 @@ export default function Home() {
     setGenProgress(5);
     const interval = setInterval(() => {
       setGenProgress(prev => {
-        if (prev >= 88) return prev;
-        return Math.min(88, prev + Math.random() * 5 + 1.5);
+        if (prev < 80) {
+          // Fase rápida: chega a 80% rapidamente
+          return Math.min(80, prev + Math.random() * 6 + 3);
+        } else {
+          // Fase lenta: avança devagar mas constante, nunca trava, máx 99%
+          return Math.min(99, prev + Math.random() * 0.3 + 0.2);
+        }
       });
-    }, 900);
+    }, 700);
     return () => clearInterval(interval);
   }, [isGenerating]);
 
