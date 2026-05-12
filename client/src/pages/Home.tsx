@@ -185,7 +185,7 @@ function FaceUploadSlot({ slot, onUpload, onRemove }: { slot: FaceSlot; onUpload
   return (
     <div className="flex flex-col items-start gap-1.5 flex-1 min-w-0">
       {slot.preview ? (
-        <div className="relative w-full h-40 md:w-32 md:h-36 rounded-2xl overflow-hidden group">
+        <div className="relative w-full h-28 md:w-32 md:h-36 rounded-2xl overflow-hidden group">
           <img
             src={slot.preview}
             alt={slot.role}
@@ -200,9 +200,9 @@ function FaceUploadSlot({ slot, onUpload, onRemove }: { slot: FaceSlot; onUpload
           >
             <X className="w-3.5 h-3.5" />
           </button>
-          <div className="absolute bottom-0 left-0 right-0 px-2.5 pb-2.5 pt-6"
+          <div className="absolute bottom-0 left-0 right-0 px-2.5 pb-2 pt-4"
             style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.5) 0%, transparent 100%)' }}>
-            <p className="text-[11px] font-medium text-white/80 truncate">{slot.role}</p>
+            <p className="text-[10px] font-medium text-white/80 truncate">{slot.role}</p>
           </div>
         </div>
       ) : (
@@ -210,7 +210,7 @@ function FaceUploadSlot({ slot, onUpload, onRemove }: { slot: FaceSlot; onUpload
           {...getRootProps()}
           data-testid={`upload-face-${slot.role}`}
           className={cn(
-            "relative w-full h-40 md:w-32 md:h-36 rounded-2xl border flex flex-col items-center justify-center cursor-pointer transition-all duration-200",
+            "relative w-full h-28 md:w-32 md:h-36 rounded-2xl border flex flex-col items-center justify-center cursor-pointer transition-all duration-200",
             isDragActive
               ? "border-[#C9A96E]/60 bg-[#C9A96E]/6 scale-[1.02]"
               : "border-[#2d2620]/12 bg-[#2d2620]/[0.025] hover:border-[#C9A96E]/40 hover:bg-[#C9A96E]/4"
@@ -1125,20 +1125,36 @@ export default function Home() {
                   </div>
                 )}
 
+                {/* Toggle P&B / Colorido — topo, centralizado */}
+                <div className="flex p-0.5 rounded-full border border-[#efe8d8] bg-white shadow-sm self-center mb-4">
+                  <button
+                    onClick={() => setFinish('bw')}
+                    data-testid="button-finish-bw"
+                    className={cn("px-4 py-1.5 rounded-full text-[10px] font-serif uppercase tracking-[0.12em] transition-all duration-300", finish === 'bw' ? "shadow text-white" : "bg-transparent text-foreground/50 hover:text-foreground/80")}
+                    style={finish === 'bw' ? { background: '#C9A96E' } : {}}
+                  >Preto e Branco</button>
+                  <button
+                    onClick={() => setFinish('color')}
+                    data-testid="button-finish-color"
+                    className={cn("px-4 py-1.5 rounded-full text-[10px] font-serif uppercase tracking-[0.12em] transition-all duration-300", finish === 'color' ? "shadow text-white" : "bg-transparent text-foreground/50 hover:text-foreground/80")}
+                    style={finish === 'color' ? { background: '#C9A96E' } : {}}
+                  >Colorido</button>
+                </div>
+
                 {/* Headline */}
-                <h1 className="font-serif text-3xl md:text-4xl lg:text-5xl leading-tight mb-3" style={{ color: '#2d2620' }}>
+                <h1 className="font-serif text-2xl md:text-4xl lg:text-5xl leading-tight mb-1 text-center md:text-left" style={{ color: '#2d2620' }}>
                   Eternize <em style={{ color: '#C9A96E' }}>{openMold.label}</em><br />
                   em uma Obra Atemporal.
                 </h1>
-                <p className="text-sm mb-10 font-light" style={{ color: 'rgba(45,38,32,0.5)' }}>
+                <p className="text-xs mb-4 font-light text-center md:text-left" style={{ color: 'rgba(45,38,32,0.5)' }}>
                   Prévia gratuita
                 </p>
 
                 {/* Upload */}
-                <p className="text-xs mb-5 font-medium tracking-wide" style={{ color: 'rgba(45,38,32,0.5)' }}>
-                  Envie uma foto do grupo ou uma foto separada de cada pessoa.
+                <p className="text-[11px] mb-3 font-medium tracking-wide text-center md:text-left" style={{ color: 'rgba(45,38,32,0.5)' }}>
+                  Envie uma foto do grupo ou separada de cada pessoa.
                 </p>
-                <div className="flex gap-3 mb-8 w-full">
+                <div className="flex gap-2.5 mb-4 w-full">
                   {faceSlots.map((slot, index) => (
                     <FaceUploadSlot
                       key={slot.role}
@@ -1149,29 +1165,13 @@ export default function Home() {
                   ))}
                 </div>
 
-                {/* Toggle P&B / Colorido — acima do botão */}
-                <div className="flex p-1 rounded-full border border-[#efe8d8] bg-white shadow-sm self-center mb-4">
-                  <button
-                    onClick={() => setFinish('bw')}
-                    data-testid="button-finish-bw"
-                    className={cn("px-5 py-2 rounded-full text-[12px] font-serif uppercase tracking-[0.15em] transition-all duration-300", finish === 'bw' ? "shadow-md text-white" : "bg-transparent text-foreground/50 hover:text-foreground/80")}
-                    style={finish === 'bw' ? { background: '#C9A96E' } : {}}
-                  >Preto e Branco</button>
-                  <button
-                    onClick={() => setFinish('color')}
-                    data-testid="button-finish-color"
-                    className={cn("px-5 py-2 rounded-full text-[12px] font-serif uppercase tracking-[0.15em] transition-all duration-300", finish === 'color' ? "shadow-md text-white" : "bg-transparent text-foreground/50 hover:text-foreground/80")}
-                    style={finish === 'color' ? { background: '#C9A96E' } : {}}
-                  >Colorido</button>
-                </div>
-
                 {/* Botão gerar */}
                 <button
                   disabled={!hasAtLeastOnePhoto || isGenerating}
                   onClick={handleGenerate}
                   data-testid="button-submit-order"
                   className={cn(
-                    "w-full max-w-sm mx-auto block py-4 font-sans font-semibold tracking-widest uppercase text-sm rounded-xl text-white transition-all",
+                    "w-full max-w-sm mx-auto block py-3.5 font-sans font-semibold tracking-widest uppercase text-sm rounded-xl text-white transition-all",
                     hasAtLeastOnePhoto && !isGenerating ? "cursor-pointer hover:opacity-90" : "opacity-40 cursor-not-allowed"
                   )}
                   style={{ background: '#C9A96E' }}
@@ -1180,9 +1180,9 @@ export default function Home() {
                 </button>
 
                 {/* Prova social */}
-                <div className="mt-8 flex items-center justify-center gap-3">
-                  <div className="flex gap-0.5">{[1,2,3,4,5].map(s => <span key={s} style={{ color: '#C9A96E', fontSize: '14px' }}>★</span>)}</div>
-                  <span className="text-xs font-light tracking-wide" style={{ color: 'rgba(45,38,32,0.4)' }}>Mais de 10.000 retratos gerados</span>
+                <div className="mt-4 flex items-center justify-center gap-2">
+                  <div className="flex gap-0.5">{[1,2,3,4,5].map(s => <span key={s} style={{ color: '#C9A96E', fontSize: '12px' }}>★</span>)}</div>
+                  <span className="text-[11px] font-light tracking-wide" style={{ color: 'rgba(45,38,32,0.4)' }}>Mais de 10.000 retratos gerados</span>
                 </div>
               </div>
             </div>{/* fim split-screen */}
