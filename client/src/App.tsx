@@ -11,15 +11,20 @@ function Router() {
     <Switch>
       <Route path="/" component={Home} />
       {/* Páginas diretas por molde (para anúncios) */}
-      <Route path="/casal"     component={Home} />
-      <Route path="/mae-bebe"  component={Home} />
-      <Route path="/mae-filha" component={Home} />
-      <Route path="/pai-filha" component={Home} />
-      <Route path="/mae-filho" component={Home} />
-      <Route path="/pai-filho" component={Home} />
-      <Route path="/familia-3" component={Home} />
-      <Route path="/familia-4" component={Home} />
-      <Route path="/pet"       component={Home} />
+      <Route path="/casal"       component={Home} />
+      <Route path="/mae-bebe"    component={Home} />
+      <Route path="/mae-bebe-2"  component={Home} />
+      <Route path="/mae-filha"   component={Home} />
+      <Route path="/mae-filha-2" component={Home} />
+      <Route path="/pai-filha"   component={Home} />
+      <Route path="/pai-filha-2" component={Home} />
+      <Route path="/mae-filho"   component={Home} />
+      <Route path="/mae-filho-2" component={Home} />
+      <Route path="/pai-filho"   component={Home} />
+      <Route path="/pai-filho-2" component={Home} />
+      <Route path="/familia-3"   component={Home} />
+      <Route path="/familia-4"   component={Home} />
+      <Route path="/pet"         component={Home} />
       <Route component={NotFound} />
     </Switch>
   );
