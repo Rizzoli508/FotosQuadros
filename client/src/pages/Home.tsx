@@ -1034,32 +1034,34 @@ export default function Home() {
             </button>
 
             {/* ── Split-screen (ocupa a tela inteira) ── */}
-            <div className="flex flex-col md:flex-row md:h-screen">
+            <div className="relative h-screen md:flex md:flex-row md:h-screen">
 
-              {/* ── ESQUERDA: Imagem ── */}
-              <div className="relative flex-shrink-0 w-full md:w-[58%] h-[46vh] md:h-full overflow-hidden" style={{ background: '#111' }}>
+              {/* ── IMAGEM: full-screen no mobile, coluna esquerda no desktop ── */}
+              <div className="absolute inset-0 md:relative md:inset-auto md:flex-shrink-0 md:w-[58%] md:h-full overflow-hidden" style={{ background: '#111' }}>
                 <AnimatePresence mode="crossfade">
                   <motion.img
                     key={finish}
                     src={finish === 'color' ? ((openMold as any).colorImage || openMold.image) : openMold.image}
                     alt={openMold.label}
-                    className="absolute inset-0 w-full h-full object-cover"
+                    className="absolute inset-0 w-full h-full object-cover object-top"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.5 }}
                   />
                 </AnimatePresence>
-                {/* Gradiente mobile */}
-                <div className="absolute bottom-0 inset-x-0 h-10 md:hidden" style={{ background: 'linear-gradient(to top, #faf8f4, transparent)' }} />
               </div>
 
-              {/* ── DIREITA: Controles ── */}
+              {/* ── CONTEÚDO: bottom-sheet no mobile, coluna direita no desktop ── */}
               <div
-                className="relative flex-1 flex flex-col justify-center px-8 md:px-14 py-10 md:py-16"
+                className="absolute bottom-0 left-0 right-0 max-h-[72vh] overflow-y-auto rounded-t-3xl md:relative md:inset-auto md:max-h-none md:overflow-visible md:rounded-none md:flex-1 md:flex md:flex-col md:justify-center px-6 md:px-14 py-6 md:py-16"
                 style={{ background: '#faf8f4' }}
                 data-testid="modal-style-content"
               >
+                {/* Handle visual — mobile only */}
+                <div className="flex justify-center mb-5 md:hidden">
+                  <div className="w-10 h-1 rounded-full" style={{ background: 'rgba(45,38,32,0.18)' }} />
+                </div>
                 {/* Overlay: geração em andamento */}
                 {isGenerating && (
                   <div className="absolute inset-0 z-40 flex flex-col items-center justify-center px-6" style={{ background: '#faf8f4' }}>
