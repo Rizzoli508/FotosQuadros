@@ -364,6 +364,7 @@ export default function Home() {
     return (id && id !== '2p_1' && id.startsWith('2p')) ? 'intimo' : 'classico';
   });
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [showStickyUpload, setShowStickyUpload] = useState(false);
 
   // ── Scroll refs para efeitos cinematográficos ──
   const overlayScrollRef = useRef<HTMLDivElement>(null);
@@ -808,6 +809,15 @@ export default function Home() {
     return () => { document.body.style.overflow = ''; };
   }, [openStyleId]);
 
+  // Botão sticky "Adicionar foto" — aparece ao rolar além da primeira tela
+  useEffect(() => {
+    const el = overlayScrollRef.current;
+    if (!el || !openStyleId) return;
+    const onScroll = () => setShowStickyUpload(el.scrollTop > window.innerHeight * 0.6);
+    el.addEventListener('scroll', onScroll, { passive: true });
+    return () => el.removeEventListener('scroll', onScroll);
+  }, [openStyleId]);
+
   const hasAtLeastOnePhoto = faceSlots.some(s => s.file !== null);
 
   // Checkout helpers
@@ -1032,6 +1042,24 @@ export default function Home() {
             >
               <X className="w-5 h-5" />
             </button>
+
+            {/* Botão sticky — voltar ao topo para adicionar foto */}
+            <AnimatePresence>
+              {showStickyUpload && (
+                <motion.button
+                  initial={{ opacity: 0, y: 24 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 24 }}
+                  transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                  onClick={() => overlayScrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' })}
+                  className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[60] flex items-center gap-2.5 px-6 py-3.5 rounded-full text-white text-sm font-semibold tracking-widest uppercase shadow-xl"
+                  style={{ background: '#C9A96E', boxShadow: '0 8px 32px rgba(201,169,110,0.45)' }}
+                >
+                  <Camera className="w-4 h-4" />
+                  Adicionar Foto
+                </motion.button>
+              )}
+            </AnimatePresence>
 
             {/* ── Split-screen (ocupa a tela inteira) ── */}
             <div className="relative h-screen md:flex md:flex-row md:h-screen">
