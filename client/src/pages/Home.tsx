@@ -1368,14 +1368,14 @@ export default function Home() {
               </div>
             </section>
 
-            {/* ── FAQ — minimalista ── */}
-            <section className="py-16 md:py-24 bg-white" style={{ borderTop: '1px solid rgba(45,38,32,0.10)' }}>
-              <div className="max-w-2xl mx-auto px-6 md:px-12">
+            {/* ── FAQ — dark style ── */}
+            <section style={{ background: '#111' }}>
+              <div className="max-w-2xl mx-auto px-6 md:px-12 py-16 md:py-24">
 
                 {/* Label */}
                 <motion.p
-                  className="text-base md:text-lg tracking-[0.15em] uppercase font-serif mb-8 text-center"
-                  style={{ color: 'rgba(45,38,32,0.55)' }}
+                  className="text-base md:text-lg tracking-[0.15em] uppercase font-serif mb-10 text-center"
+                  style={{ color: 'rgba(255,255,255,0.35)' }}
                   initial={{ opacity: 0 }}
                   whileInView={{ opacity: 1 }}
                   transition={{ duration: 0.6 }}
@@ -1386,7 +1386,7 @@ export default function Home() {
 
                 {/* Acordeão */}
                 <motion.div
-                  style={{ borderTop: '1px solid rgba(45,38,32,0.10)' }}
+                  style={{ borderTop: '1px solid rgba(255,255,255,0.10)' }}
                   variants={{
                     hidden: {},
                     visible: { transition: { staggerChildren: 0.07, delayChildren: 0.1 } },
@@ -1398,7 +1398,7 @@ export default function Home() {
                   {FAQ.slice(0, 3).map((item, i) => (
                     <motion.div
                       key={i}
-                      style={{ borderBottom: '1px solid rgba(45,38,32,0.10)' }}
+                      style={{ borderBottom: '1px solid rgba(255,255,255,0.10)' }}
                       variants={{
                         hidden: { opacity: 0, y: 16 },
                         visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } },
@@ -1406,12 +1406,12 @@ export default function Home() {
                     >
                       <button
                         onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                        className="w-full flex items-center justify-between py-5 text-left min-h-[44px] hover:opacity-70 transition-opacity duration-200"
+                        className="w-full flex items-center justify-between py-6 text-left min-h-[44px] hover:opacity-70 transition-opacity duration-200"
                       >
-                        <span className="font-serif text-base md:text-lg pr-4" style={{ color: '#2d2620' }}>{item.q}</span>
+                        <span className="font-sans font-bold text-base md:text-lg pr-4" style={{ color: '#fff' }}>{item.q}</span>
                         <ChevronDown
                           className={cn("w-4 h-4 flex-shrink-0 transition-transform duration-300", openFaq === i && "rotate-180")}
-                          style={{ color: 'rgba(45,38,32,0.4)' }}
+                          style={{ color: 'rgba(255,255,255,0.4)' }}
                         />
                       </button>
                       <AnimatePresence>
@@ -1423,7 +1423,7 @@ export default function Home() {
                             transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
                             className="overflow-hidden"
                           >
-                            <p className="pb-6 pt-1 font-sans text-sm font-light leading-relaxed" style={{ color: 'rgba(45,38,32,0.55)' }}>{item.a}</p>
+                            <p className="pb-7 pt-1 font-sans text-sm font-light leading-relaxed" style={{ color: 'rgba(255,255,255,0.55)' }}>{item.a}</p>
                           </motion.div>
                         )}
                       </AnimatePresence>
