@@ -1276,51 +1276,28 @@ export default function Home() {
               </div>
             </motion.section>
 
-            {/* ── FAQ — editorial ── */}
-            <section className="py-24 md:py-36 bg-white" style={{ borderTop: '1px solid rgba(45,38,32,0.10)' }}>
-              <div className="max-w-5xl mx-auto px-6 md:px-12 flex flex-col md:flex-row gap-12 md:gap-24">
+            {/* ── FAQ — minimalista ── */}
+            <section className="py-16 md:py-24 bg-white" style={{ borderTop: '1px solid rgba(45,38,32,0.10)' }}>
+              <div className="max-w-2xl mx-auto px-6 md:px-12">
 
-                {/* Coluna esquerda */}
-                <motion.div
-                  className="flex-shrink-0 md:w-72 flex flex-col items-center md:items-start text-center md:text-left"
-                  initial={{ opacity: 0, x: -32 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-                  viewport={{ once: true, amount: 0.3 }}
+                {/* Label */}
+                <motion.p
+                  className="text-[10px] tracking-[0.35em] uppercase font-sans mb-8 text-center"
+                  style={{ color: 'rgba(45,38,32,0.38)' }}
+                  initial={{ opacity: 0 }}
+                  whileInView={{ opacity: 1 }}
+                  transition={{ duration: 0.6 }}
+                  viewport={{ once: true }}
                 >
-                  <p className="text-[10px] tracking-[0.3em] uppercase font-sans mb-3" style={{ color: 'rgba(45,38,32,0.4)' }}>
-                    Perguntas Frequentes
-                  </p>
-                  <motion.div
-                    className="h-px w-8 mb-5"
-                    style={{ background: '#C9A96E', transformOrigin: 'left' }}
-                    initial={{ scaleX: 0 }}
-                    whileInView={{ scaleX: 1 }}
-                    transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}
-                    viewport={{ once: true }}
-                  />
-                  <h3 className="font-serif text-4xl md:text-5xl italic leading-tight" style={{ color: '#2d2620' }}>
-                    Dúvidas,<br />respondidas.
-                  </h3>
-                  <p className="text-sm font-light leading-relaxed mt-6" style={{ color: 'rgba(45,38,32,0.55)' }}>
-                    As perguntas mais comuns antes do primeiro retrato. Se precisar de mais, respondemos em minutos.
-                  </p>
-                  <a
-                    href="https://wa.me/5511999999999"
-                    className="inline-flex items-center gap-2 mt-8 py-3 text-[10px] tracking-[0.25em] uppercase font-sans transition-opacity duration-300 hover:opacity-60"
-                    style={{ color: '#C9A96E' }}
-                  >
-                    Falar no WhatsApp ↗
-                  </a>
-                </motion.div>
+                  Perguntas Frequentes
+                </motion.p>
 
                 {/* Acordeão */}
                 <motion.div
-                  className="flex-1"
                   style={{ borderTop: '1px solid rgba(45,38,32,0.10)' }}
                   variants={{
                     hidden: {},
-                    visible: { transition: { staggerChildren: 0.07, delayChildren: 0.2 } },
+                    visible: { transition: { staggerChildren: 0.07, delayChildren: 0.1 } },
                   }}
                   initial="hidden"
                   whileInView="visible"
