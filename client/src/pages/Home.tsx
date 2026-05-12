@@ -457,29 +457,47 @@ export default function Home() {
   };
 
   // ── Auto-send portrait via WhatsApp when payment is approved ──────────────
-  useEffect(() => {
-    if (checkoutStep !== 'success') return;
-    if (!portraitId || checkoutProduct?.isPhysical || autoSentRef.current) return;
-    const phone = form.phone.trim();
-    if (!phone) return; // no phone → skip auto-send, fallback UI will show
-    autoSentRef.current = true;
+  const sendPortraitToPhone = async (phone: string) => {
+    if (!portraitId) return;
     setWhatsappStatus('sending');
-    fetch(`/api/portraits/${portraitId}/send`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ phone, name: form.name }),
-    }).then(async res => {
+    setCheckoutError('');
+    try {
+      const res = await fetch(`/api/portraits/${portraitId}/send`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone, name: form.name }),
+      });
       if (res.ok) {
         setWhatsappStatus('sent');
+        // Para produtos físicos, envia também mensagem sobre o quadro
+        if (checkoutProduct?.isPhysical) {
+          fetch('/api/whatsapp/text', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              phone,
+              message: `Olá ${form.name || ''}! 📦\n\nSeu pedido de impressão *retravium* foi confirmado!\n\nSeu quadro está sendo preparado com carinho e será enviado para entrega em breve. Assim que despacharmos, você receberá o código de rastreio aqui. 🎨\n\nQualquer dúvida é só falar!`.trim(),
+            }),
+          }).catch(() => {});
+        }
       } else {
         const data = await res.json().catch(() => ({}));
         setWhatsappStatus('error');
         setCheckoutError(data.message || 'Erro ao enviar.');
       }
-    }).catch(() => {
+    } catch {
       setWhatsappStatus('error');
       setCheckoutError('Erro de conexão. Tente novamente.');
-    });
+    }
+  };
+
+  useEffect(() => {
+    if (checkoutStep !== 'success') return;
+    if (!portraitId || autoSentRef.current) return;
+    const phone = form.phone.trim();
+    if (!phone) return; // no phone → skip auto-send, fallback UI will show
+    autoSentRef.current = true;
+    sendPortraitToPhone(phone);
   }, [checkoutStep, portraitId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const saveOrderToSheet = async (orderId?: number) => {
@@ -2376,8 +2394,8 @@ export default function Home() {
                         </a>
                       )}
 
-                      {/* ── WhatsApp: auto-envio + fallback ── */}
-                      {portraitId && generatedImage && !checkoutProduct?.isPhysical && (
+                      {/* ── WhatsApp: auto-envio + fallback (digital e físico) ── */}
+                      {portraitId && generatedImage && (
                         <div className="w-full space-y-2 text-center">
                           {whatsappStatus === 'sending' && (
                             <div className="w-full py-3 rounded-2xl text-sm flex items-center justify-center gap-2" style={{ background: '#fdf6ec', color: '#8a6a2a' }}>
@@ -2411,28 +2429,11 @@ export default function Home() {
                                     onChange={e => setSuccessPhone(e.target.value)}
                                   />
                                   <button
-                                    onClick={async () => {
+                                    onClick={() => {
                                       const phone = successPhone.trim();
                                       if (!phone) return;
-                                      setWhatsappStatus('sending');
                                       setShowRetryPhone(false);
-                                      setCheckoutError('');
-                                      try {
-                                        const res = await fetch(`/api/portraits/${portraitId}/send`, {
-                                          method: 'POST',
-                                          headers: { 'Content-Type': 'application/json' },
-                                          body: JSON.stringify({ phone, name: form.name }),
-                                        });
-                                        if (res.ok) { setWhatsappStatus('sent'); }
-                                        else {
-                                          const data = await res.json().catch(() => ({}));
-                                          setWhatsappStatus('error');
-                                          setCheckoutError(data.message || 'Erro ao enviar.');
-                                        }
-                                      } catch {
-                                        setWhatsappStatus('error');
-                                        setCheckoutError('Erro de conexão.');
-                                      }
+                                      sendPortraitToPhone(phone);
                                     }}
                                     className="w-full py-3 rounded-2xl font-bold text-sm text-white flex items-center justify-center gap-2"
                                     style={{ background: '#25D366' }}
@@ -2461,28 +2462,11 @@ export default function Home() {
                                 onChange={e => setSuccessPhone(e.target.value)}
                               />
                               <button
-                                onClick={async () => {
+                                onClick={() => {
                                   const phone = (successPhone || form.phone).trim();
                                   if (!phone) return;
                                   autoSentRef.current = true;
-                                  setWhatsappStatus('sending');
-                                  setCheckoutError('');
-                                  try {
-                                    const res = await fetch(`/api/portraits/${portraitId}/send`, {
-                                      method: 'POST',
-                                      headers: { 'Content-Type': 'application/json' },
-                                      body: JSON.stringify({ phone, name: form.name }),
-                                    });
-                                    if (res.ok) { setWhatsappStatus('sent'); }
-                                    else {
-                                      const data = await res.json().catch(() => ({}));
-                                      setWhatsappStatus('error');
-                                      setCheckoutError(data.message || 'Erro ao enviar.');
-                                    }
-                                  } catch {
-                                    setWhatsappStatus('error');
-                                    setCheckoutError('Erro de conexão.');
-                                  }
+                                  sendPortraitToPhone(phone);
                                 }}
                                 className="w-full py-3 rounded-2xl font-bold text-sm text-white flex items-center justify-center gap-2"
                                 style={{ background: '#25D366' }}
@@ -2490,59 +2474,6 @@ export default function Home() {
                                 📲 Enviar para o WhatsApp
                               </button>
                             </div>
-                          )}
-                        </div>
-                      )}
-
-                      {/* Produto físico: botão manual de envio do retrato + mensagem do quadro */}
-                      {portraitId && generatedImage && checkoutProduct?.isPhysical && (
-                        <div className="w-full space-y-2">
-                          {whatsappStatus === 'sent' ? (
-                            <div className="w-full py-3 rounded-2xl font-semibold text-sm flex items-center justify-center gap-2" style={{ background: '#fdf6ec', color: '#8a6a2a' }}>
-                              ✅ Enviado para seu WhatsApp!
-                            </div>
-                          ) : (
-                            <button
-                              disabled={whatsappStatus === 'sending'}
-                              onClick={async () => {
-                                const phone = (successPhone || form.phone).trim();
-                                if (!phone) return;
-                                setWhatsappStatus('sending');
-                                setCheckoutError('');
-                                try {
-                                  const res = await fetch(`/api/portraits/${portraitId}/send`, {
-                                    method: 'POST',
-                                    headers: { 'Content-Type': 'application/json' },
-                                    body: JSON.stringify({ phone, name: form.name }),
-                                  });
-                                  if (res.ok) {
-                                    setWhatsappStatus('sent');
-                                    fetch('/api/whatsapp/text', {
-                                      method: 'POST',
-                                      headers: { 'Content-Type': 'application/json' },
-                                      body: JSON.stringify({
-                                        phone,
-                                        message: `Olá ${form.name || ''}! 📦\n\nSeu pedido de impressão *retravium* foi confirmado!\n\nSeu quadro está sendo preparado com carinho e será enviado para entrega em breve. Assim que despacharmos, você receberá o código de rastreio aqui. 🎨\n\nQualquer dúvida é só falar!`.trim(),
-                                      }),
-                                    }).catch(() => {});
-                                  } else {
-                                    const data = await res.json().catch(() => ({}));
-                                    setWhatsappStatus('error');
-                                    setCheckoutError(data.message || 'Erro ao enviar.');
-                                  }
-                                } catch {
-                                  setWhatsappStatus('error');
-                                  setCheckoutError('Erro de conexão.');
-                                }
-                              }}
-                              className="w-full py-3 rounded-2xl font-bold text-sm text-white flex items-center justify-center gap-2 transition-opacity disabled:opacity-60"
-                              style={{ background: '#25D366' }}
-                            >
-                              {whatsappStatus === 'sending' ? <>⏳ Enviando…</> : <>📲 Receber retrato no WhatsApp</>}
-                            </button>
-                          )}
-                          {whatsappStatus === 'error' && (
-                            <p className="text-xs text-red-500 text-center">{checkoutError}</p>
                           )}
                         </div>
                       )}
