@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
 import { useLocation } from 'wouter';
 import { Camera, Check, ChevronDown, Star, X, Plus, User, ChevronRight, Download, MessageCircle, RotateCcw, Truck, Package, Lock, ShieldCheck, CheckCircle } from 'lucide-react';
 import { useCreateOrder } from '@/hooks/use-orders';
@@ -342,6 +342,17 @@ export default function Home() {
     return (id && id !== '2p_1' && id.startsWith('2p')) ? 'intimo' : 'classico';
   });
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+
+  // ── Scroll refs para efeitos cinematográficos ──
+  const overlayScrollRef = useRef<HTMLDivElement>(null);
+  const quoteContainerRef = useRef<HTMLElement>(null);
+  const { scrollYProgress: quoteScrollProgress } = useScroll({
+    target: quoteContainerRef,
+    container: overlayScrollRef,
+    offset: ["start end", "end start"],
+  });
+  const quoteY = useTransform(quoteScrollProgress, [0, 1], [40, -40]);
+  const quoteOpacity = useTransform(quoteScrollProgress, [0, 0.15, 0.85, 1], [0, 1, 1, 0]);
   const [faceSlots, setFaceSlots] = useState<FaceSlot[]>(() => {
     const id = getUrlMoldId();
     if (!id) return [];
@@ -987,6 +998,7 @@ export default function Home() {
             className="fixed inset-0 z-50 overflow-y-auto"
             style={{ background: '#faf8f4' }}
             data-testid="modal-style-overlay"
+            ref={overlayScrollRef}
           >
             {/* Botão fechar (fixo) */}
             <button
@@ -1153,46 +1165,143 @@ export default function Home() {
               </div>
             </div>{/* fim split-screen */}
 
-            {/* ── Seção quote ── */}
-            <section className="py-24 md:py-36 bg-white border-y border-border/30">
-              <div className="max-w-5xl mx-auto px-8 flex flex-col md:flex-row items-center gap-12 md:gap-20">
-                <div className="flex-shrink-0 text-center md:text-left space-y-2">
-                  <p className="text-[10px] tracking-[0.3em] uppercase font-sans" style={{ color: '#C9A96E' }}>✦ eternize com a retravium</p>
-                  <p className="text-[10px] tracking-[0.25em] uppercase font-sans text-muted-foreground">IA · Arte · Memória</p>
-                </div>
-                <div className="hidden md:block w-px self-stretch flex-shrink-0" style={{ background: 'rgba(45,38,32,0.1)' }} />
-                <div>
-                  <blockquote className="font-serif text-3xl md:text-4xl lg:text-[2.75rem] italic leading-tight mb-4" style={{ color: '#2d2620' }}>
-                    "Momentos passam.<br /><span style={{ color: '#C9A96E' }}>Retratos ficam.</span>"
-                  </blockquote>
-                  <p className="text-sm text-muted-foreground leading-relaxed">
-                    Cada obra é criada pela nossa IA, exclusivamente para a sua família.
-                  </p>
-                </div>
-              </div>
-            </section>
+            {/* ── QUOTE — cinematic ── */}
+            <motion.section
+              ref={quoteContainerRef as any}
+              className="relative overflow-hidden py-32 md:py-48"
+              style={{ background: '#faf8f4' }}
+            >
+              <div className="max-w-4xl mx-auto px-6 md:px-12 text-center">
+                {/* Label + linhas decorativas */}
+                <motion.div
+                  className="flex items-center justify-center gap-6 mb-12 md:mb-16"
+                  initial={{ opacity: 0, scaleX: 0.6 }}
+                  whileInView={{ opacity: 1, scaleX: 1 }}
+                  transition={{ duration: 0.8, ease: "easeOut" }}
+                  viewport={{ once: true, amount: 0.4 }}
+                >
+                  <div className="h-px flex-1 max-w-[80px]" style={{ background: 'rgba(201,169,110,0.4)' }} />
+                  <span className="text-[9px] tracking-[0.35em] uppercase font-sans" style={{ color: 'rgba(45,38,32,0.4)' }}>✦ retravium</span>
+                  <div className="h-px flex-1 max-w-[80px]" style={{ background: 'rgba(201,169,110,0.4)' }} />
+                </motion.div>
 
-            {/* ── FAQ ── */}
-            <section className="py-20 bg-white">
-              <div className="max-w-5xl mx-auto px-8 flex flex-col md:flex-row gap-16 md:gap-24">
-                <div className="flex-shrink-0 md:w-56">
-                  <p className="text-[10px] tracking-[0.25em] uppercase font-sans text-muted-foreground mb-4">Perguntas Frequentes</p>
+                {/* Quote com parallax */}
+                <motion.div style={{ y: quoteY, opacity: quoteOpacity }}>
+                  <motion.blockquote
+                    className="font-serif italic leading-[1.08] text-center text-5xl md:text-7xl lg:text-[5.5rem]"
+                    style={{ color: '#2d2620' }}
+                    variants={{
+                      hidden: {},
+                      visible: { transition: { staggerChildren: 0.15, delayChildren: 0.1 } },
+                    }}
+                    initial="hidden"
+                    whileInView="visible"
+                    viewport={{ once: true, amount: 0.4 }}
+                  >
+                    <motion.span
+                      className="block"
+                      variants={{
+                        hidden: { opacity: 0, y: 24 },
+                        visible: { opacity: 1, y: 0, transition: { duration: 0.9, ease: [0.22, 1, 0.36, 1] } },
+                      }}
+                    >
+                      "Momentos passam.
+                    </motion.span>
+                    <motion.span
+                      className="block"
+                      style={{ color: '#C9A96E' }}
+                      variants={{
+                        hidden: { opacity: 0, y: 24 },
+                        visible: { opacity: 1, y: 0, transition: { duration: 0.9, ease: [0.22, 1, 0.36, 1] } },
+                      }}
+                    >
+                      Retratos ficam."
+                    </motion.span>
+                  </motion.blockquote>
+                </motion.div>
+
+                {/* Atribuição */}
+                <motion.p
+                  className="text-[10px] tracking-[0.3em] uppercase font-sans mt-10 md:mt-14"
+                  style={{ color: 'rgba(45,38,32,0.35)' }}
+                  initial={{ opacity: 0 }}
+                  whileInView={{ opacity: 1 }}
+                  transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
+                  viewport={{ once: true, amount: 0.4 }}
+                >
+                  IA · Arte · Memória
+                </motion.p>
+              </div>
+            </motion.section>
+
+            {/* ── FAQ — editorial ── */}
+            <section className="py-24 md:py-36 bg-white" style={{ borderTop: '1px solid rgba(45,38,32,0.10)' }}>
+              <div className="max-w-5xl mx-auto px-6 md:px-12 flex flex-col md:flex-row gap-12 md:gap-24">
+
+                {/* Coluna esquerda */}
+                <motion.div
+                  className="flex-shrink-0 md:w-72"
+                  initial={{ opacity: 0, x: -32 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+                  viewport={{ once: true, amount: 0.3 }}
+                >
+                  <p className="text-[10px] tracking-[0.3em] uppercase font-sans mb-3" style={{ color: 'rgba(45,38,32,0.4)' }}>
+                    Perguntas Frequentes
+                  </p>
+                  <motion.div
+                    className="h-px w-8 mb-5"
+                    style={{ background: '#C9A96E', transformOrigin: 'left' }}
+                    initial={{ scaleX: 0 }}
+                    whileInView={{ scaleX: 1 }}
+                    transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}
+                    viewport={{ once: true }}
+                  />
                   <h3 className="font-serif text-4xl md:text-5xl italic leading-tight" style={{ color: '#2d2620' }}>
                     Dúvidas,<br />respondidas.
                   </h3>
-                  <p className="text-sm text-muted-foreground mt-5 leading-relaxed">
+                  <p className="text-sm font-light leading-relaxed mt-6" style={{ color: 'rgba(45,38,32,0.55)' }}>
                     As perguntas mais comuns antes do primeiro retrato. Se precisar de mais, respondemos em minutos.
                   </p>
-                </div>
-                <div className="flex-1 divide-y divide-border/50">
+                  <a
+                    href="https://wa.me/5511999999999"
+                    className="inline-flex items-center gap-2 mt-8 py-3 text-[10px] tracking-[0.25em] uppercase font-sans transition-opacity duration-300 hover:opacity-60"
+                    style={{ color: '#C9A96E' }}
+                  >
+                    Falar no WhatsApp ↗
+                  </a>
+                </motion.div>
+
+                {/* Acordeão */}
+                <motion.div
+                  className="flex-1"
+                  style={{ borderTop: '1px solid rgba(45,38,32,0.10)' }}
+                  variants={{
+                    hidden: {},
+                    visible: { transition: { staggerChildren: 0.07, delayChildren: 0.2 } },
+                  }}
+                  initial="hidden"
+                  whileInView="visible"
+                  viewport={{ once: true, amount: 0.2 }}
+                >
                   {FAQ.map((item, i) => (
-                    <div key={i}>
+                    <motion.div
+                      key={i}
+                      style={{ borderBottom: '1px solid rgba(45,38,32,0.10)' }}
+                      variants={{
+                        hidden: { opacity: 0, y: 16 },
+                        visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } },
+                      }}
+                    >
                       <button
                         onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                        className="w-full flex items-center justify-between py-5 text-left"
+                        className="w-full flex items-center justify-between py-5 text-left min-h-[44px] hover:opacity-70 transition-opacity duration-200"
                       >
-                        <span className="font-serif text-lg pr-4" style={{ color: '#2d2620' }}>{item.q}</span>
-                        <ChevronDown className={cn("w-5 h-5 text-muted-foreground flex-shrink-0 transition-transform duration-300", openFaq === i && "rotate-180")} />
+                        <span className="font-serif text-base md:text-lg pr-4" style={{ color: '#2d2620' }}>{item.q}</span>
+                        <ChevronDown
+                          className={cn("w-4 h-4 flex-shrink-0 transition-transform duration-300", openFaq === i && "rotate-180")}
+                          style={{ color: 'rgba(45,38,32,0.4)' }}
+                        />
                       </button>
                       <AnimatePresence>
                         {openFaq === i && (
@@ -1200,48 +1309,106 @@ export default function Home() {
                             initial={{ height: 0, opacity: 0 }}
                             animate={{ height: "auto", opacity: 1 }}
                             exit={{ height: 0, opacity: 0 }}
-                            transition={{ duration: 0.3, ease: "easeInOut" }}
+                            transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
                             className="overflow-hidden"
                           >
-                            <p className="pb-5 text-muted-foreground font-sans text-sm leading-relaxed">{item.a}</p>
+                            <p className="pb-6 pt-1 font-sans text-sm font-light leading-relaxed" style={{ color: 'rgba(45,38,32,0.55)' }}>{item.a}</p>
                           </motion.div>
                         )}
                       </AnimatePresence>
-                    </div>
+                    </motion.div>
                   ))}
-                </div>
+                </motion.div>
               </div>
             </section>
 
-            {/* ── Footer ── */}
-            <footer className="bg-white border-t border-border/30">
-              <div className="text-center py-14 border-b border-border/30">
-                <span className="font-serif text-4xl italic" style={{ color: '#C9A96E', letterSpacing: '0.05em', fontWeight: 400 }}>retravium</span>
-                <div className="flex items-center justify-center gap-4 mt-3">
-                  <div className="h-px w-14" style={{ background: 'rgba(45,38,32,0.12)' }} />
-                  <span className="text-[9px] tracking-[0.35em] uppercase font-sans text-muted-foreground">por amor ao detalhe</span>
-                  <div className="h-px w-14" style={{ background: 'rgba(45,38,32,0.12)' }} />
+            {/* ── FOOTER — brand closing ── */}
+            <footer style={{ background: '#faf8f4' }}>
+
+              {/* Zona 1 — Brand centerpiece */}
+              <motion.div
+                className="text-center py-20 md:py-28"
+                style={{ borderBottom: '1px solid rgba(45,38,32,0.10)' }}
+                initial={{ opacity: 0, y: 32 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 1.0, ease: [0.22, 1, 0.36, 1] }}
+                viewport={{ once: true, amount: 0.4 }}
+              >
+                {/* Linha + ponto decorativo */}
+                <div className="flex items-center justify-center gap-5 mb-10">
+                  <motion.div
+                    className="h-px flex-1 max-w-[120px]"
+                    style={{ background: 'rgba(201,169,110,0.3)', transformOrigin: 'center' }}
+                    initial={{ scaleX: 0 }}
+                    whileInView={{ scaleX: 1 }}
+                    transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
+                    viewport={{ once: true }}
+                  />
+                  <div className="w-1.5 h-1.5 rounded-full" style={{ background: '#C9A96E', opacity: 0.5 }} />
+                  <motion.div
+                    className="h-px flex-1 max-w-[120px]"
+                    style={{ background: 'rgba(201,169,110,0.3)', transformOrigin: 'center' }}
+                    initial={{ scaleX: 0 }}
+                    whileInView={{ scaleX: 1 }}
+                    transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
+                    viewport={{ once: true }}
+                  />
                 </div>
-              </div>
-              <div className="max-w-5xl mx-auto px-8 py-14 grid grid-cols-1 md:grid-cols-3 gap-10">
-                <div>
-                  <p className="text-[10px] tracking-[0.25em] uppercase font-sans text-muted-foreground mb-4">Suporte</p>
-                  <a href="mailto:suporte@retravium.com" className="text-sm hover:text-accent transition-colors block" style={{ color: '#2d2620' }}>suporte@retravium.com</a>
+
+                {/* Wordmark */}
+                <motion.span
+                  className="font-serif italic block"
+                  style={{ color: '#C9A96E', letterSpacing: '0.06em', fontWeight: 400, fontSize: 'clamp(2.5rem, 6vw, 5rem)', lineHeight: 1 }}
+                  initial={{ opacity: 0, scale: 0.94 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.9, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
+                  viewport={{ once: true }}
+                >
+                  retravium
+                </motion.span>
+
+                {/* Tagline */}
+                <div className="flex items-center justify-center gap-4 mt-5">
+                  <div className="h-px w-12" style={{ background: 'rgba(45,38,32,0.12)' }} />
+                  <span className="text-[9px] tracking-[0.4em] uppercase font-sans" style={{ color: 'rgba(45,38,32,0.38)' }}>por amor ao detalhe</span>
+                  <div className="h-px w-12" style={{ background: 'rgba(45,38,32,0.12)' }} />
                 </div>
-                <div>
-                  <p className="text-[10px] tracking-[0.25em] uppercase font-sans text-muted-foreground mb-4">Sobre a retravium</p>
-                  <p className="text-sm text-muted-foreground leading-relaxed">Retratos artísticos gerados por IA, entregues no seu WhatsApp em minutos. Feito com cuidado para cada família.</p>
-                </div>
-                <div>
-                  <p className="text-[10px] tracking-[0.25em] uppercase font-sans text-muted-foreground mb-4">Legal</p>
+              </motion.div>
+
+              {/* Zona 2 — Info grid */}
+              <motion.div
+                className="max-w-5xl mx-auto px-6 md:px-12 py-14 grid grid-cols-1 md:grid-cols-3 gap-10"
+                variants={{
+                  hidden: {},
+                  visible: { transition: { staggerChildren: 0.1, delayChildren: 0.05 } },
+                }}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, amount: 0.2 }}
+              >
+                <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] } } }}>
+                  <p className="text-[10px] tracking-[0.25em] uppercase font-sans mb-4" style={{ color: 'rgba(45,38,32,0.4)' }}>Suporte</p>
+                  <a href="mailto:suporte@retravium.com" className="text-sm transition-colors duration-200" style={{ color: '#2d2620' }}
+                    onMouseEnter={e => (e.currentTarget.style.color = '#C9A96E')}
+                    onMouseLeave={e => (e.currentTarget.style.color = '#2d2620')}
+                  >suporte@retravium.com</a>
+                </motion.div>
+                <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] } } }}>
+                  <p className="text-[10px] tracking-[0.25em] uppercase font-sans mb-4" style={{ color: 'rgba(45,38,32,0.4)' }}>Sobre a retravium</p>
+                  <p className="text-sm font-light leading-relaxed" style={{ color: 'rgba(45,38,32,0.55)' }}>Retratos artísticos gerados por IA, entregues no seu WhatsApp em minutos. Feito com cuidado para cada família.</p>
+                </motion.div>
+                <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] } } }}>
+                  <p className="text-[10px] tracking-[0.25em] uppercase font-sans mb-4" style={{ color: 'rgba(45,38,32,0.4)' }}>Legal</p>
                   <div className="space-y-2">
-                    <p className="text-sm text-muted-foreground">Termos de Uso</p>
-                    <p className="text-sm text-muted-foreground">Política de Privacidade</p>
+                    <p className="text-sm" style={{ color: 'rgba(45,38,32,0.55)' }}>Termos de Uso</p>
+                    <p className="text-sm" style={{ color: 'rgba(45,38,32,0.55)' }}>Política de Privacidade</p>
                   </div>
-                </div>
-              </div>
-              <div className="border-t border-border/30 py-5 px-8">
-                <p className="text-center text-[10px] tracking-[0.2em] uppercase text-muted-foreground">
+                </motion.div>
+              </motion.div>
+
+              {/* Zona 3 — Legal bar */}
+              <div style={{ borderTop: '1px solid rgba(45,38,32,0.10)' }} className="py-6 px-6">
+                <p className="text-[9px] tracking-[0.2em] uppercase text-center" style={{ color: 'rgba(45,38,32,0.35)' }}>
                   &copy; {new Date().getFullYear()} retravium · Todos os direitos reservados
                 </p>
               </div>
