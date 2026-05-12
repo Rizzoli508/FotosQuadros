@@ -91,12 +91,17 @@ const CATEGORIES = [
     slots: 2,
     roles: ['Pessoa 1', 'Pessoa 2'],
     molds: [
-      { id: '2p_1', label: 'Casal', image: couple2pImg, intimoImage: couple2pIntimoImg, colorImage: couple2pColorImg },
-      { id: '2p_2', label: 'Mãe & Bebê', image: motherBabyImg, intimoImage: motherBabyIntimoImg, colorImage: motherBabyColorImg, intimoColorImage: motherBabyIntimoColorImg },
-      { id: '2p_3', label: 'Mãe & Filha', image: motherDaughterImg, intimoImage: motherDaughterIntimoImg, colorImage: motherDaughterColorImg, intimoColorImage: motherDaughterIntimoColorImg },
-      { id: '2p_4', label: 'Pai & Filha', image: fatherDaughterImg, intimoImage: fatherDaughterIntimoImg, colorImage: fatherDaughterColorImg, intimoColorImage: fatherDaughterIntimoColorImg },
-      { id: '2p_5', label: 'Mãe & Filho', image: motherSonImg, intimoImage: motherSonIntimoImg, colorImage: motherSonColorImg, intimoColorImage: motherSonIntimoColorImg },
-      { id: '2p_6', label: 'Pai & Filho', image: fatherSonImg, intimoImage: fatherSonIntimoImg, colorImage: fatherSonColorImg, intimoColorImage: fatherSonIntimoColorImg },
+      { id: '2p_1',  label: 'Casal',                image: couple2pImg,           colorImage: couple2pColorImg },
+      { id: '2p_2c', label: 'Mãe & Bebê · Clássico', image: motherBabyImg,         colorImage: motherBabyColorImg },
+      { id: '2p_2i', label: 'Mãe & Bebê · Íntimo',   image: motherBabyIntimoImg,   colorImage: motherBabyIntimoColorImg },
+      { id: '2p_3c', label: 'Mãe & Filha · Clássico', image: motherDaughterImg,     colorImage: motherDaughterColorImg },
+      { id: '2p_3i', label: 'Mãe & Filha · Íntimo',   image: motherDaughterIntimoImg, colorImage: motherDaughterIntimoColorImg },
+      { id: '2p_4c', label: 'Pai & Filha · Clássico', image: fatherDaughterImg,     colorImage: fatherDaughterColorImg },
+      { id: '2p_4i', label: 'Pai & Filha · Íntimo',   image: fatherDaughterIntimoImg, colorImage: fatherDaughterIntimoColorImg },
+      { id: '2p_5c', label: 'Mãe & Filho · Clássico', image: motherSonImg,          colorImage: motherSonColorImg },
+      { id: '2p_5i', label: 'Mãe & Filho · Íntimo',   image: motherSonIntimoImg,    colorImage: motherSonIntimoColorImg },
+      { id: '2p_6c', label: 'Pai & Filho · Clássico', image: fatherSonImg,          colorImage: fatherSonColorImg },
+      { id: '2p_6i', label: 'Pai & Filho · Íntimo',   image: fatherSonIntimoImg,    colorImage: fatherSonIntimoColorImg },
     ],
   },
   {
@@ -351,7 +356,8 @@ export default function Home() {
   const [openStyleId, setOpenStyleId] = useState<string | null>(() => getUrlMoldId());
   const [selectedSubStyle, setSelectedSubStyle] = useState<'classico' | 'intimo'>(() => {
     const id = getUrlMoldId();
-    return (id && id !== '2p_1' && id.startsWith('2p')) ? 'intimo' : 'classico';
+    const intimoIds = ['2p_2i','2p_3i','2p_4i','2p_5i','2p_6i','mae_2','mae_4'];
+    return (id && intimoIds.includes(id)) ? 'intimo' : 'classico';
   });
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [showStickyUpload, setShowStickyUpload] = useState(false);
@@ -649,8 +655,8 @@ export default function Home() {
   const handleOpenStyle = (moldId: string, category: typeof CATEGORIES[number]) => {
     setFaceSlots(category.roles.map(role => ({ role, file: null, preview: null })));
     setOpenStyleId(moldId);
-    const isIntimo = (category.title === '2 Pessoas' && moldId !== '2p_1') || moldId === 'mae_2' || moldId === 'mae_4';
-    setSelectedSubStyle(isIntimo ? 'intimo' : 'classico');
+    const intimoIds = ['2p_2i','2p_3i','2p_4i','2p_5i','2p_6i','mae_2','mae_4'];
+    setSelectedSubStyle(intimoIds.includes(moldId) ? 'intimo' : 'classico');
     setGeneratedImage(null);
     setIsGenerating(false);
     const url = MOLD_URL_MAP[moldId];
@@ -721,15 +727,25 @@ export default function Home() {
         faceSlots.filter(s => s.preview).map(s => imageToBase64(s.preview!))
       );
 
-      // IDs especiais Dias das Mães → mapeiam para prompts no n8n
-      const MAE_MAP: Record<string, { moldId: string; subStyle: string }> = {
+      // Mapeamento de IDs de display → moldId real da API + subStyle
+      const MOLD_API_MAP: Record<string, { moldId: string; subStyle: string }> = {
         'mae_1': { moldId: '2p_3', subStyle: 'classico' },
         'mae_2': { moldId: '2p_3', subStyle: 'intimo' },
         'mae_3': { moldId: '2p_5', subStyle: 'classico' },
         'mae_4': { moldId: '2p_5', subStyle: 'intimo' },
+        '2p_2c': { moldId: '2p_2', subStyle: 'classico' },
+        '2p_2i': { moldId: '2p_2', subStyle: 'intimo' },
+        '2p_3c': { moldId: '2p_3', subStyle: 'classico' },
+        '2p_3i': { moldId: '2p_3', subStyle: 'intimo' },
+        '2p_4c': { moldId: '2p_4', subStyle: 'classico' },
+        '2p_4i': { moldId: '2p_4', subStyle: 'intimo' },
+        '2p_5c': { moldId: '2p_5', subStyle: 'classico' },
+        '2p_5i': { moldId: '2p_5', subStyle: 'intimo' },
+        '2p_6c': { moldId: '2p_6', subStyle: 'classico' },
+        '2p_6i': { moldId: '2p_6', subStyle: 'intimo' },
       };
 
-      const mapped = MAE_MAP[openStyleId];
+      const mapped = MOLD_API_MAP[openStyleId];
       const moldId  = mapped ? mapped.moldId   : openStyleId;
       const subStyle = mapped ? mapped.subStyle : selectedSubStyle;
       const finishParam = finish === 'color' ? 'color' : 'pb';
