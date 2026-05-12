@@ -1450,8 +1450,11 @@ export default function Home() {
               <div className="max-w-3xl mx-auto px-6 pb-10 grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left" style={{ borderTop: '1px solid rgba(45,38,32,0.08)' }}>
                 <div className="pt-8">
                   <p className="text-[9px] tracking-[0.3em] uppercase font-sans mb-3" style={{ color: 'rgba(45,38,32,0.35)' }}>Suporte</p>
-                  <a href="mailto:suporte@retravium.com" className="text-sm transition-colors duration-200 hover:opacity-60" style={{ color: '#2d2620' }}>
+                  <a href="mailto:suporte@retravium.com" className="text-sm transition-colors duration-200 hover:opacity-60 block" style={{ color: '#2d2620' }}>
                     suporte@retravium.com
+                  </a>
+                  <a href="https://wa.me/5511949344864" target="_blank" rel="noopener noreferrer" className="text-sm transition-colors duration-200 hover:opacity-60 block mt-1.5" style={{ color: '#2d2620' }}>
+                    WhatsApp (11) 94934‑4864
                   </a>
                 </div>
                 <div className="pt-8">
@@ -1779,8 +1782,11 @@ export default function Home() {
               <div className="max-w-3xl mx-auto px-6 pb-10 grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left" style={{ borderTop: '1px solid rgba(45,38,32,0.08)' }}>
                 <div className="pt-8">
                   <p className="text-[9px] tracking-[0.3em] uppercase font-sans mb-3" style={{ color: 'rgba(45,38,32,0.35)' }}>Suporte</p>
-                  <a href="mailto:suporte@retravium.com" className="text-sm transition-colors duration-200 hover:opacity-60" style={{ color: '#2d2620' }}>
+                  <a href="mailto:suporte@retravium.com" className="text-sm transition-colors duration-200 hover:opacity-60 block" style={{ color: '#2d2620' }}>
                     suporte@retravium.com
+                  </a>
+                  <a href="https://wa.me/5511949344864" target="_blank" rel="noopener noreferrer" className="text-sm transition-colors duration-200 hover:opacity-60 block mt-1.5" style={{ color: '#2d2620' }}>
+                    WhatsApp (11) 94934‑4864
                   </a>
                 </div>
                 <div className="pt-8">
