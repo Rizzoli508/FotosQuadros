@@ -1282,7 +1282,7 @@ export default function Home() {
 
                 {/* Coluna esquerda */}
                 <motion.div
-                  className="flex-shrink-0 md:w-72"
+                  className="flex-shrink-0 md:w-72 flex flex-col items-center md:items-start text-center md:text-left"
                   initial={{ opacity: 0, x: -32 }}
                   whileInView={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
