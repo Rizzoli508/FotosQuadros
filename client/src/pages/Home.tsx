@@ -529,11 +529,11 @@ export default function Home() {
   };
 
   const SIZES = [
-    { label: 'A5 (15×20 cm)', fineArtPrice: 79,  canvasPrice: 119 },
-    { label: 'A4 (20×30 cm)', fineArtPrice: 99,  canvasPrice: 159 },
-    { label: 'A3 (30×40 cm)', fineArtPrice: 139, canvasPrice: 199 },
-    { label: 'A2 (40×60 cm)', fineArtPrice: 219, canvasPrice: 349 },
-    { label: 'A1 (60×90 cm)', fineArtPrice: 329, canvasPrice: 599 },
+    { label: 'A5 (15×20 cm)', fineArtPrice: 1, canvasPrice: 1 },
+    { label: 'A4 (20×30 cm)', fineArtPrice: 1, canvasPrice: 1 },
+    { label: 'A3 (30×40 cm)', fineArtPrice: 1, canvasPrice: 1 },
+    { label: 'A2 (40×60 cm)', fineArtPrice: 1, canvasPrice: 1 },
+    { label: 'A1 (60×90 cm)', fineArtPrice: 1, canvasPrice: 1 },
   ];
   const createOrder = useCreateOrder();
 
@@ -1620,7 +1620,7 @@ export default function Home() {
                       ))}
                     </ul>
                     <button
-                      onClick={() => openCheckout('Retrato Digital HD retravium', 29, false)}
+                      onClick={() => openCheckout('Retrato Digital HD retravium', 1, false)}
                       className="w-full py-4 bg-primary text-white font-sans font-bold text-sm uppercase tracking-widest rounded-xl text-center hover:bg-primary/90 transition-colors flex items-center justify-center gap-2 mb-3"
                     >
                       <Download className="w-4 h-4" />
@@ -1646,7 +1646,7 @@ export default function Home() {
                       <div className="flex items-end justify-center gap-1 mb-3">
                         <span className="text-primary text-2xl font-serif font-bold">R$</span>
                         <span className="text-primary text-5xl font-serif font-bold">
-                          {SIZES.find(s => s.label === fineArtSize)?.fineArtPrice ?? 79}
+                          {SIZES.find(s => s.label === fineArtSize)?.fineArtPrice ?? 1}
                         </span>
                       </div>
                       <p className="text-foreground/55 text-sm leading-relaxed">
@@ -1681,7 +1681,7 @@ export default function Home() {
                     </div>
                     <p className="text-accent text-sm font-medium mb-4">+ Inclui download digital</p>
                     <button
-                      onClick={() => openCheckout(`Impressão Fine Art retravium - ${fineArtSize}`, SIZES.find(s => s.label === fineArtSize)?.fineArtPrice ?? 99, true)}
+                      onClick={() => openCheckout(`Impressão Fine Art retravium - ${fineArtSize}`, SIZES.find(s => s.label === fineArtSize)?.fineArtPrice ?? 1, true)}
                       className="w-full py-4 border-2 border-primary text-primary font-sans font-bold text-sm uppercase tracking-widest rounded-xl text-center hover:bg-primary hover:text-white transition-colors"
                     >
                       Comprar Agora
@@ -1699,7 +1699,7 @@ export default function Home() {
                       <div className="flex items-end justify-center gap-1 mb-3">
                         <span className="text-amber-800 text-2xl font-serif font-bold">R$</span>
                         <span className="text-amber-800 text-5xl font-serif font-bold">
-                          {SIZES.find(s => s.label === canvasSize)?.canvasPrice ?? 199}
+                          {SIZES.find(s => s.label === canvasSize)?.canvasPrice ?? 1}
                         </span>
                       </div>
                       <p className="text-amber-900/60 text-sm leading-relaxed">
@@ -1746,7 +1746,7 @@ export default function Home() {
                     </div>
                     <p className="text-amber-600 text-sm font-medium mb-4">+ Inclui download digital</p>
                     <button
-                      onClick={() => openCheckout(`Quadro em Tela retravium - ${canvasSize} - Moldura: ${canvasFrame}`, SIZES.find(s => s.label === canvasSize)?.canvasPrice ?? 159, true)}
+                      onClick={() => openCheckout(`Quadro em Tela retravium - ${canvasSize} - Moldura: ${canvasFrame}`, SIZES.find(s => s.label === canvasSize)?.canvasPrice ?? 1, true)}
                       className="w-full py-4 bg-amber-500 text-white font-sans font-bold text-sm uppercase tracking-widest rounded-xl text-center hover:bg-amber-600 transition-colors"
                     >
                       Comprar Agora
@@ -2550,7 +2550,7 @@ export default function Home() {
                       ))}
                     </ul>
                     <button
-                      onClick={() => { setPlansOpen(false); openCheckout('Retrato Digital HD retravium', 29, false); }}
+                      onClick={() => { setPlansOpen(false); openCheckout('Retrato Digital HD retravium', 1, false); }}
                       className="w-full py-4 rounded-xl font-bold text-sm transition-all duration-200 border-2 border-gray-900 text-gray-900 hover:bg-gray-900 hover:text-white"
                     >
                       Começar →
@@ -2587,7 +2587,7 @@ export default function Home() {
                       ))}
                     </ul>
                     <button
-                      onClick={() => { setPlansOpen(false); openCheckout('Pack Família — 3 Retratos HD retravium', 49, false); }}
+                      onClick={() => { setPlansOpen(false); openCheckout('Pack Família — 3 Retratos HD retravium', 1, false); }}
                       className="w-full py-4 rounded-xl font-bold text-sm transition-all duration-200 hover:opacity-90 shadow-md text-white"
                       style={{ background: '#C9A96E' }}
                     >
@@ -2625,7 +2625,7 @@ export default function Home() {
                       ))}
                     </ul>
                     <button
-                      onClick={() => { setPlansOpen(false); openCheckout('Pack Memórias — 6 Retratos HD retravium', 89, false); }}
+                      onClick={() => { setPlansOpen(false); openCheckout('Pack Memórias — 6 Retratos HD retravium', 1, false); }}
                       className="w-full py-4 rounded-xl font-bold text-sm transition-all duration-200 border-2 border-gray-900 text-gray-900 hover:bg-gray-900 hover:text-white"
                     >
                       Escolher Studio Pack →
