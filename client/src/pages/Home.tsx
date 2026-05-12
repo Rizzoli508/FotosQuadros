@@ -1165,72 +1165,88 @@ export default function Home() {
               </div>
             </div>{/* fim split-screen */}
 
-            {/* ── QUOTE — cinematic ── */}
+            {/* ── QUOTE — cinematic dark (estilo Fable adaptado) ── */}
             <motion.section
               ref={quoteContainerRef as any}
-              className="relative overflow-hidden py-32 md:py-48"
-              style={{ background: '#faf8f4' }}
+              className="relative overflow-hidden py-28 md:py-44"
+              style={{ background: '#1c1510' }}
             >
-              <div className="max-w-4xl mx-auto px-6 md:px-12 text-center">
-                {/* Label + linhas decorativas */}
-                <motion.div
-                  className="flex items-center justify-center gap-6 mb-12 md:mb-16"
-                  initial={{ opacity: 0, scaleX: 0.6 }}
-                  whileInView={{ opacity: 1, scaleX: 1 }}
-                  transition={{ duration: 0.8, ease: "easeOut" }}
-                  viewport={{ once: true, amount: 0.4 }}
-                >
-                  <div className="h-px flex-1 max-w-[80px]" style={{ background: 'rgba(201,169,110,0.4)' }} />
-                  <span className="text-[9px] tracking-[0.35em] uppercase font-sans" style={{ color: 'rgba(45,38,32,0.4)' }}>✦ retravium</span>
-                  <div className="h-px flex-1 max-w-[80px]" style={{ background: 'rgba(201,169,110,0.4)' }} />
-                </motion.div>
+              {/* Glow radial atmosférico — dourado, centrado no lado direito */}
+              <div
+                className="pointer-events-none absolute inset-0"
+                style={{
+                  background: 'radial-gradient(ellipse 70% 80% at 68% 50%, rgba(201,169,110,0.22) 0%, rgba(201,169,110,0.06) 45%, transparent 72%)',
+                }}
+              />
+              {/* Vinheta nas bordas */}
+              <div
+                className="pointer-events-none absolute inset-0"
+                style={{
+                  background: 'radial-gradient(ellipse 100% 100% at 50% 50%, transparent 40%, rgba(12,8,4,0.55) 100%)',
+                }}
+              />
 
-                {/* Quote com parallax */}
-                <motion.div style={{ y: quoteY, opacity: quoteOpacity }}>
-                  <motion.blockquote
-                    className="font-serif italic leading-[1.08] text-center text-5xl md:text-7xl lg:text-[5.5rem]"
-                    style={{ color: '#2d2620' }}
-                    variants={{
-                      hidden: {},
-                      visible: { transition: { staggerChildren: 0.15, delayChildren: 0.1 } },
-                    }}
-                    initial="hidden"
-                    whileInView="visible"
+              <div className="relative z-10 max-w-6xl mx-auto px-8 md:px-16">
+                <div className="flex flex-col md:flex-row items-center md:items-start gap-10 md:gap-0">
+
+                  {/* Coluna esquerda — label */}
+                  <motion.div
+                    className="flex-shrink-0 md:w-72 md:pt-3"
+                    initial={{ opacity: 0, x: -20 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
                     viewport={{ once: true, amount: 0.4 }}
                   >
-                    <motion.span
-                      className="block"
-                      variants={{
-                        hidden: { opacity: 0, y: 24 },
-                        visible: { opacity: 1, y: 0, transition: { duration: 0.9, ease: [0.22, 1, 0.36, 1] } },
-                      }}
-                    >
-                      "Momentos passam.
-                    </motion.span>
-                    <motion.span
-                      className="block"
-                      style={{ color: '#C9A96E' }}
-                      variants={{
-                        hidden: { opacity: 0, y: 24 },
-                        visible: { opacity: 1, y: 0, transition: { duration: 0.9, ease: [0.22, 1, 0.36, 1] } },
-                      }}
-                    >
-                      Retratos ficam."
-                    </motion.span>
-                  </motion.blockquote>
-                </motion.div>
+                    <p className="text-[9px] tracking-[0.35em] uppercase font-sans" style={{ color: '#C9A96E' }}>✦ retravium</p>
+                    <p className="text-[9px] tracking-[0.25em] uppercase font-sans mt-2" style={{ color: 'rgba(250,248,244,0.3)' }}>IA · Arte · Memória</p>
+                  </motion.div>
 
-                {/* Atribuição */}
-                <motion.p
-                  className="text-[10px] tracking-[0.3em] uppercase font-sans mt-10 md:mt-14"
-                  style={{ color: 'rgba(45,38,32,0.35)' }}
-                  initial={{ opacity: 0 }}
-                  whileInView={{ opacity: 1 }}
-                  transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
-                  viewport={{ once: true, amount: 0.4 }}
-                >
-                  IA · Arte · Memória
-                </motion.p>
+                  {/* Separador vertical */}
+                  <motion.div
+                    className="hidden md:block w-px self-stretch mx-12 flex-shrink-0"
+                    style={{ background: 'rgba(201,169,110,0.18)' }}
+                    initial={{ scaleY: 0, originY: 0 }}
+                    whileInView={{ scaleY: 1 }}
+                    transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
+                    viewport={{ once: true }}
+                  />
+
+                  {/* Coluna direita — quote com parallax */}
+                  <motion.div className="flex-1" style={{ y: quoteY }}>
+                    <motion.blockquote
+                      className="font-serif italic leading-[1.08] text-5xl md:text-6xl lg:text-7xl"
+                      variants={{
+                        hidden: {},
+                        visible: { transition: { staggerChildren: 0.18, delayChildren: 0.15 } },
+                      }}
+                      initial="hidden"
+                      whileInView="visible"
+                      viewport={{ once: true, amount: 0.3 }}
+                    >
+                      <motion.span
+                        className="block"
+                        style={{ color: '#faf8f4' }}
+                        variants={{
+                          hidden: { opacity: 0, y: 28 },
+                          visible: { opacity: 1, y: 0, transition: { duration: 1.0, ease: [0.22, 1, 0.36, 1] } },
+                        }}
+                      >
+                        "Momentos passam.
+                      </motion.span>
+                      <motion.span
+                        className="block"
+                        style={{ color: '#C9A96E' }}
+                        variants={{
+                          hidden: { opacity: 0, y: 28 },
+                          visible: { opacity: 1, y: 0, transition: { duration: 1.0, ease: [0.22, 1, 0.36, 1] } },
+                        }}
+                      >
+                        Retratos ficam."
+                      </motion.span>
+                    </motion.blockquote>
+                  </motion.div>
+
+                </div>
               </div>
             </motion.section>
 
