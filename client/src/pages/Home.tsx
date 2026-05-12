@@ -183,7 +183,7 @@ function FaceUploadSlot({ slot, onUpload, onRemove }: { slot: FaceSlot; onUpload
   });
 
   return (
-    <div className="flex flex-col items-start gap-1.5 flex-1 min-w-0">
+    <div className="flex flex-col items-start gap-1.5 flex-1 md:flex-none min-w-0">
       {slot.preview ? (
         <div className="relative w-full h-28 md:w-32 md:h-36 rounded-2xl overflow-hidden group">
           <img
@@ -1178,7 +1178,7 @@ export default function Home() {
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
                       transition={{ duration: 0.25 }}
-                      className="flex gap-2.5 mb-4 w-full"
+                      className="flex gap-2.5 mb-4 w-full md:w-auto"
                     >
                       {faceSlots.map((slot, index) => (
                         <FaceUploadSlot
@@ -1203,7 +1203,7 @@ export default function Home() {
                   )}
                   style={{ background: '#C9A96E' }}
                 >
-                  {isGenerating ? "Gerando..." : generatedImage ? "Gerar Novamente" : "Gerar Meu Retrato"}
+                  {isGenerating ? "Criando..." : generatedImage ? "Criar Novamente" : "Criar Meu Retrato"}
                 </button>
 
                 {/* Prova social */}
