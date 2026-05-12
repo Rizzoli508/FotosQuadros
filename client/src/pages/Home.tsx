@@ -1333,42 +1333,34 @@ export default function Home() {
                   {LOADING_REVIEWS.slice(0, 3).map((review, i) => (
                     <motion.div
                       key={i}
-                      className="rounded-2xl overflow-hidden flex flex-col"
+                      className="rounded-2xl p-6 flex flex-col gap-5"
                       style={{ background: 'white', border: '1px solid rgba(45,38,32,0.07)' }}
                       variants={{ hidden: { opacity: 0, y: 24 }, visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] } } }}
                     >
-                      {/* Retrato recebido */}
-                      <div className="w-full h-48 overflow-hidden">
-                        <img
-                          src={(review as any).photo}
-                          alt="Retrato"
-                          className="w-full h-full object-cover"
-                          style={(review as any).photo === reviewDogImg ? { transform: 'scale(1.1)', transformOrigin: 'center' } : {}}
-                        />
+                      {/* Estrelas */}
+                      <div className="flex gap-0.5">
+                        {[1,2,3,4,5].map(s => <span key={s} style={{ color: '#C9A96E', fontSize: '14px' }}>★</span>)}
                       </div>
 
-                      {/* Conteúdo */}
-                      <div className="p-5 flex flex-col gap-3">
-                        {/* Estrelas */}
-                        <div className="flex gap-0.5">
-                          {[1,2,3,4,5].map(s => <span key={s} style={{ color: '#C9A96E', fontSize: '13px' }}>★</span>)}
+                      {/* Quote */}
+                      <p className="font-serif italic text-base leading-relaxed flex-1" style={{ color: '#2d2620' }}>
+                        {review.text}
+                      </p>
+
+                      {/* Rodapé: retrato + nome */}
+                      <div className="flex items-center gap-3 pt-3" style={{ borderTop: '1px solid rgba(45,38,32,0.07)' }}>
+                        {/* Miniatura do retrato */}
+                        <div className="w-10 h-12 rounded-lg overflow-hidden flex-shrink-0">
+                          <img
+                            src={(review as any).photo}
+                            alt="Retrato"
+                            className="w-full h-full object-cover"
+                          />
                         </div>
-                        {/* Texto */}
-                        <p className="text-sm font-light leading-relaxed" style={{ color: 'rgba(45,38,32,0.65)' }}>
-                          {review.text}
-                        </p>
-                        {/* Avatar + nome */}
-                        <div className="flex items-center gap-2.5 pt-1" style={{ borderTop: '1px solid rgba(45,38,32,0.06)' }}>
-                          <div
-                            className="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center text-white text-xs font-bold"
-                            style={{ background: `linear-gradient(135deg, ${review.color}, ${review.color}bb)` }}
-                          >
-                            {review.initials}
-                          </div>
-                          <div>
-                            <p className="text-xs font-semibold" style={{ color: '#2d2620' }}>{review.name}</p>
-                            <p className="text-[11px]" style={{ color: 'rgba(45,38,32,0.4)' }}>{review.location}</p>
-                          </div>
+                        {/* Nome + cidade */}
+                        <div>
+                          <p className="text-xs font-semibold" style={{ color: '#2d2620' }}>{review.name}</p>
+                          <p className="text-[11px]" style={{ color: 'rgba(45,38,32,0.4)' }}>{review.location}</p>
                         </div>
                       </div>
                     </motion.div>
