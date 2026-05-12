@@ -268,13 +268,10 @@ function CategorySection({ category, onOpenStyle }: { category: CategoryType; on
   }, []);
 
   const getImgSrc = (mold: MoldType) => {
-    const isIntimo = category.title === '2 Pessoas' && mold.id !== '2p_1';
     if (showColor) {
-      return isIntimo
-        ? ((mold as any).intimoColorImage || (mold as any).colorImage || mold.intimoImage)
-        : ((mold as any).colorImage || mold.image);
+      return (mold as any).colorImage || mold.image;
     }
-    return isIntimo ? mold.intimoImage : mold.image;
+    return mold.image;
   };
 
   return (
