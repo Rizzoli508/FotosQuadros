@@ -873,41 +873,6 @@ export default function Home() {
           </motion.p>
         </section>
 
-        {/* ── Seção quote / identidade ── */}
-        <section className="py-24 md:py-36 bg-white border-y border-border/30">
-          <div className="max-w-5xl mx-auto px-8 flex flex-col md:flex-row items-center gap-12 md:gap-20">
-            <div className="flex-shrink-0 text-center md:text-left space-y-2">
-              <p className="text-[10px] tracking-[0.3em] uppercase font-sans" style={{ color: '#C9A96E' }}>✦ eternize com a retravium</p>
-              <p className="text-[10px] tracking-[0.25em] uppercase font-sans text-muted-foreground">IA · Arte · Memória</p>
-            </div>
-            <div className="hidden md:block w-px self-stretch flex-shrink-0" style={{ background: 'rgba(45,38,32,0.1)' }} />
-            <div>
-              <blockquote className="font-serif text-3xl md:text-4xl lg:text-[2.75rem] italic leading-tight text-primary mb-4">
-                "Momentos passam.<br /><span style={{ color: '#C9A96E' }}>Retratos ficam.</span>"
-              </blockquote>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                Cada obra é criada pela nossa IA, exclusivamente para a sua família.
-              </p>
-            </div>
-          </div>
-        </section>
-
-        {/* ── Prova social ── */}
-        <section id="galeria" className="py-20 bg-background">
-          <div className="max-w-4xl mx-auto px-4 text-center flex flex-col items-center">
-            <div className="flex gap-1 text-accent mb-6">
-              {[1, 2, 3, 4, 5].map(i => <Star key={i} className="w-6 h-6 fill-current" />)}
-            </div>
-            <h3 className="text-2xl md:text-3xl font-serif text-primary mb-4" data-testid="text-social-proof">
-              "Mais de 10.000 famílias confiam na retravium para eternizar seus momentos."
-            </h3>
-            <p className="text-muted-foreground font-sans tracking-wide uppercase text-xs font-semibold">
-              Avaliação de 4.9/5 no Reclame Aqui
-            </p>
-          </div>
-        </section>
-
-        {/* ── Galeria / escolha de estilo ── */}
         <section id="como-funciona" className="py-12 bg-white border-y border-border/50">
           <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div
@@ -938,30 +903,42 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ── FAQ ── */}
-        <section className="py-20 bg-white">
-          <div className="max-w-5xl mx-auto px-8 flex flex-col md:flex-row gap-16 md:gap-24">
-            {/* Esquerda: título estilo Fable */}
-            <div className="flex-shrink-0 md:w-56">
-              <p className="text-[10px] tracking-[0.25em] uppercase font-sans text-muted-foreground mb-4">Perguntas Frequentes</p>
-              <h3 className="font-serif text-4xl md:text-5xl italic text-primary leading-tight" data-testid="text-faq-title">
-                Dúvidas,<br />respondidas.
-              </h3>
-              <p className="text-sm text-muted-foreground mt-5 leading-relaxed">
-                As perguntas mais comuns antes do primeiro retrato. Se precisar de mais, respondemos em minutos.
-              </p>
+        <section id="galeria" className="py-20 bg-background">
+          <div className="max-w-4xl mx-auto px-4 text-center flex flex-col items-center">
+            <div className="flex gap-1 text-accent mb-6">
+              {[1, 2, 3, 4, 5].map(i => (
+                <Star key={i} className="w-6 h-6 fill-current" />
+              ))}
             </div>
-            {/* Direita: perguntas */}
-            <div className="flex-1 divide-y divide-border/50">
+            <h3 className="text-2xl md:text-3xl font-serif text-primary mb-4" data-testid="text-social-proof">
+              "Mais de 10.000 famílias confiam na retravium para eternizar seus momentos."
+            </h3>
+            <p className="text-muted-foreground font-sans tracking-wide uppercase text-xs font-semibold">
+              Avaliação de 4.9/5 no Reclame Aqui
+            </p>
+          </div>
+        </section>
+
+        <section className="py-20 bg-white">
+          <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h3 className="text-3xl font-serif italic text-primary text-center mb-12" data-testid="text-faq-title">
+              Perguntas Frequentes
+            </h3>
+            <div className="divide-y divide-border/50">
               {FAQ.map((item, i) => (
                 <div key={i} data-testid={`faq-item-${i}`}>
                   <button
                     onClick={() => setOpenFaq(openFaq === i ? null : i)}
                     data-testid={`button-faq-${i}`}
-                    className="w-full flex items-center justify-between py-5 text-left"
+                    className="w-full flex items-center justify-between py-5 text-left hover-elevate active-elevate-2"
                   >
                     <span className="font-serif text-lg text-primary pr-4">{item.q}</span>
-                    <ChevronDown className={cn("w-5 h-5 text-muted-foreground flex-shrink-0 transition-transform duration-300", openFaq === i && "rotate-180")} />
+                    <ChevronDown
+                      className={cn(
+                        "w-5 h-5 text-muted-foreground flex-shrink-0 transition-transform duration-300",
+                        openFaq === i && "rotate-180"
+                      )}
+                    />
                   </button>
                   <AnimatePresence>
                     {openFaq === i && (
@@ -972,7 +949,9 @@ export default function Home() {
                         transition={{ duration: 0.3, ease: "easeInOut" }}
                         className="overflow-hidden"
                       >
-                        <p className="pb-5 text-muted-foreground font-sans text-sm leading-relaxed" data-testid={`text-faq-answer-${i}`}>{item.a}</p>
+                        <p className="pb-5 text-muted-foreground font-sans text-sm leading-relaxed" data-testid={`text-faq-answer-${i}`}>
+                          {item.a}
+                        </p>
                       </motion.div>
                     )}
                   </AnimatePresence>
@@ -984,46 +963,17 @@ export default function Home() {
 
       </main>
 
-      {/* ── Footer estilo Fable ── */}
-      <footer id="contato" className="bg-white border-t border-border/30">
-        {/* Logo centralizada */}
-        <div className="text-center py-14 border-b border-border/30">
-          <span className="font-serif text-4xl italic" style={{ color: '#C9A96E', letterSpacing: '0.05em', fontWeight: 400 }}>retravium</span>
-          <div className="flex items-center justify-center gap-4 mt-3">
-            <div className="h-px w-14" style={{ background: 'rgba(45,38,32,0.12)' }} />
-            <span className="text-[9px] tracking-[0.35em] uppercase font-sans text-muted-foreground">por amor ao detalhe</span>
-            <div className="h-px w-14" style={{ background: 'rgba(45,38,32,0.12)' }} />
+      <footer id="contato" className="border-t border-border/50 py-12 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-6">
+          <div className="flex items-center">
+            <span className="font-serif text-2xl italic" style={{ color: '#C9A96E', letterSpacing: '0.05em', fontWeight: 400 }}>retravium</span>
           </div>
-        </div>
-
-        {/* Três colunas */}
-        <div className="max-w-5xl mx-auto px-8 py-14 grid grid-cols-1 md:grid-cols-3 gap-10">
-          <div>
-            <p className="text-[10px] tracking-[0.25em] uppercase font-sans text-muted-foreground mb-4">Suporte</p>
-            <a href="mailto:suporte@retravium.com" data-testid="link-support-email" className="text-sm text-primary hover:text-accent transition-colors block">
-              suporte@retravium.com
-            </a>
-          </div>
-          <div>
-            <p className="text-[10px] tracking-[0.25em] uppercase font-sans text-muted-foreground mb-4">Sobre a retravium</p>
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              Retratos artísticos gerados por IA, entregues no seu WhatsApp em minutos. Feito com cuidado para cada família.
-            </p>
-          </div>
-          <div>
-            <p className="text-[10px] tracking-[0.25em] uppercase font-sans text-muted-foreground mb-4">Legal</p>
-            <div className="space-y-2">
-              <p className="text-sm text-muted-foreground">Termos de Uso</p>
-              <p className="text-sm text-muted-foreground">Política de Privacidade</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Barra inferior */}
-        <div className="border-t border-border/30 py-5 px-8">
-          <p className="text-center text-[10px] tracking-[0.2em] uppercase text-muted-foreground">
-            &copy; {new Date().getFullYear()} retravium · Todos os direitos reservados
+          <p className="text-sm text-muted-foreground">
+            &copy; {new Date().getFullYear()} retravium. Todos os direitos reservados.
           </p>
+          <a href="mailto:suporte@retravium.com" data-testid="link-support-email" className="text-sm text-muted-foreground hover-elevate">
+            suporte@retravium.com
+          </a>
         </div>
       </footer>
 
