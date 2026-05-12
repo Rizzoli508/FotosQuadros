@@ -1050,9 +1050,9 @@ export default function Home() {
                     transition={{ duration: 0.5 }}
                   />
                 </AnimatePresence>
-                {/* Gradiente sutil no rodapé só no mobile — garante legibilidade do botão */}
-                <div className="absolute bottom-0 inset-x-0 h-2/3 pointer-events-none md:hidden"
-                  style={{ background: 'linear-gradient(to top, rgba(255,255,255,0.55) 0%, transparent 100%)' }} />
+                {/* Gradiente mobile: imagem → creme (de cima pra baixo) */}
+                <div className="absolute inset-0 pointer-events-none md:hidden"
+                  style={{ background: 'linear-gradient(to bottom, transparent 28%, rgba(250,248,244,0.45) 44%, rgba(250,248,244,0.90) 58%, #faf8f4 70%)' }} />
               </div>
 
               {/* ── CONTEÚDO: direto sobre a imagem no mobile, coluna direita no desktop ── */}
