@@ -408,6 +408,7 @@ export default function Home() {
   const [checkoutFormPage, setCheckoutFormPage] = useState<1 | 2 | 3>(1);
   const [plansOpen, setPlansOpen] = useState(false);
   const [genProgress, setGenProgress] = useState(0);
+  const [loadingPhraseIdx, setLoadingPhraseIdx] = useState(0);
   const [reviewIndex, setReviewIndex] = useState(0);
   const [packCredits, setPackCredits] = useState(0);
   const [packTotal, setPackTotal] = useState(0);
@@ -818,6 +819,22 @@ export default function Home() {
     return () => el.removeEventListener('scroll', onScroll);
   }, [openStyleId]);
 
+  // Frases ciclicas durante o carregamento
+  const loadingPhrases = [
+    'Preparando a composição...',
+    'Aplicando as primeiras pinceladas...',
+    'Renderizando no estilo escolhido...',
+    'Refinando os detalhes...',
+    'Finalizando sua obra...',
+  ];
+  useEffect(() => {
+    if (!isGenerating) { setLoadingPhraseIdx(0); return; }
+    const interval = setInterval(() => {
+      setLoadingPhraseIdx(i => (i + 1) % loadingPhrases.length);
+    }, 3500);
+    return () => clearInterval(interval);
+  }, [isGenerating]);
+
   const hasAtLeastOnePhoto = faceSlots.some(s => s.file !== null);
 
   // Checkout helpers
@@ -1153,9 +1170,19 @@ export default function Home() {
                       className="w-full mb-4 rounded-2xl flex flex-col items-center justify-center gap-4 py-9 px-6"
                       style={{ border: '1px dashed rgba(45,38,32,0.2)', background: 'rgba(45,38,32,0.025)', minHeight: '112px' }}
                     >
-                      <p className="font-serif italic text-base" style={{ color: 'rgba(45,38,32,0.65)' }}>
-                        Criando sua obra...
-                      </p>
+                      <AnimatePresence mode="wait">
+                        <motion.p
+                          key={loadingPhraseIdx}
+                          initial={{ opacity: 0, y: 7 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -7 }}
+                          transition={{ duration: 0.38, ease: 'easeInOut' }}
+                          className="font-serif italic text-base"
+                          style={{ color: 'rgba(45,38,32,0.65)' }}
+                        >
+                          {loadingPhrases[loadingPhraseIdx]}
+                        </motion.p>
+                      </AnimatePresence>
                       <div className="w-full max-w-[220px]">
                         <div className="h-px rounded-full overflow-hidden mb-2" style={{ background: 'rgba(45,38,32,0.1)' }}>
                           <motion.div
@@ -2416,12 +2443,12 @@ export default function Home() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.96, y: 20 }}
               transition={{ duration: 0.28, ease: 'easeOut' }}
-              className="w-full max-w-5xl rounded-2xl shadow-2xl flex flex-col bg-white"
+              className="w-full max-w-5xl rounded-2xl shadow-2xl bg-white overflow-y-auto"
               style={{ maxHeight: '92vh' }}
               onClick={e => e.stopPropagation()}
             >
               {/* Header */}
-              <div className="flex items-center justify-between px-8 pt-6 pb-5 flex-shrink-0 border-b border-gray-100">
+              <div className="flex items-center justify-between px-8 pt-6 pb-5 border-b border-gray-100">
                 <div>
                   <span className="font-serif text-2xl italic" style={{ color: '#C9A96E' }}>retravium</span>
                   <p className="text-gray-400 text-xs mt-0.5 font-medium tracking-wide">Escolha seu pacote</p>
@@ -2432,13 +2459,13 @@ export default function Home() {
               </div>
 
               {/* Title */}
-              <div className="px-8 pt-7 pb-2 flex-shrink-0 text-center">
+              <div className="px-8 pt-7 pb-2 text-center">
                 <h2 className="font-serif text-3xl sm:text-4xl italic text-gray-900 leading-tight">Mais retratos, mais memórias</h2>
                 <p className="text-gray-400 text-sm sm:text-base mt-2">Quanto mais retratos, menor o preço por unidade</p>
               </div>
 
-              {/* Cards — scrollable */}
-              <div className="flex-1 overflow-y-auto px-6 sm:px-8 pb-8 pt-7">
+              {/* Cards */}
+              <div className="px-6 sm:px-8 pb-8 pt-7">
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
 
                   {/* ── Digital Pack ── */}
