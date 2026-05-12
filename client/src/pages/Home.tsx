@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useLocation } from 'wouter';
 import { Camera, Check, ChevronDown, Star, X, Plus, User, ChevronRight, Download, MessageCircle, RotateCcw, Truck, Package, Lock, ShieldCheck, CheckCircle } from 'lucide-react';
 import { useCreateOrder } from '@/hooks/use-orders';
 import { cn } from '@/lib/utils';
@@ -148,6 +149,20 @@ const URL_MOLD_MAP: Record<string, string> = {
   '/familia-3': '3p_1',
   '/familia-4': '4p_1',
   '/pet':       'pet_1',
+};
+
+// molde → URL (para atualizar a barra de endereço ao clicar na galeria)
+const MOLD_URL_MAP: Record<string, string> = {
+  '2p_1': '/casal',
+  '2p_2': '/mae-bebe',
+  '2p_3': '/mae-filha',
+  '2p_4': '/pai-filha',
+  '2p_5': '/mae-filho',
+  '2p_6': '/pai-filho',
+  '3p_1': '/familia-3', '3p_3': '/familia-3', '3p_4': '/familia-3',
+  '4p_1': '/familia-4', '4p_2': '/familia-4', '4p_3': '/familia-4', '4p_4': '/familia-4',
+  'pet_1': '/pet', 'pet_2': '/pet', 'pet_3': '/pet',
+  'mae_1': '/mae-filha', 'mae_2': '/mae-filha', 'mae_3': '/mae-filho', 'mae_4': '/mae-filho',
 };
 
 function getUrlMoldId(): string | null {
@@ -320,6 +335,7 @@ function CategorySection({ category, onOpenStyle }: { category: CategoryType; on
 }
 
 export default function Home() {
+  const [, navigate] = useLocation();
   const [openStyleId, setOpenStyleId] = useState<string | null>(() => getUrlMoldId());
   const [selectedSubStyle, setSelectedSubStyle] = useState<'classico' | 'intimo'>(() => {
     const id = getUrlMoldId();
@@ -607,6 +623,8 @@ export default function Home() {
     setSelectedSubStyle(isIntimo ? 'intimo' : 'classico');
     setGeneratedImage(null);
     setIsGenerating(false);
+    const url = MOLD_URL_MAP[moldId];
+    if (url) navigate(url);
   };
 
   const handleCloseModal = () => {
@@ -615,6 +633,7 @@ export default function Home() {
     setFaceSlots([]);
     setGeneratedImage(null);
     setIsGenerating(false);
+    navigate('/');
   };
 
   const handleGoHome = () => {
