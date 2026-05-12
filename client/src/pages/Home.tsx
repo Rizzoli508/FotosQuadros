@@ -1304,6 +1304,64 @@ export default function Home() {
               </div>
             </motion.section>
 
+            {/* ── REVIEWS ── */}
+            <section className="py-16 md:py-24" style={{ background: '#faf8f4' }}>
+              <div className="max-w-5xl mx-auto px-6 md:px-12">
+
+                {/* Label + estrelas */}
+                <motion.div
+                  className="text-center mb-10 md:mb-14"
+                  initial={{ opacity: 0, y: 16 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+                  viewport={{ once: true, amount: 0.3 }}
+                >
+                  <div className="flex justify-center gap-1 mb-3">
+                    {[1,2,3,4,5].map(s => <span key={s} style={{ color: '#C9A96E', fontSize: '18px' }}>★</span>)}
+                  </div>
+                  <p className="font-serif italic text-2xl md:text-3xl" style={{ color: '#2d2620' }}>O que dizem nossos clientes</p>
+                </motion.div>
+
+                {/* Cards */}
+                <motion.div
+                  className="grid grid-cols-1 md:grid-cols-3 gap-5"
+                  variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.12, delayChildren: 0.1 } } }}
+                  initial="hidden"
+                  whileInView="visible"
+                  viewport={{ once: true, amount: 0.2 }}
+                >
+                  {LOADING_REVIEWS.slice(0, 3).map((review, i) => (
+                    <motion.div
+                      key={i}
+                      className="rounded-2xl p-6 flex flex-col gap-4"
+                      style={{ background: 'white', border: '1px solid rgba(45,38,32,0.07)' }}
+                      variants={{ hidden: { opacity: 0, y: 24 }, visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] } } }}
+                    >
+                      {/* Foto + nome */}
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0">
+                          <img src={(review as any).photo} alt={review.name} className="w-full h-full object-cover" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-semibold" style={{ color: '#2d2620' }}>{review.name}</p>
+                          <p className="text-xs" style={{ color: 'rgba(45,38,32,0.4)' }}>{review.location}</p>
+                        </div>
+                      </div>
+                      {/* Estrelas */}
+                      <div className="flex gap-0.5">
+                        {[1,2,3,4,5].map(s => <span key={s} style={{ color: '#C9A96E', fontSize: '13px' }}>★</span>)}
+                      </div>
+                      {/* Texto */}
+                      <p className="text-sm font-light leading-relaxed" style={{ color: 'rgba(45,38,32,0.65)' }}>
+                        {review.text}
+                      </p>
+                    </motion.div>
+                  ))}
+                </motion.div>
+
+              </div>
+            </section>
+
             {/* ── FAQ — minimalista ── */}
             <section className="py-16 md:py-24 bg-white" style={{ borderTop: '1px solid rgba(45,38,32,0.10)' }}>
               <div className="max-w-2xl mx-auto px-6 md:px-12">
