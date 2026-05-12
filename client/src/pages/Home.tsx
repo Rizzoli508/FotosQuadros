@@ -137,6 +137,23 @@ interface FaceSlot {
   preview: string | null;
 }
 
+// ── URL → molde direto (para anúncios) ──────────────────────────────────────
+const URL_MOLD_MAP: Record<string, string> = {
+  '/casal':     '2p_1',
+  '/mae-bebe':  '2p_2',
+  '/mae-filha': '2p_3',
+  '/pai-filha': '2p_4',
+  '/mae-filho': '2p_5',
+  '/pai-filho': '2p_6',
+  '/familia-3': '3p_1',
+  '/familia-4': '4p_1',
+  '/pet':       'pet_1',
+};
+
+function getUrlMoldId(): string | null {
+  return URL_MOLD_MAP[window.location.pathname] ?? null;
+}
+
 function FaceUploadSlot({ slot, onUpload, onRemove }: { slot: FaceSlot; onUpload: (file: File) => void; onRemove: () => void }) {
   const onDrop = useCallback((acceptedFiles: File[]) => {
     if (acceptedFiles.length > 0) {
@@ -303,10 +320,18 @@ function CategorySection({ category, onOpenStyle }: { category: CategoryType; on
 }
 
 export default function Home() {
-  const [openStyleId, setOpenStyleId] = useState<string | null>(null);
-  const [selectedSubStyle, setSelectedSubStyle] = useState<'classico' | 'intimo'>('classico');
+  const [openStyleId, setOpenStyleId] = useState<string | null>(() => getUrlMoldId());
+  const [selectedSubStyle, setSelectedSubStyle] = useState<'classico' | 'intimo'>(() => {
+    const id = getUrlMoldId();
+    return (id && id !== '2p_1' && id.startsWith('2p')) ? 'intimo' : 'classico';
+  });
   const [openFaq, setOpenFaq] = useState<number | null>(null);
-  const [faceSlots, setFaceSlots] = useState<FaceSlot[]>([]);
+  const [faceSlots, setFaceSlots] = useState<FaceSlot[]>(() => {
+    const id = getUrlMoldId();
+    if (!id) return [];
+    const cat = CATEGORIES.find(c => c.molds.some(m => m.id === id));
+    return cat ? cat.roles.map(r => ({ role: r, file: null, preview: null })) : [];
+  });
   const [finish, setFinish] = useState<'bw' | 'color'>('bw');
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
