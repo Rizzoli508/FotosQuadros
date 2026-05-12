@@ -1205,7 +1205,7 @@ export default function Home() {
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
                       transition={{ duration: 0.25 }}
-                      className="flex gap-2.5 mb-4 w-full md:w-auto"
+                      className="flex gap-2.5 mb-4 w-full md:w-auto md:self-center"
                     >
                       {faceSlots.map((slot, index) => (
                         <FaceUploadSlot
