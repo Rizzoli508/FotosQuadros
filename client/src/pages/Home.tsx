@@ -415,6 +415,8 @@ export default function Home() {
   const [portraitId, setPortraitId] = useState<string | null>(null);
   const [whatsappStatus, setWhatsappStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
   const [successPhone, setSuccessPhone] = useState('');
+  const [showRetryPhone, setShowRetryPhone] = useState(false);
+  const autoSentRef = useRef(false);
   const [packPortraitIds, setPackPortraitIds] = useState<(string | null)[]>([]);
   const [packWhatsappStatus, setPackWhatsappStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
 
@@ -449,7 +451,36 @@ export default function Home() {
     setPixCopied(false);
     setPixTimer(0);
     setWhatsappStatus('idle');
+    setSuccessPhone('');
+    setShowRetryPhone(false);
+    autoSentRef.current = false;
   };
+
+  // ── Auto-send portrait via WhatsApp when payment is approved ──────────────
+  useEffect(() => {
+    if (checkoutStep !== 'success') return;
+    if (!portraitId || checkoutProduct?.isPhysical || autoSentRef.current) return;
+    const phone = form.phone.trim();
+    if (!phone) return; // no phone → skip auto-send, fallback UI will show
+    autoSentRef.current = true;
+    setWhatsappStatus('sending');
+    fetch(`/api/portraits/${portraitId}/send`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone, name: form.name }),
+    }).then(async res => {
+      if (res.ok) {
+        setWhatsappStatus('sent');
+      } else {
+        const data = await res.json().catch(() => ({}));
+        setWhatsappStatus('error');
+        setCheckoutError(data.message || 'Erro ao enviar.');
+      }
+    }).catch(() => {
+      setWhatsappStatus('error');
+      setCheckoutError('Erro de conexão. Tente novamente.');
+    });
+  }, [checkoutStep, portraitId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const saveOrderToSheet = async (orderId?: number) => {
     if (!checkoutProduct) return;
@@ -2295,7 +2326,7 @@ export default function Home() {
                             ? 'Seu quadro está sendo preparado e em breve será enviado para entrega.'
                             : packCredits > 0
                               ? `Seu 1º retrato está pronto. Você ainda tem ${packCredits} retrato${packCredits > 1 ? 's' : ''} no seu pack!`
-                              : 'Seu retrato está pronto! Baixe ou receba no WhatsApp.'}
+                              : 'Seu retrato está pronto! Estamos enviando para seu WhatsApp.'}
                         </p>
                       </div>
 
@@ -2345,15 +2376,82 @@ export default function Home() {
                         </a>
                       )}
 
-                      {/* ── Botão Receber no WhatsApp ── */}
-                      {portraitId && generatedImage && (
-                        <div className="w-full space-y-2">
-                          {/* Telefone — sempre mostra com opção de corrigir */}
-                          {whatsappStatus !== 'sent' && (
-                            <div className="space-y-1">
-                              <label className="text-xs font-medium text-left block" style={{ color: '#7a6a5a' }}>
-                                WhatsApp para receber o retrato:
-                              </label>
+                      {/* ── WhatsApp: auto-envio + fallback ── */}
+                      {portraitId && generatedImage && !checkoutProduct?.isPhysical && (
+                        <div className="w-full space-y-2 text-center">
+                          {whatsappStatus === 'sending' && (
+                            <div className="w-full py-3 rounded-2xl text-sm flex items-center justify-center gap-2" style={{ background: '#fdf6ec', color: '#8a6a2a' }}>
+                              ⏳ Enviando para seu WhatsApp…
+                            </div>
+                          )}
+
+                          {whatsappStatus === 'sent' && (
+                            <>
+                              <div className="w-full py-3 rounded-2xl font-semibold text-sm flex items-center justify-center gap-2" style={{ background: '#fdf6ec', color: '#8a6a2a' }}>
+                                ✅ Retrato enviado para seu WhatsApp!
+                              </div>
+                              {!showRetryPhone ? (
+                                <button
+                                  onClick={() => setShowRetryPhone(true)}
+                                  className="text-xs underline"
+                                  style={{ color: '#aaa' }}
+                                >
+                                  Não recebeu a foto? Clique aqui
+                                </button>
+                              ) : (
+                                <div className="space-y-2 text-left">
+                                  <p className="text-xs font-medium" style={{ color: '#7a6a5a' }}>Digite seu WhatsApp para reenviar:</p>
+                                  <input
+                                    type="tel"
+                                    placeholder="(11) 99999-9999"
+                                    autoFocus
+                                    className="w-full border rounded-xl px-4 py-3 text-base outline-none"
+                                    style={{ borderColor: '#e8d5b0' }}
+                                    value={successPhone}
+                                    onChange={e => setSuccessPhone(e.target.value)}
+                                  />
+                                  <button
+                                    onClick={async () => {
+                                      const phone = successPhone.trim();
+                                      if (!phone) return;
+                                      setWhatsappStatus('sending');
+                                      setShowRetryPhone(false);
+                                      setCheckoutError('');
+                                      try {
+                                        const res = await fetch(`/api/portraits/${portraitId}/send`, {
+                                          method: 'POST',
+                                          headers: { 'Content-Type': 'application/json' },
+                                          body: JSON.stringify({ phone, name: form.name }),
+                                        });
+                                        if (res.ok) { setWhatsappStatus('sent'); }
+                                        else {
+                                          const data = await res.json().catch(() => ({}));
+                                          setWhatsappStatus('error');
+                                          setCheckoutError(data.message || 'Erro ao enviar.');
+                                        }
+                                      } catch {
+                                        setWhatsappStatus('error');
+                                        setCheckoutError('Erro de conexão.');
+                                      }
+                                    }}
+                                    className="w-full py-3 rounded-2xl font-bold text-sm text-white flex items-center justify-center gap-2"
+                                    style={{ background: '#25D366' }}
+                                  >
+                                    📲 Enviar para este número
+                                  </button>
+                                </div>
+                              )}
+                            </>
+                          )}
+
+                          {(whatsappStatus === 'idle' || whatsappStatus === 'error') && (
+                            <div className="space-y-2 text-left">
+                              {whatsappStatus === 'error' && (
+                                <p className="text-xs text-red-500">{checkoutError || 'Erro ao enviar automaticamente.'}</p>
+                              )}
+                              <p className="text-xs font-medium" style={{ color: '#7a6a5a' }}>
+                                {whatsappStatus === 'error' ? 'Informe seu WhatsApp para enviar:' : 'WhatsApp para receber o retrato:'}
+                              </p>
                               <input
                                 type="tel"
                                 placeholder="(11) 99999-9999"
@@ -2362,62 +2460,89 @@ export default function Home() {
                                 value={successPhone || form.phone}
                                 onChange={e => setSuccessPhone(e.target.value)}
                               />
-                              <p className="text-xs text-left" style={{ color: '#aaa' }}>Número errado? Edite acima antes de enviar.</p>
+                              <button
+                                onClick={async () => {
+                                  const phone = (successPhone || form.phone).trim();
+                                  if (!phone) return;
+                                  autoSentRef.current = true;
+                                  setWhatsappStatus('sending');
+                                  setCheckoutError('');
+                                  try {
+                                    const res = await fetch(`/api/portraits/${portraitId}/send`, {
+                                      method: 'POST',
+                                      headers: { 'Content-Type': 'application/json' },
+                                      body: JSON.stringify({ phone, name: form.name }),
+                                    });
+                                    if (res.ok) { setWhatsappStatus('sent'); }
+                                    else {
+                                      const data = await res.json().catch(() => ({}));
+                                      setWhatsappStatus('error');
+                                      setCheckoutError(data.message || 'Erro ao enviar.');
+                                    }
+                                  } catch {
+                                    setWhatsappStatus('error');
+                                    setCheckoutError('Erro de conexão.');
+                                  }
+                                }}
+                                className="w-full py-3 rounded-2xl font-bold text-sm text-white flex items-center justify-center gap-2"
+                                style={{ background: '#25D366' }}
+                              >
+                                📲 Enviar para o WhatsApp
+                              </button>
                             </div>
                           )}
+                        </div>
+                      )}
+
+                      {/* Produto físico: botão manual de envio do retrato + mensagem do quadro */}
+                      {portraitId && generatedImage && checkoutProduct?.isPhysical && (
+                        <div className="w-full space-y-2">
                           {whatsappStatus === 'sent' ? (
-                            <div className="w-full py-4 rounded-2xl font-bold text-base flex items-center justify-center gap-2" style={{ background: '#fdf6ec', color: '#8a6a2a' }}>
-                              ✅ Enviado para {successPhone || form.phone}
+                            <div className="w-full py-3 rounded-2xl font-semibold text-sm flex items-center justify-center gap-2" style={{ background: '#fdf6ec', color: '#8a6a2a' }}>
+                              ✅ Enviado para seu WhatsApp!
                             </div>
                           ) : (
                             <button
                               disabled={whatsappStatus === 'sending'}
                               onClick={async () => {
-                                const phoneToSend = (successPhone || form.phone).trim();
-                                if (!phoneToSend) { setCheckoutError('Informe seu WhatsApp.'); return; }
+                                const phone = (successPhone || form.phone).trim();
+                                if (!phone) return;
                                 setWhatsappStatus('sending');
                                 setCheckoutError('');
                                 try {
                                   const res = await fetch(`/api/portraits/${portraitId}/send`, {
                                     method: 'POST',
                                     headers: { 'Content-Type': 'application/json' },
-                                    body: JSON.stringify({ phone: phoneToSend, name: form.name }),
+                                    body: JSON.stringify({ phone, name: form.name }),
                                   });
                                   if (res.ok) {
                                     setWhatsappStatus('sent');
-                                    // Para produtos físicos, envia também mensagem sobre o quadro
-                                    if (checkoutProduct?.isPhysical) {
-                                      fetch('/api/whatsapp/text', {
-                                        method: 'POST',
-                                        headers: { 'Content-Type': 'application/json' },
-                                        body: JSON.stringify({
-                                          phone: phoneToSend,
-                                          message: `Olá ${form.name || ''}! 📦\n\nSeu pedido de impressão *retravium* foi confirmado!\n\nSeu quadro está sendo preparado com carinho e será enviado para entrega em breve. Assim que despacharmos, você receberá o código de rastreio aqui. 🎨\n\nQualquer dúvida é só falar!`.trim(),
-                                        }),
-                                      }).catch(() => {});
-                                    }
+                                    fetch('/api/whatsapp/text', {
+                                      method: 'POST',
+                                      headers: { 'Content-Type': 'application/json' },
+                                      body: JSON.stringify({
+                                        phone,
+                                        message: `Olá ${form.name || ''}! 📦\n\nSeu pedido de impressão *retravium* foi confirmado!\n\nSeu quadro está sendo preparado com carinho e será enviado para entrega em breve. Assim que despacharmos, você receberá o código de rastreio aqui. 🎨\n\nQualquer dúvida é só falar!`.trim(),
+                                      }),
+                                    }).catch(() => {});
                                   } else {
                                     const data = await res.json().catch(() => ({}));
                                     setWhatsappStatus('error');
-                                    setCheckoutError(data.message || 'Erro ao enviar. Tente novamente.');
+                                    setCheckoutError(data.message || 'Erro ao enviar.');
                                   }
                                 } catch {
                                   setWhatsappStatus('error');
-                                  setCheckoutError('Erro de conexão. Tente novamente.');
+                                  setCheckoutError('Erro de conexão.');
                                 }
                               }}
-                              className="w-full py-4 rounded-2xl font-bold text-base text-white shadow-lg flex items-center justify-center gap-2 transition-opacity disabled:opacity-60"
+                              className="w-full py-3 rounded-2xl font-bold text-sm text-white flex items-center justify-center gap-2 transition-opacity disabled:opacity-60"
                               style={{ background: '#25D366' }}
                             >
-                              {whatsappStatus === 'sending' ? (
-                                <>⏳ Enviando para o WhatsApp...</>
-                              ) : (
-                                <>📲 Receber no WhatsApp{whatsappStatus === 'error' ? ' (tentar novamente)' : ''}</>
-                              )}
+                              {whatsappStatus === 'sending' ? <>⏳ Enviando…</> : <>📲 Receber retrato no WhatsApp</>}
                             </button>
                           )}
                           {whatsappStatus === 'error' && (
-                            <p className="text-xs text-red-500 text-center mt-1">{checkoutError}</p>
+                            <p className="text-xs text-red-500 text-center">{checkoutError}</p>
                           )}
                         </div>
                       )}
