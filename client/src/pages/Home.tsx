@@ -80,10 +80,10 @@ const CATEGORIES = [
     roles: ['Mãe', 'Filho/Filha'],
     special: true,
     molds: [
-      { id: 'mae_1', label: 'Mãe & Filha', image: motherDaughterImg, intimoImage: motherDaughterImg, colorImage: motherDaughterColorImg },
-      { id: 'mae_2', label: 'Mãe & Filha 2', image: motherDaughterIntimoImg, intimoImage: motherDaughterIntimoImg, colorImage: motherDaughterIntimoColorImg },
-      { id: 'mae_3', label: 'Mãe & Filho', image: motherSonImg, intimoImage: motherSonImg, colorImage: motherSonColorImg },
-      { id: 'mae_4', label: 'Mãe & Filho 2', image: motherSonIntimoImg, intimoImage: motherSonIntimoImg, colorImage: motherSonIntimoColorImg },
+      { id: 'mae_1', label: 'Mãe & Filha',          headlineLabel: 'Mãe & Filha', image: motherDaughterImg,      intimoImage: motherDaughterImg,      colorImage: motherDaughterColorImg },
+      { id: 'mae_2', label: 'Mãe & Filha — Pose 2', headlineLabel: 'Mãe & Filha', image: motherDaughterIntimoImg, intimoImage: motherDaughterIntimoImg, colorImage: motherDaughterIntimoColorImg },
+      { id: 'mae_3', label: 'Mãe & Filho',           headlineLabel: 'Mãe & Filho', image: motherSonImg,           intimoImage: motherSonImg,           colorImage: motherSonColorImg },
+      { id: 'mae_4', label: 'Mãe & Filho — Pose 2',  headlineLabel: 'Mãe & Filho', image: motherSonIntimoImg,     intimoImage: motherSonIntimoImg,     colorImage: motherSonIntimoColorImg },
     ],
   },
   {
@@ -91,17 +91,17 @@ const CATEGORIES = [
     slots: 2,
     roles: ['Pessoa 1', 'Pessoa 2'],
     molds: [
-      { id: '2p_1',  label: 'Casal',                image: couple2pImg,           colorImage: couple2pColorImg },
-      { id: '2p_2c', label: 'Mãe & Bebê · Clássico', image: motherBabyImg,         colorImage: motherBabyColorImg },
-      { id: '2p_2i', label: 'Mãe & Bebê · Íntimo',   image: motherBabyIntimoImg,   colorImage: motherBabyIntimoColorImg },
-      { id: '2p_3c', label: 'Mãe & Filha · Clássico', image: motherDaughterImg,     colorImage: motherDaughterColorImg },
-      { id: '2p_3i', label: 'Mãe & Filha · Íntimo',   image: motherDaughterIntimoImg, colorImage: motherDaughterIntimoColorImg },
-      { id: '2p_4c', label: 'Pai & Filha · Clássico', image: fatherDaughterImg,     colorImage: fatherDaughterColorImg },
-      { id: '2p_4i', label: 'Pai & Filha · Íntimo',   image: fatherDaughterIntimoImg, colorImage: fatherDaughterIntimoColorImg },
-      { id: '2p_5c', label: 'Mãe & Filho · Clássico', image: motherSonImg,          colorImage: motherSonColorImg },
-      { id: '2p_5i', label: 'Mãe & Filho · Íntimo',   image: motherSonIntimoImg,    colorImage: motherSonIntimoColorImg },
-      { id: '2p_6c', label: 'Pai & Filho · Clássico', image: fatherSonImg,          colorImage: fatherSonColorImg },
-      { id: '2p_6i', label: 'Pai & Filho · Íntimo',   image: fatherSonIntimoImg,    colorImage: fatherSonIntimoColorImg },
+      { id: '2p_1',  label: 'Casal',              headlineLabel: 'Casal',        image: couple2pImg,              colorImage: couple2pColorImg },
+      { id: '2p_2c', label: 'Mãe & Bebê',         headlineLabel: 'Mãe & Bebê',   image: motherBabyImg,            colorImage: motherBabyColorImg },
+      { id: '2p_2i', label: 'Mãe & Bebê — Pose 2', headlineLabel: 'Mãe & Bebê',  image: motherBabyIntimoImg,      colorImage: motherBabyIntimoColorImg },
+      { id: '2p_3c', label: 'Mãe & Filha',         headlineLabel: 'Mãe & Filha', image: motherDaughterImg,         colorImage: motherDaughterColorImg },
+      { id: '2p_3i', label: 'Mãe & Filha — Pose 2', headlineLabel: 'Mãe & Filha', image: motherDaughterIntimoImg, colorImage: motherDaughterIntimoColorImg },
+      { id: '2p_4c', label: 'Pai & Filha',          headlineLabel: 'Pai & Filha', image: fatherDaughterImg,         colorImage: fatherDaughterColorImg },
+      { id: '2p_4i', label: 'Pai & Filha — Pose 2', headlineLabel: 'Pai & Filha', image: fatherDaughterIntimoImg, colorImage: fatherDaughterIntimoColorImg },
+      { id: '2p_5c', label: 'Mãe & Filho',          headlineLabel: 'Mãe & Filho', image: motherSonImg,              colorImage: motherSonColorImg },
+      { id: '2p_5i', label: 'Mãe & Filho — Pose 2', headlineLabel: 'Mãe & Filho', image: motherSonIntimoImg,      colorImage: motherSonIntimoColorImg },
+      { id: '2p_6c', label: 'Pai & Filho',           headlineLabel: 'Pai & Filho', image: fatherSonImg,              colorImage: fatherSonColorImg },
+      { id: '2p_6i', label: 'Pai & Filho — Pose 2',  headlineLabel: 'Pai & Filho', image: fatherSonIntimoImg,      colorImage: fatherSonIntimoColorImg },
     ],
   },
   {
@@ -109,9 +109,9 @@ const CATEGORIES = [
     slots: 3,
     roles: ['Pessoa 1', 'Pessoa 2', 'Pessoa 3'],
     molds: [
-      { id: '3p_1', label: 'Clássico', image: threePeopleImg1, intimoImage: threePeopleImg1, colorImage: threePeopleImg1Color },
-      { id: '3p_3', label: 'Íntimo',   image: threePeopleImg3, intimoImage: threePeopleImg3, colorImage: threePeopleImg3Color },
-      { id: '3p_4', label: 'Moderno',  image: threePeopleImg4, intimoImage: threePeopleImg4, colorImage: threePeopleImg4Color },
+      { id: '3p_1', label: 'Retrato I',   headlineLabel: 'Seu Trio',     image: threePeopleImg1, intimoImage: threePeopleImg1, colorImage: threePeopleImg1Color },
+      { id: '3p_3', label: 'Retrato II',  headlineLabel: 'Esses Laços',  image: threePeopleImg3, intimoImage: threePeopleImg3, colorImage: threePeopleImg3Color },
+      { id: '3p_4', label: 'Retrato III', headlineLabel: 'Esse Momento', image: threePeopleImg4, intimoImage: threePeopleImg4, colorImage: threePeopleImg4Color },
     ],
   },
   {
@@ -119,10 +119,10 @@ const CATEGORIES = [
     slots: 4,
     roles: ['Pessoa 1', 'Pessoa 2', 'Pessoa 3', 'Pessoa 4'],
     molds: [
-      { id: '4p_1', label: 'Clássico', image: fourPeopleImg1, intimoImage: fourPeopleImg1, colorImage: fourPeopleImg1Color },
-      { id: '4p_2', label: 'Íntimo',   image: fourPeopleImg2, intimoImage: fourPeopleImg2, colorImage: fourPeopleImg2Color },
-      { id: '4p_3', label: 'Moderno',  image: fourPeopleImg3, intimoImage: fourPeopleImg3, colorImage: fourPeopleImg3Color },
-      { id: '4p_4', label: 'Especial', image: fourPeopleImg4, intimoImage: fourPeopleImg4, colorImage: fourPeopleImg4Color },
+      { id: '4p_1', label: 'Retrato I',   headlineLabel: 'Sua Família',    image: fourPeopleImg1, intimoImage: fourPeopleImg1, colorImage: fourPeopleImg1Color },
+      { id: '4p_2', label: 'Retrato II',  headlineLabel: 'Esse Amor',      image: fourPeopleImg2, intimoImage: fourPeopleImg2, colorImage: fourPeopleImg2Color },
+      { id: '4p_3', label: 'Retrato III', headlineLabel: 'Esses Laços',    image: fourPeopleImg3, intimoImage: fourPeopleImg3, colorImage: fourPeopleImg3Color },
+      { id: '4p_4', label: 'Retrato IV',  headlineLabel: 'Esses Momentos', image: fourPeopleImg4, intimoImage: fourPeopleImg4, colorImage: fourPeopleImg4Color },
     ],
   },
   {
@@ -130,9 +130,9 @@ const CATEGORIES = [
     slots: 2,
     roles: ['Pessoa', 'Pet'],
     molds: [
-      { id: 'pet_1', label: 'Melhor Amigo',     image: petImg1, intimoImage: petImg1, colorImage: petImg1Color },
-      { id: 'pet_2', label: 'Cumplicidade',      image: petImg2, intimoImage: petImg2, colorImage: petImg2Color },
-      { id: 'pet_3', label: 'Família Completa',  image: petImg3, intimoImage: petImg3, colorImage: petImg3Color },
+      { id: 'pet_1', label: 'Vocês Dois',      headlineLabel: 'Vocês Dois',      image: petImg1, intimoImage: petImg1, colorImage: petImg1Color },
+      { id: 'pet_2', label: 'Amor Peludo',     headlineLabel: 'Esse Amor Peludo', image: petImg2, intimoImage: petImg2, colorImage: petImg2Color },
+      { id: 'pet_3', label: 'Família Completa', headlineLabel: 'Toda a Família',  image: petImg3, intimoImage: petImg3, colorImage: petImg3Color },
     ],
   },
 ];
@@ -1156,7 +1156,7 @@ export default function Home() {
 
                 {/* Headline */}
                 <h1 className="font-serif text-2xl md:text-4xl lg:text-5xl leading-tight mb-1 text-center md:text-left" style={{ color: '#2d2620' }}>
-                  Eternize <em style={{ color: '#C9A96E' }}>{openMold.label}</em><br />
+                  Eternize <em style={{ color: '#C9A96E' }}>{(openMold as any).headlineLabel ?? openMold.label}</em><br />
                   em uma Obra Atemporal.
                 </h1>
                 <p className="text-xs mb-4 font-light text-center md:text-left" style={{ color: 'rgba(45,38,32,0.5)' }}>
