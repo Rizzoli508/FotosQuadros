@@ -1050,18 +1050,16 @@ export default function Home() {
                     transition={{ duration: 0.5 }}
                   />
                 </AnimatePresence>
+                {/* Gradiente sutil no rodapé só no mobile — garante legibilidade do botão */}
+                <div className="absolute bottom-0 inset-x-0 h-2/3 pointer-events-none md:hidden"
+                  style={{ background: 'linear-gradient(to top, rgba(255,255,255,0.55) 0%, transparent 100%)' }} />
               </div>
 
-              {/* ── CONTEÚDO: frosted glass no mobile, coluna direita no desktop ── */}
+              {/* ── CONTEÚDO: direto sobre a imagem no mobile, coluna direita no desktop ── */}
               <div
-                className="absolute bottom-0 left-0 right-0 max-h-[75vh] overflow-y-auto rounded-t-[28px] backdrop-blur-xl md:backdrop-blur-none md:relative md:inset-auto md:max-h-none md:overflow-visible md:rounded-none md:flex-1 md:flex md:flex-col md:justify-center px-6 md:px-14 py-6 md:py-16"
-                style={{ background: 'rgba(250,248,244,0.78)' }}
+                className="absolute inset-0 flex flex-col justify-end px-6 pb-6 overflow-y-auto md:relative md:inset-auto md:overflow-visible md:flex-1 md:flex md:flex-col md:justify-center md:px-14 md:py-16 md:bg-[#faf8f4]"
                 data-testid="modal-style-content"
               >
-                {/* Handle visual — mobile only */}
-                <div className="flex justify-center mb-4 md:hidden">
-                  <div className="w-10 h-1 rounded-full" style={{ background: 'rgba(45,38,32,0.22)' }} />
-                </div>
                 {/* Overlay: geração em andamento */}
                 {isGenerating && (
                   <div className="absolute inset-0 z-40 flex flex-col items-center justify-center px-6" style={{ background: '#faf8f4' }}>
