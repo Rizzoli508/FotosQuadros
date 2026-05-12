@@ -1169,22 +1169,22 @@ export default function Home() {
             <motion.section
               ref={quoteContainerRef as any}
               className="relative overflow-hidden py-28 md:py-44"
-              style={{ background: '#1c1510' }}
+              style={{ background: '#ffffff' }}
             >
-              {/* Glow radial dourado centrado */}
+              {/* Glow radial dourado centrado — visível sobre fundo branco */}
               <div className="pointer-events-none absolute inset-0" style={{
-                background: 'radial-gradient(ellipse 80% 90% at 50% 50%, rgba(201,169,110,0.26) 0%, rgba(201,169,110,0.08) 45%, transparent 72%)',
+                background: 'radial-gradient(ellipse 70% 85% at 50% 50%, rgba(201,169,110,0.35) 0%, rgba(201,169,110,0.14) 40%, transparent 70%)',
               }} />
-              {/* Vinheta nas bordas */}
+              {/* Suave escurecimento nas bordas para dar profundidade */}
               <div className="pointer-events-none absolute inset-0" style={{
-                background: 'radial-gradient(ellipse 120% 120% at 50% 50%, transparent 30%, rgba(12,8,4,0.6) 100%)',
+                background: 'radial-gradient(ellipse 130% 130% at 50% 50%, transparent 40%, rgba(201,169,110,0.06) 65%, rgba(220,210,195,0.25) 100%)',
               }} />
 
               <div className="relative z-10 max-w-5xl mx-auto px-8 md:px-16 text-center">
                 {/* Label */}
                 <motion.p
                   className="text-[9px] tracking-[0.4em] uppercase font-sans mb-12 md:mb-16"
-                  style={{ color: 'rgba(201,169,110,0.6)' }}
+                  style={{ color: 'rgba(201,169,110,0.7)' }}
                   initial={{ opacity: 0 }}
                   whileInView={{ opacity: 1 }}
                   transition={{ duration: 0.8, ease: "easeOut" }}
@@ -1205,7 +1205,7 @@ export default function Home() {
                     whileInView="visible"
                     viewport={{ once: true, amount: 0.3 }}
                   >
-                    <motion.span className="block" style={{ color: '#faf8f4' }}
+                    <motion.span className="block" style={{ color: '#2d2620' }}
                       variants={{ hidden: { opacity: 0, y: 28 }, visible: { opacity: 1, y: 0, transition: { duration: 1.0, ease: [0.22, 1, 0.36, 1] } } }}
                     >
                       "Momentos passam.
@@ -1220,7 +1220,7 @@ export default function Home() {
                   {/* Subtexto menor abaixo */}
                   <motion.p
                     className="mt-8 text-sm md:text-base font-light leading-relaxed"
-                    style={{ color: 'rgba(250,248,244,0.45)' }}
+                    style={{ color: 'rgba(45,38,32,0.45)' }}
                     initial={{ opacity: 0, y: 14 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.8, delay: 0.55, ease: [0.22, 1, 0.36, 1] }}
