@@ -1310,8 +1310,8 @@ export default function Home() {
 
                 {/* Label */}
                 <motion.p
-                  className="text-[10px] tracking-[0.35em] uppercase font-sans mb-8 text-center"
-                  style={{ color: 'rgba(45,38,32,0.38)' }}
+                  className="text-base md:text-lg tracking-[0.15em] uppercase font-serif mb-8 text-center"
+                  style={{ color: 'rgba(45,38,32,0.55)' }}
                   initial={{ opacity: 0 }}
                   whileInView={{ opacity: 1 }}
                   transition={{ duration: 0.6 }}
