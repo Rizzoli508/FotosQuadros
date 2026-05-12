@@ -200,10 +200,6 @@ function FaceUploadSlot({ slot, onUpload, onRemove }: { slot: FaceSlot; onUpload
           >
             <X className="w-3.5 h-3.5" />
           </button>
-          <div className="absolute bottom-0 left-0 right-0 px-2.5 pb-2 pt-4"
-            style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.5) 0%, transparent 100%)' }}>
-            <p className="text-[10px] font-medium text-white/80 truncate">{slot.role}</p>
-          </div>
         </div>
       ) : (
         <div
@@ -228,11 +224,8 @@ function FaceUploadSlot({ slot, onUpload, onRemove }: { slot: FaceSlot; onUpload
               <Plus className="w-2.5 h-2.5" style={{ color: 'rgba(45,38,32,0.55)' }} />
             </div>
           </div>
-          <p className="text-sm font-semibold tracking-wide" style={{ color: 'rgba(45,38,32,0.65)' }}>
+          <p className="text-base font-semibold tracking-wide" style={{ color: 'rgba(45,38,32,0.65)' }}>
             Adicionar foto
-          </p>
-          <p className="text-xs mt-0.5" style={{ color: 'rgba(45,38,32,0.35)' }}>
-            {slot.role}
           </p>
         </div>
       )}
@@ -1153,12 +1146,6 @@ export default function Home() {
                 </p>
 
                 {/* Upload / Loading inline */}
-                {!isGenerating && (
-                  <p className="text-[11px] mb-3 font-medium tracking-wide text-center md:text-left" style={{ color: 'rgba(45,38,32,0.5)' }}>
-                    Envie uma foto do grupo ou separada de cada pessoa.
-                  </p>
-                )}
-
                 <AnimatePresence mode="wait">
                   {isGenerating ? (
                     <motion.div
