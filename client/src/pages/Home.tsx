@@ -1109,70 +1109,6 @@ export default function Home() {
                 {/* Conteúdo inferior — empurrado pro fundo */}
                 <div className="flex flex-col md:contents">
 
-                {/* Overlay: geração em andamento */}
-                {isGenerating && (
-                  <div className="absolute inset-0 z-40 flex flex-col items-center justify-center px-6" style={{ background: '#faf8f4' }}>
-                    <div className="w-full max-w-md sm:max-w-2xl rounded-3xl px-8 py-10 sm:px-20 sm:py-16 flex flex-col items-center gap-7 sm:gap-10" style={{ background: 'white', border: '1.5px solid #ddd6c8', boxShadow: '0 8px 48px rgba(100,80,50,0.13), 0 2px 8px rgba(100,80,50,0.07)' }}>
-                      <div className="relative flex items-center justify-center w-20 h-20 sm:w-28 sm:h-28">
-                        <div className="absolute inset-0 rounded-full border-2 border-black/5" />
-                        <div className="absolute inset-0 rounded-full border-2 border-t-transparent animate-spin" style={{ borderColor: 'rgba(201,169,110,0.2)', borderTopColor: '#C9A96E' }} />
-                        <Camera className="absolute w-7 h-7 sm:w-10 sm:h-10" style={{ color: '#C9A96E' }} />
-                      </div>
-                      <div className="text-center space-y-2">
-                        <p className="font-serif text-2xl sm:text-4xl italic" style={{ color: '#2d2620' }}>Criando sua obra...</p>
-                        <p className="text-xs sm:text-sm tracking-widest uppercase" style={{ color: 'rgba(45,38,32,0.4)' }}>Pode levar até 30 segundos</p>
-                      </div>
-                      <div className="w-full space-y-2">
-                        <div className="h-px rounded-full overflow-hidden" style={{ background: 'rgba(45,38,32,0.1)' }}>
-                          <div className="h-full rounded-full transition-all duration-700 ease-out" style={{ background: 'linear-gradient(90deg, #C9A96E, #e8c98a)', width: `${genProgress}%` }} />
-                        </div>
-                        <p className="text-center text-xs sm:text-sm font-medium" style={{ color: '#C9A96E' }}>{Math.round(genProgress)}%</p>
-                      </div>
-                      <div className="w-full h-px" style={{ background: 'rgba(45,38,32,0.08)' }} />
-                      <div className="w-full">
-                        <AnimatePresence mode="wait">
-                          <motion.div
-                            key={reviewIndex}
-                            initial={{ opacity: 0, y: 8 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -8 }}
-                            transition={{ duration: 0.4 }}
-                            className="flex items-stretch gap-5"
-                          >
-                            <div className="flex-shrink-0 w-24 h-32 sm:w-36 sm:h-52 rounded-2xl overflow-hidden shadow-lg">
-                              {(LOADING_REVIEWS[reviewIndex] as any).photo ? (
-                                <img src={(LOADING_REVIEWS[reviewIndex] as any).photo} alt={LOADING_REVIEWS[reviewIndex].name} className="w-full h-full object-cover" style={(LOADING_REVIEWS[reviewIndex] as any).photo === reviewDogImg ? { transform: 'scale(1.08)', transformOrigin: 'left center' } : {}} />
-                              ) : (
-                                <div className="w-full h-full flex items-center justify-center text-white text-2xl sm:text-3xl font-bold" style={{ background: `linear-gradient(135deg, ${LOADING_REVIEWS[reviewIndex].color}, ${LOADING_REVIEWS[reviewIndex].color}99)` }}>
-                                  {LOADING_REVIEWS[reviewIndex].initials}
-                                </div>
-                              )}
-                            </div>
-                            <div className="flex flex-col justify-center gap-1.5 sm:gap-2">
-                              <div className="flex gap-0.5">{[1,2,3,4,5].map(s => <span key={s} style={{ color: '#C9A96E', fontSize: '16px' }}>★</span>)}</div>
-                              <p className="text-base sm:text-lg font-semibold leading-tight" style={{ color: 'rgba(45,38,32,0.85)' }}>{LOADING_REVIEWS[reviewIndex].name}</p>
-                              <p className="text-xs sm:text-sm" style={{ color: 'rgba(45,38,32,0.35)' }}>{LOADING_REVIEWS[reviewIndex].location}</p>
-                              <p className="text-sm sm:text-base leading-relaxed italic mt-1" style={{ color: 'rgba(45,38,32,0.6)' }}>{LOADING_REVIEWS[reviewIndex].text}</p>
-                            </div>
-                          </motion.div>
-                        </AnimatePresence>
-                        <div className="flex justify-center gap-1.5 mt-4">
-                          {LOADING_REVIEWS.map((_, i) => (
-                            <div
-                              key={i}
-                              className="rounded-full transition-all duration-300"
-                              style={{
-                                width: i === reviewIndex ? '16px' : '5px',
-                                height: '5px',
-                                background: i === reviewIndex ? '#C9A96E' : 'rgba(45,38,32,0.15)',
-                              }}
-                            />
-                          ))}
-                        </div>
-                      </div>
-                    </div>{/* fim card */}
-                  </div>
-                )}
 
                 {/* Toggle P&B / Colorido — desktop only (mobile fica no topo) */}
                 <div className="hidden md:flex p-0.5 rounded-full border border-[#efe8d8] bg-white shadow-sm self-start mb-4">
@@ -1199,20 +1135,62 @@ export default function Home() {
                   Prévia gratuita
                 </p>
 
-                {/* Upload */}
-                <p className="text-[11px] mb-3 font-medium tracking-wide text-center md:text-left" style={{ color: 'rgba(45,38,32,0.5)' }}>
-                  Envie uma foto do grupo ou separada de cada pessoa.
-                </p>
-                <div className="flex gap-2.5 mb-4 w-full">
-                  {faceSlots.map((slot, index) => (
-                    <FaceUploadSlot
-                      key={slot.role}
-                      slot={slot}
-                      onUpload={(file) => handleFaceUpload(index, file)}
-                      onRemove={() => handleFaceRemove(index)}
-                    />
-                  ))}
-                </div>
+                {/* Upload / Loading inline */}
+                {!isGenerating && (
+                  <p className="text-[11px] mb-3 font-medium tracking-wide text-center md:text-left" style={{ color: 'rgba(45,38,32,0.5)' }}>
+                    Envie uma foto do grupo ou separada de cada pessoa.
+                  </p>
+                )}
+
+                <AnimatePresence mode="wait">
+                  {isGenerating ? (
+                    <motion.div
+                      key="loading-card"
+                      initial={{ opacity: 0, scale: 0.97 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.97 }}
+                      transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+                      className="w-full mb-4 rounded-2xl flex flex-col items-center justify-center gap-4 py-9 px-6"
+                      style={{ border: '1px dashed rgba(45,38,32,0.2)', background: 'rgba(45,38,32,0.025)', minHeight: '112px' }}
+                    >
+                      <p className="font-serif italic text-base" style={{ color: 'rgba(45,38,32,0.65)' }}>
+                        Criando sua obra...
+                      </p>
+                      <div className="w-full max-w-[220px]">
+                        <div className="h-px rounded-full overflow-hidden mb-2" style={{ background: 'rgba(45,38,32,0.1)' }}>
+                          <motion.div
+                            className="h-full rounded-full"
+                            style={{ background: 'linear-gradient(90deg, #C9A96E, #e8c98a)' }}
+                            initial={{ width: '0%' }}
+                            animate={{ width: `${genProgress}%` }}
+                            transition={{ duration: 0.7, ease: 'easeOut' }}
+                          />
+                        </div>
+                        <p className="text-center text-xs font-medium" style={{ color: '#C9A96E' }}>
+                          {Math.round(genProgress)}%
+                        </p>
+                      </div>
+                    </motion.div>
+                  ) : (
+                    <motion.div
+                      key="upload-slots"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.25 }}
+                      className="flex gap-2.5 mb-4 w-full"
+                    >
+                      {faceSlots.map((slot, index) => (
+                        <FaceUploadSlot
+                          key={slot.role}
+                          slot={slot}
+                          onUpload={(file) => handleFaceUpload(index, file)}
+                          onRemove={() => handleFaceRemove(index)}
+                        />
+                      ))}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
 
                 {/* Botão gerar */}
                 <button
@@ -1225,7 +1203,7 @@ export default function Home() {
                   )}
                   style={{ background: '#C9A96E' }}
                 >
-                  {generatedImage ? "Gerar Novamente" : "Gerar Meu Retrato"}
+                  {isGenerating ? "Gerando..." : generatedImage ? "Gerar Novamente" : "Gerar Meu Retrato"}
                 </button>
 
                 {/* Prova social */}
