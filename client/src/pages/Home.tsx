@@ -1057,9 +1057,30 @@ export default function Home() {
 
               {/* ── CONTEÚDO: direto sobre a imagem no mobile, coluna direita no desktop ── */}
               <div
-                className="absolute inset-0 flex flex-col justify-end px-6 pb-6 overflow-y-auto md:relative md:inset-auto md:overflow-visible md:flex-1 md:flex md:flex-col md:justify-center md:px-14 md:py-16 md:bg-[#faf8f4]"
+                className="absolute inset-0 flex flex-col justify-between pt-4 px-6 pb-6 overflow-y-auto md:relative md:inset-auto md:overflow-visible md:flex-1 md:flex md:flex-col md:justify-center md:px-14 md:py-16 md:bg-[#faf8f4]"
                 data-testid="modal-style-content"
               >
+                {/* Toggle no topo — mobile only */}
+                <div className="flex justify-center md:hidden">
+                  <div className="flex p-0.5 rounded-full border border-[#efe8d8] bg-white/90 shadow-sm">
+                    <button
+                      onClick={() => setFinish('bw')}
+                      data-testid="button-finish-bw-top"
+                      className={cn("px-4 py-1.5 rounded-full text-[10px] font-serif uppercase tracking-[0.12em] transition-all duration-300", finish === 'bw' ? "shadow text-white" : "bg-transparent text-foreground/50")}
+                      style={finish === 'bw' ? { background: '#C9A96E' } : {}}
+                    >Preto e Branco</button>
+                    <button
+                      onClick={() => setFinish('color')}
+                      data-testid="button-finish-color-top"
+                      className={cn("px-4 py-1.5 rounded-full text-[10px] font-serif uppercase tracking-[0.12em] transition-all duration-300", finish === 'color' ? "shadow text-white" : "bg-transparent text-foreground/50")}
+                      style={finish === 'color' ? { background: '#C9A96E' } : {}}
+                    >Colorido</button>
+                  </div>
+                </div>
+
+                {/* Conteúdo inferior — empurrado pro fundo */}
+                <div className="flex flex-col md:contents">
+
                 {/* Overlay: geração em andamento */}
                 {isGenerating && (
                   <div className="absolute inset-0 z-40 flex flex-col items-center justify-center px-6" style={{ background: '#faf8f4' }}>
@@ -1125,8 +1146,8 @@ export default function Home() {
                   </div>
                 )}
 
-                {/* Toggle P&B / Colorido — topo, centralizado */}
-                <div className="flex p-0.5 rounded-full border border-[#efe8d8] bg-white shadow-sm self-center mb-4">
+                {/* Toggle P&B / Colorido — desktop only (mobile fica no topo) */}
+                <div className="hidden md:flex p-0.5 rounded-full border border-[#efe8d8] bg-white shadow-sm self-start mb-4">
                   <button
                     onClick={() => setFinish('bw')}
                     data-testid="button-finish-bw"
@@ -1184,6 +1205,7 @@ export default function Home() {
                   <div className="flex gap-0.5">{[1,2,3,4,5].map(s => <span key={s} style={{ color: '#C9A96E', fontSize: '12px' }}>★</span>)}</div>
                   <span className="text-[11px] font-light tracking-wide" style={{ color: 'rgba(45,38,32,0.4)' }}>Mais de 10.000 retratos gerados</span>
                 </div>
+                </div>{/* fim conteúdo inferior */}
               </div>
             </div>{/* fim split-screen */}
 
