@@ -183,35 +183,57 @@ function FaceUploadSlot({ slot, onUpload, onRemove }: { slot: FaceSlot; onUpload
   });
 
   return (
-    <div className="flex flex-col items-center gap-2">
+    <div className="flex flex-col items-start gap-2">
       {slot.preview ? (
-        <div className="relative w-20 h-20 md:w-24 md:h-24 rounded-full overflow-visible group">
+        <div className="relative w-28 h-32 md:w-32 md:h-36 rounded-2xl overflow-hidden group">
           <img
             src={slot.preview}
             alt={slot.role}
-            className="w-full h-full object-cover rounded-full"
+            className="w-full h-full object-cover"
             data-testid={`img-face-${slot.role}`}
           />
           <button
             onClick={onRemove}
             data-testid={`button-remove-face-${slot.role}`}
-            className="absolute -top-1 -right-1 text-white/70 hover:text-white transition-opacity z-10"
+            className="absolute top-2 right-2 w-6 h-6 rounded-full bg-black/55 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/75 transition-colors z-10"
             aria-label="Remover foto"
           >
-            <X className="w-4 h-4" />
+            <X className="w-3.5 h-3.5" />
           </button>
+          <div className="absolute bottom-0 left-0 right-0 px-2 pb-2 pt-4"
+            style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.45) 0%, transparent 100%)' }}>
+            <p className="text-[10px] font-medium text-white/80 truncate">{slot.role}</p>
+          </div>
         </div>
       ) : (
         <div
           {...getRootProps()}
           data-testid={`upload-face-${slot.role}`}
           className={cn(
-            "w-20 h-20 md:w-24 md:h-24 rounded-full border-2 border-dashed flex flex-col items-center justify-center cursor-pointer transition-colors",
-            isDragActive ? "border-accent bg-accent/10" : "border-black/70 hover:border-black"
+            "relative w-28 h-32 md:w-32 md:h-36 rounded-2xl border flex flex-col items-center justify-center cursor-pointer transition-all duration-200",
+            isDragActive
+              ? "border-[#C9A96E]/60 bg-[#C9A96E]/6 scale-[1.02]"
+              : "border-[#2d2620]/12 bg-[#2d2620]/[0.025] hover:border-[#C9A96E]/40 hover:bg-[#C9A96E]/4"
           )}
         >
           <input {...getInputProps()} />
-          <Plus className="w-6 h-6 text-black/70" />
+          {/* Icon card */}
+          <div className="relative mb-3">
+            <div className="w-11 h-11 rounded-xl flex items-center justify-center"
+              style={{ background: 'rgba(45,38,32,0.07)' }}>
+              <User className="w-5 h-5" style={{ color: 'rgba(45,38,32,0.3)' }} />
+            </div>
+            <div className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full flex items-center justify-center"
+              style={{ background: 'rgba(45,38,32,0.13)' }}>
+              <Plus className="w-2.5 h-2.5" style={{ color: 'rgba(45,38,32,0.55)' }} />
+            </div>
+          </div>
+          <p className="text-[11px] font-semibold tracking-wide" style={{ color: 'rgba(45,38,32,0.65)' }}>
+            Adicionar foto
+          </p>
+          <p className="text-[10px] mt-0.5" style={{ color: 'rgba(45,38,32,0.35)' }}>
+            {slot.role}
+          </p>
         </div>
       )}
     </div>
