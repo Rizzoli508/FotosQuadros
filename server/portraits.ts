@@ -1,15 +1,19 @@
 /**
  * portraits.ts
- * Salva retratos no disco local (desenvolvimento).
- * Em produção, trocar para Supabase Storage.
+ * Salva retratos no Supabase Storage (produção Railway).
+ * Metadata de estado (sending/sent) fica em memória — dura enquanto o processo viver.
  */
-import fs from 'fs';
-import path from 'path';
-import crypto from 'crypto';
+import { createClient } from '@supabase/supabase-js';
 
-export const UPLOADS_DIR = path.join(process.cwd(), 'server', 'uploads');
-const META_FILE = path.join(UPLOADS_DIR, 'portraits.json');
-const MAX_AGE_MS = 48 * 60 * 60 * 1000;
+const BUCKET = 'portraits';
+
+const supabase = createClient(
+  process.env.SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!,
+);
+
+// Metadata em memória (suficiente para o ciclo de vida de um retrato)
+const memMeta: Record<string, { sent: boolean; sending: boolean; createdAt: number }> = {};
 
 export interface PortraitMeta {
   id: string;
@@ -19,75 +23,62 @@ export interface PortraitMeta {
   createdAt: number;
 }
 
-if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR, { recursive: true });
-
-function loadMeta(): Record<string, PortraitMeta> {
-  try {
-    if (fs.existsSync(META_FILE)) return JSON.parse(fs.readFileSync(META_FILE, 'utf8'));
-  } catch {}
-  return {};
-}
-
-function saveMeta(meta: Record<string, PortraitMeta>): void {
-  fs.writeFileSync(META_FILE, JSON.stringify(meta, null, 2), 'utf8');
+export async function ensureBucket(): Promise<void> {
+  const { data: buckets } = await supabase.storage.listBuckets();
+  const exists = buckets?.some(b => b.name === BUCKET);
+  if (!exists) {
+    await supabase.storage.createBucket(BUCKET, { public: true });
+    console.log(`[Supabase] Bucket "${BUCKET}" criado.`);
+  }
 }
 
 export function cleanupOldPortraits(): void {
-  const meta = loadMeta();
-  const now = Date.now();
-  let changed = false;
-  for (const [id, p] of Object.entries(meta)) {
-    if (now - p.createdAt > MAX_AGE_MS) {
-      try { fs.unlinkSync(path.join(UPLOADS_DIR, `${id}.png`)); } catch {}
-      delete meta[id];
-      changed = true;
-    }
+  // Limpeza em memória — arquivos no Supabase expiram por policy do bucket
+  const cutoff = Date.now() - 48 * 60 * 60 * 1000;
+  for (const [id, m] of Object.entries(memMeta)) {
+    if (m.createdAt < cutoff) delete memMeta[id];
   }
-  if (changed) saveMeta(meta);
-}
-
-export async function ensureBucket(): Promise<void> {
-  // No-op em modo local
 }
 
 export async function savePortrait(imageBase64: string): Promise<string> {
-  const id = crypto.randomUUID();
-  const filePath = path.join(UPLOADS_DIR, `${id}.png`);
+  const { randomUUID } = await import('crypto');
+  const id = randomUUID();
   const base64Data = imageBase64.replace(/^data:image\/\w+;base64,/, '');
-  fs.writeFileSync(filePath, Buffer.from(base64Data, 'base64'));
+  const buffer = Buffer.from(base64Data, 'base64');
 
-  // URL pública local (funciona em desenvolvimento)
-  const host = process.env.PUBLIC_URL || 'http://localhost:5000';
-  const publicUrl = `${host}/portraits/${id}`;
+  const { error } = await supabase.storage
+    .from(BUCKET)
+    .upload(`${id}.png`, buffer, { contentType: 'image/png', upsert: false });
 
-  const meta = loadMeta();
-  meta[id] = { id, sent: false, sending: false, publicUrl, createdAt: Date.now() };
-  saveMeta(meta);
+  if (error) throw new Error(`Supabase upload error: ${error.message}`);
+
+  memMeta[id] = { sent: false, sending: false, createdAt: Date.now() };
   return id;
 }
 
 export function getPortrait(id: string): PortraitMeta | null {
   if (!/^[0-9a-f-]{36}$/.test(id)) return null;
-  return loadMeta()[id] ?? null;
+  const m = memMeta[id];
+  if (!m) return null;
+  const { data } = supabase.storage.from(BUCKET).getPublicUrl(`${id}.png`);
+  return { id, ...m, publicUrl: data.publicUrl };
 }
 
-export function getPortraitPath(id: string): string | null {
+export async function getPortraitPath(id: string): Promise<Buffer | null> {
   if (!/^[0-9a-f-]{36}$/.test(id)) return null;
-  const p = path.join(UPLOADS_DIR, `${id}.png`);
-  return fs.existsSync(p) ? p : null;
+  const { data, error } = await supabase.storage.from(BUCKET).download(`${id}.png`);
+  if (error || !data) return null;
+  return Buffer.from(await data.arrayBuffer());
 }
 
 export function markPortraitSending(id: string): void {
-  const meta = loadMeta();
-  if (meta[id]) { meta[id].sending = true; saveMeta(meta); }
+  if (memMeta[id]) memMeta[id].sending = true;
 }
 
 export function markPortraitSent(id: string): void {
-  const meta = loadMeta();
-  if (meta[id]) { meta[id].sent = true; meta[id].sending = false; saveMeta(meta); }
+  if (memMeta[id]) { memMeta[id].sent = true; memMeta[id].sending = false; }
 }
 
 export function markPortraitSendFailed(id: string): void {
-  const meta = loadMeta();
-  if (meta[id]) { meta[id].sending = false; saveMeta(meta); }
+  if (memMeta[id]) memMeta[id].sending = false;
 }

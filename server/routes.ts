@@ -1,7 +1,5 @@
 import type { Express } from "express";
 import type { Server } from "http";
-import fs from "fs";
-import path from "path";
 import { storage } from "./storage";
 import { api } from "@shared/routes";
 import { z } from "zod";
@@ -143,12 +141,11 @@ export async function registerRoutes(
     }
   });
 
-  // ── Retratos: servir arquivo local ────────────────────────────────────────────
+  // ── Retratos: redireciona para URL pública no Supabase ───────────────────────
   app.get('/portraits/:id', (req, res) => {
-    const { getPortraitPath } = require('./portraits');
-    const filePath = getPortraitPath(req.params.id);
-    if (!filePath) return res.status(404).json({ message: 'Retrato não encontrado.' });
-    res.sendFile(filePath);
+    const portrait = getPortrait(req.params.id);
+    if (!portrait) return res.status(404).json({ message: 'Retrato não encontrado.' });
+    res.redirect(portrait.publicUrl);
   });
 
   // ── Retratos: salvar imagem ────────────────────────────────────────────────────
@@ -177,11 +174,12 @@ export async function registerRoutes(
     if (!portrait)        return res.status(404).json({ message: 'Retrato não encontrado. Gere novamente.' });
     if (portrait.sent)    return res.json({ success: true, alreadySent: true });
     if (portrait.sending) return res.status(409).json({ message: 'Já está sendo enviado. Aguarde.' });
-    // Lê a imagem do disco e converte para base64 (não depende de URL pública)
-    const filePath = getPortraitPath(id);
-    if (!filePath) return res.status(404).json({ message: 'Arquivo do retrato não encontrado. Gere novamente.' });
 
-    const imageBase64 = `data:image/png;base64,${fs.readFileSync(filePath).toString('base64')}`;
+    // Baixa a imagem do Supabase Storage
+    const imageBuffer = await getPortraitPath(id);
+    if (!imageBuffer) return res.status(404).json({ message: 'Arquivo do retrato não encontrado. Gere novamente.' });
+
+    const imageBase64 = `data:image/png;base64,${imageBuffer.toString('base64')}`;
 
     // Normaliza telefone: só dígitos + DDI 55
     const rawPhone = phone.replace(/\D/g, '');
