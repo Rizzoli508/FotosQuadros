@@ -1150,7 +1150,7 @@ export default function Home() {
                 </div>
 
                 {/* Toggle P&B / Colorido — acima do botão */}
-                <div className="flex p-1 rounded-full border border-[#efe8d8] bg-white shadow-sm self-start mb-4">
+                <div className="flex p-1 rounded-full border border-[#efe8d8] bg-white shadow-sm self-center mb-4">
                   <button
                     onClick={() => setFinish('bw')}
                     data-testid="button-finish-bw"
@@ -1171,7 +1171,7 @@ export default function Home() {
                   onClick={handleGenerate}
                   data-testid="button-submit-order"
                   className={cn(
-                    "w-full max-w-sm py-4 font-sans font-semibold tracking-widest uppercase text-sm rounded-xl text-white transition-all",
+                    "w-full max-w-sm mx-auto block py-4 font-sans font-semibold tracking-widest uppercase text-sm rounded-xl text-white transition-all",
                     hasAtLeastOnePhoto && !isGenerating ? "cursor-pointer hover:opacity-90" : "opacity-40 cursor-not-allowed"
                   )}
                   style={{ background: '#C9A96E' }}
@@ -1180,7 +1180,7 @@ export default function Home() {
                 </button>
 
                 {/* Prova social */}
-                <div className="mt-8 flex items-center gap-3">
+                <div className="mt-8 flex items-center justify-center gap-3">
                   <div className="flex gap-0.5">{[1,2,3,4,5].map(s => <span key={s} style={{ color: '#C9A96E', fontSize: '14px' }}>★</span>)}</div>
                   <span className="text-xs font-light tracking-wide" style={{ color: 'rgba(45,38,32,0.4)' }}>Mais de 10.000 retratos gerados</span>
                 </div>
