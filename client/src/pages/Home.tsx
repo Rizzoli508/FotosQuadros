@@ -382,7 +382,7 @@ export default function Home() {
     const cat = CATEGORIES.find(c => c.molds.some(m => m.id === id));
     return cat ? cat.roles.map(r => ({ role: r, file: null, preview: null })) : [];
   });
-  const [finish, setFinish] = useState<'bw' | 'color'>('bw');
+  const [finish, setFinish] = useState<'bw' | 'color'>('color');
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [timeLeft, setTimeLeft] = useState(20 * 60);
@@ -1092,17 +1092,17 @@ export default function Home() {
                 <div className="flex justify-center md:hidden">
                   <div className="flex p-0.5 rounded-full border border-[#efe8d8] bg-white/90 shadow-sm">
                     <button
-                      onClick={() => setFinish('bw')}
-                      data-testid="button-finish-bw-top"
-                      className={cn("px-4 py-1.5 rounded-full text-[10px] font-serif uppercase tracking-[0.12em] transition-all duration-300", finish === 'bw' ? "shadow text-white" : "bg-transparent text-foreground/50")}
-                      style={finish === 'bw' ? { background: '#C9A96E' } : {}}
-                    >Preto e Branco</button>
-                    <button
                       onClick={() => setFinish('color')}
                       data-testid="button-finish-color-top"
                       className={cn("px-4 py-1.5 rounded-full text-[10px] font-serif uppercase tracking-[0.12em] transition-all duration-300", finish === 'color' ? "shadow text-white" : "bg-transparent text-foreground/50")}
                       style={finish === 'color' ? { background: '#C9A96E' } : {}}
                     >Colorido</button>
+                    <button
+                      onClick={() => setFinish('bw')}
+                      data-testid="button-finish-bw-top"
+                      className={cn("px-4 py-1.5 rounded-full text-[10px] font-serif uppercase tracking-[0.12em] transition-all duration-300", finish === 'bw' ? "shadow text-white" : "bg-transparent text-foreground/50")}
+                      style={finish === 'bw' ? { background: '#C9A96E' } : {}}
+                    >Preto e Branco</button>
                   </div>
                 </div>
 
@@ -1113,17 +1113,17 @@ export default function Home() {
                 {/* Toggle P&B / Colorido — desktop only (mobile fica no topo) */}
                 <div className="hidden md:flex p-0.5 rounded-full border border-[#efe8d8] bg-white shadow-sm self-start mb-4">
                   <button
-                    onClick={() => setFinish('bw')}
-                    data-testid="button-finish-bw"
-                    className={cn("px-4 py-1.5 rounded-full text-[10px] font-serif uppercase tracking-[0.12em] transition-all duration-300", finish === 'bw' ? "shadow text-white" : "bg-transparent text-foreground/50 hover:text-foreground/80")}
-                    style={finish === 'bw' ? { background: '#C9A96E' } : {}}
-                  >Preto e Branco</button>
-                  <button
                     onClick={() => setFinish('color')}
                     data-testid="button-finish-color"
                     className={cn("px-4 py-1.5 rounded-full text-[10px] font-serif uppercase tracking-[0.12em] transition-all duration-300", finish === 'color' ? "shadow text-white" : "bg-transparent text-foreground/50 hover:text-foreground/80")}
                     style={finish === 'color' ? { background: '#C9A96E' } : {}}
                   >Colorido</button>
+                  <button
+                    onClick={() => setFinish('bw')}
+                    data-testid="button-finish-bw"
+                    className={cn("px-4 py-1.5 rounded-full text-[10px] font-serif uppercase tracking-[0.12em] transition-all duration-300", finish === 'bw' ? "shadow text-white" : "bg-transparent text-foreground/50 hover:text-foreground/80")}
+                    style={finish === 'bw' ? { background: '#C9A96E' } : {}}
+                  >Preto e Branco</button>
                 </div>
 
                 {/* Headline */}
