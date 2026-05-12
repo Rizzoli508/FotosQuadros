@@ -109,9 +109,9 @@ const CATEGORIES = [
     slots: 3,
     roles: ['Pessoa 1', 'Pessoa 2', 'Pessoa 3'],
     molds: [
-      { id: '3p_1', label: 'Estilo 1', image: threePeopleImg1, intimoImage: threePeopleImg1, colorImage: threePeopleImg1Color },
-      { id: '3p_3', label: 'Estilo 2', image: threePeopleImg3, intimoImage: threePeopleImg3, colorImage: threePeopleImg3Color },
-      { id: '3p_4', label: 'Estilo 3', image: threePeopleImg4, intimoImage: threePeopleImg4, colorImage: threePeopleImg4Color },
+      { id: '3p_1', label: 'Clássico', image: threePeopleImg1, intimoImage: threePeopleImg1, colorImage: threePeopleImg1Color },
+      { id: '3p_3', label: 'Íntimo',   image: threePeopleImg3, intimoImage: threePeopleImg3, colorImage: threePeopleImg3Color },
+      { id: '3p_4', label: 'Moderno',  image: threePeopleImg4, intimoImage: threePeopleImg4, colorImage: threePeopleImg4Color },
     ],
   },
   {
@@ -119,10 +119,10 @@ const CATEGORIES = [
     slots: 4,
     roles: ['Pessoa 1', 'Pessoa 2', 'Pessoa 3', 'Pessoa 4'],
     molds: [
-      { id: '4p_1', label: 'Estilo 1', image: fourPeopleImg1, intimoImage: fourPeopleImg1, colorImage: fourPeopleImg1Color },
-      { id: '4p_2', label: 'Estilo 2', image: fourPeopleImg2, intimoImage: fourPeopleImg2, colorImage: fourPeopleImg2Color },
-      { id: '4p_3', label: 'Estilo 3', image: fourPeopleImg3, intimoImage: fourPeopleImg3, colorImage: fourPeopleImg3Color },
-      { id: '4p_4', label: 'Estilo 4', image: fourPeopleImg4, intimoImage: fourPeopleImg4, colorImage: fourPeopleImg4Color },
+      { id: '4p_1', label: 'Clássico', image: fourPeopleImg1, intimoImage: fourPeopleImg1, colorImage: fourPeopleImg1Color },
+      { id: '4p_2', label: 'Íntimo',   image: fourPeopleImg2, intimoImage: fourPeopleImg2, colorImage: fourPeopleImg2Color },
+      { id: '4p_3', label: 'Moderno',  image: fourPeopleImg3, intimoImage: fourPeopleImg3, colorImage: fourPeopleImg3Color },
+      { id: '4p_4', label: 'Especial', image: fourPeopleImg4, intimoImage: fourPeopleImg4, colorImage: fourPeopleImg4Color },
     ],
   },
   {
@@ -130,9 +130,9 @@ const CATEGORIES = [
     slots: 2,
     roles: ['Pessoa', 'Pet'],
     molds: [
-      { id: 'pet_1', label: 'Estilo 1', image: petImg1, intimoImage: petImg1, colorImage: petImg1Color },
-      { id: 'pet_2', label: 'Estilo 2', image: petImg2, intimoImage: petImg2, colorImage: petImg2Color },
-      { id: 'pet_3', label: 'Estilo 3', image: petImg3, intimoImage: petImg3, colorImage: petImg3Color },
+      { id: 'pet_1', label: 'Melhor Amigo',     image: petImg1, intimoImage: petImg1, colorImage: petImg1Color },
+      { id: 'pet_2', label: 'Cumplicidade',      image: petImg2, intimoImage: petImg2, colorImage: petImg2Color },
+      { id: 'pet_3', label: 'Família Completa',  image: petImg3, intimoImage: petImg3, colorImage: petImg3Color },
     ],
   },
 ];
