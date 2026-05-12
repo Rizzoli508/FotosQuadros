@@ -1128,7 +1128,7 @@ export default function Home() {
                 em uma Obra Atemporal.
               </h1>
               <p className="text-sm mb-10 font-light" style={{ color: 'rgba(45,38,32,0.5)' }}>
-                Prévia gratuita · Retratos a partir de R$ 29
+                Prévia gratuita
               </p>
 
               {/* Upload */}
