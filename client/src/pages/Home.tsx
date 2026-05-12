@@ -1125,22 +1125,6 @@ export default function Home() {
                   </div>
                 )}
 
-                {/* Toggle P&B / Colorido */}
-                <div className="flex p-1 rounded-full border border-[#efe8d8] bg-white shadow-sm self-start mb-7">
-                  <button
-                    onClick={() => setFinish('bw')}
-                    data-testid="button-finish-bw"
-                    className={cn("px-5 py-2 rounded-full text-[12px] font-serif uppercase tracking-[0.15em] transition-all duration-300", finish === 'bw' ? "shadow-md text-white" : "bg-transparent text-foreground/50 hover:text-foreground/80")}
-                    style={finish === 'bw' ? { background: '#C9A96E' } : {}}
-                  >Preto e Branco</button>
-                  <button
-                    onClick={() => setFinish('color')}
-                    data-testid="button-finish-color"
-                    className={cn("px-5 py-2 rounded-full text-[12px] font-serif uppercase tracking-[0.15em] transition-all duration-300", finish === 'color' ? "shadow-md text-white" : "bg-transparent text-foreground/50 hover:text-foreground/80")}
-                    style={finish === 'color' ? { background: '#C9A96E' } : {}}
-                  >Colorido</button>
-                </div>
-
                 {/* Headline */}
                 <h1 className="font-serif text-3xl md:text-4xl lg:text-5xl leading-tight mb-3" style={{ color: '#2d2620' }}>
                   Eternize <em style={{ color: '#C9A96E' }}>{openMold.label}</em><br />
@@ -1154,7 +1138,7 @@ export default function Home() {
                 <p className="text-xs mb-5 font-medium tracking-wide" style={{ color: 'rgba(45,38,32,0.5)' }}>
                   Envie uma foto do grupo ou uma foto separada de cada pessoa.
                 </p>
-                <div className="flex gap-3 mb-10 w-full">
+                <div className="flex gap-3 mb-8 w-full">
                   {faceSlots.map((slot, index) => (
                     <FaceUploadSlot
                       key={slot.role}
@@ -1163,6 +1147,22 @@ export default function Home() {
                       onRemove={() => handleFaceRemove(index)}
                     />
                   ))}
+                </div>
+
+                {/* Toggle P&B / Colorido — acima do botão */}
+                <div className="flex p-1 rounded-full border border-[#efe8d8] bg-white shadow-sm self-start mb-4">
+                  <button
+                    onClick={() => setFinish('bw')}
+                    data-testid="button-finish-bw"
+                    className={cn("px-5 py-2 rounded-full text-[12px] font-serif uppercase tracking-[0.15em] transition-all duration-300", finish === 'bw' ? "shadow-md text-white" : "bg-transparent text-foreground/50 hover:text-foreground/80")}
+                    style={finish === 'bw' ? { background: '#C9A96E' } : {}}
+                  >Preto e Branco</button>
+                  <button
+                    onClick={() => setFinish('color')}
+                    data-testid="button-finish-color"
+                    className={cn("px-5 py-2 rounded-full text-[12px] font-serif uppercase tracking-[0.15em] transition-all duration-300", finish === 'color' ? "shadow-md text-white" : "bg-transparent text-foreground/50 hover:text-foreground/80")}
+                    style={finish === 'color' ? { background: '#C9A96E' } : {}}
+                  >Colorido</button>
                 </div>
 
                 {/* Botão gerar */}
