@@ -183,9 +183,9 @@ function FaceUploadSlot({ slot, onUpload, onRemove }: { slot: FaceSlot; onUpload
   });
 
   return (
-    <div className="flex flex-col items-start gap-2">
+    <div className="flex flex-col items-start gap-1.5 flex-1 min-w-0">
       {slot.preview ? (
-        <div className="relative w-28 h-32 md:w-32 md:h-36 rounded-2xl overflow-hidden group">
+        <div className="relative w-full h-40 md:w-32 md:h-36 rounded-2xl overflow-hidden group">
           <img
             src={slot.preview}
             alt={slot.role}
@@ -200,9 +200,9 @@ function FaceUploadSlot({ slot, onUpload, onRemove }: { slot: FaceSlot; onUpload
           >
             <X className="w-3.5 h-3.5" />
           </button>
-          <div className="absolute bottom-0 left-0 right-0 px-2 pb-2 pt-4"
-            style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.45) 0%, transparent 100%)' }}>
-            <p className="text-[10px] font-medium text-white/80 truncate">{slot.role}</p>
+          <div className="absolute bottom-0 left-0 right-0 px-2.5 pb-2.5 pt-6"
+            style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.5) 0%, transparent 100%)' }}>
+            <p className="text-[11px] font-medium text-white/80 truncate">{slot.role}</p>
           </div>
         </div>
       ) : (
@@ -210,7 +210,7 @@ function FaceUploadSlot({ slot, onUpload, onRemove }: { slot: FaceSlot; onUpload
           {...getRootProps()}
           data-testid={`upload-face-${slot.role}`}
           className={cn(
-            "relative w-28 h-32 md:w-32 md:h-36 rounded-2xl border flex flex-col items-center justify-center cursor-pointer transition-all duration-200",
+            "relative w-full h-40 md:w-32 md:h-36 rounded-2xl border flex flex-col items-center justify-center cursor-pointer transition-all duration-200",
             isDragActive
               ? "border-[#C9A96E]/60 bg-[#C9A96E]/6 scale-[1.02]"
               : "border-[#2d2620]/12 bg-[#2d2620]/[0.025] hover:border-[#C9A96E]/40 hover:bg-[#C9A96E]/4"
@@ -219,19 +219,19 @@ function FaceUploadSlot({ slot, onUpload, onRemove }: { slot: FaceSlot; onUpload
           <input {...getInputProps()} />
           {/* Icon card */}
           <div className="relative mb-3">
-            <div className="w-11 h-11 rounded-xl flex items-center justify-center"
+            <div className="w-12 h-12 rounded-xl flex items-center justify-center"
               style={{ background: 'rgba(45,38,32,0.07)' }}>
-              <User className="w-5 h-5" style={{ color: 'rgba(45,38,32,0.3)' }} />
+              <User className="w-6 h-6" style={{ color: 'rgba(45,38,32,0.28)' }} />
             </div>
             <div className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full flex items-center justify-center"
               style={{ background: 'rgba(45,38,32,0.13)' }}>
               <Plus className="w-2.5 h-2.5" style={{ color: 'rgba(45,38,32,0.55)' }} />
             </div>
           </div>
-          <p className="text-[11px] font-semibold tracking-wide" style={{ color: 'rgba(45,38,32,0.65)' }}>
+          <p className="text-sm font-semibold tracking-wide" style={{ color: 'rgba(45,38,32,0.65)' }}>
             Adicionar foto
           </p>
-          <p className="text-[10px] mt-0.5" style={{ color: 'rgba(45,38,32,0.35)' }}>
+          <p className="text-xs mt-0.5" style={{ color: 'rgba(45,38,32,0.35)' }}>
             {slot.role}
           </p>
         </div>
@@ -1154,7 +1154,7 @@ export default function Home() {
                 <p className="text-xs mb-5 font-medium tracking-wide" style={{ color: 'rgba(45,38,32,0.5)' }}>
                   Envie uma foto do grupo ou uma foto separada de cada pessoa.
                 </p>
-                <div className="flex gap-5 mb-10 flex-wrap">
+                <div className="flex gap-3 mb-10 w-full">
                   {faceSlots.map((slot, index) => (
                     <FaceUploadSlot
                       key={slot.role}
