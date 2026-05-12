@@ -1165,24 +1165,24 @@ export default function Home() {
               </div>
             </div>{/* fim split-screen */}
 
-            {/* ── QUOTE — cinematic dark (estilo Fable adaptado) ── */}
+            {/* ── QUOTE — cinematic (estilo Fable adaptado) ── */}
             <motion.section
               ref={quoteContainerRef as any}
               className="relative overflow-hidden py-28 md:py-44"
-              style={{ background: '#1c1510' }}
+              style={{ background: '#faf8f4' }}
             >
-              {/* Glow radial atmosférico — dourado, centrado no lado direito */}
+              {/* Glow radial dourado atmosférico no centro-direito */}
               <div
                 className="pointer-events-none absolute inset-0"
                 style={{
-                  background: 'radial-gradient(ellipse 70% 80% at 68% 50%, rgba(201,169,110,0.22) 0%, rgba(201,169,110,0.06) 45%, transparent 72%)',
+                  background: 'radial-gradient(ellipse 75% 90% at 65% 50%, rgba(201,169,110,0.28) 0%, rgba(201,169,110,0.10) 40%, transparent 70%)',
                 }}
               />
-              {/* Vinheta nas bordas */}
+              {/* Vinheta escura nas bordas para profundidade */}
               <div
                 className="pointer-events-none absolute inset-0"
                 style={{
-                  background: 'radial-gradient(ellipse 100% 100% at 50% 50%, transparent 40%, rgba(12,8,4,0.55) 100%)',
+                  background: 'radial-gradient(ellipse 110% 110% at 50% 50%, transparent 35%, rgba(201,169,110,0.07) 60%, rgba(45,38,32,0.12) 100%)',
                 }}
               />
 
@@ -1191,30 +1191,31 @@ export default function Home() {
 
                   {/* Coluna esquerda — label */}
                   <motion.div
-                    className="flex-shrink-0 md:w-72 md:pt-3"
+                    className="flex-shrink-0 md:w-64 md:pt-3"
                     initial={{ opacity: 0, x: -20 }}
                     whileInView={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
                     viewport={{ once: true, amount: 0.4 }}
                   >
                     <p className="text-[9px] tracking-[0.35em] uppercase font-sans" style={{ color: '#C9A96E' }}>✦ retravium</p>
-                    <p className="text-[9px] tracking-[0.25em] uppercase font-sans mt-2" style={{ color: 'rgba(250,248,244,0.3)' }}>IA · Arte · Memória</p>
+                    <p className="text-[9px] tracking-[0.25em] uppercase font-sans mt-2" style={{ color: 'rgba(45,38,32,0.35)' }}>IA · Arte · Memória</p>
                   </motion.div>
 
                   {/* Separador vertical */}
                   <motion.div
-                    className="hidden md:block w-px self-stretch mx-12 flex-shrink-0"
-                    style={{ background: 'rgba(201,169,110,0.18)' }}
+                    className="hidden md:block w-px self-stretch mx-14 flex-shrink-0"
+                    style={{ background: 'rgba(45,38,32,0.12)' }}
                     initial={{ scaleY: 0, originY: 0 }}
                     whileInView={{ scaleY: 1 }}
                     transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
                     viewport={{ once: true }}
                   />
 
-                  {/* Coluna direita — quote com parallax */}
+                  {/* Coluna direita — quote grande + menor abaixo */}
                   <motion.div className="flex-1" style={{ y: quoteY }}>
                     <motion.blockquote
                       className="font-serif italic leading-[1.08] text-5xl md:text-6xl lg:text-7xl"
+                      style={{ color: '#2d2620' }}
                       variants={{
                         hidden: {},
                         visible: { transition: { staggerChildren: 0.18, delayChildren: 0.15 } },
@@ -1225,7 +1226,6 @@ export default function Home() {
                     >
                       <motion.span
                         className="block"
-                        style={{ color: '#faf8f4' }}
                         variants={{
                           hidden: { opacity: 0, y: 28 },
                           visible: { opacity: 1, y: 0, transition: { duration: 1.0, ease: [0.22, 1, 0.36, 1] } },
@@ -1244,6 +1244,18 @@ export default function Home() {
                         Retratos ficam."
                       </motion.span>
                     </motion.blockquote>
+
+                    {/* Texto menor abaixo — igual ao Fable */}
+                    <motion.p
+                      className="mt-8 text-sm md:text-base font-light leading-relaxed"
+                      style={{ color: 'rgba(45,38,32,0.5)' }}
+                      initial={{ opacity: 0, y: 16 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.8, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                      viewport={{ once: true, amount: 0.3 }}
+                    >
+                      Cada obra criada pela nossa IA, exclusivamente para a sua família.
+                    </motion.p>
                   </motion.div>
 
                 </div>
