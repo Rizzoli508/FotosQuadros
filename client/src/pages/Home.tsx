@@ -873,36 +873,6 @@ export default function Home() {
           </motion.p>
         </section>
 
-        <section id="como-funciona" className="py-12 bg-white border-y border-border/50">
-          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-            <motion.div
-              variants={staggerContainer}
-              initial="hidden"
-              whileInView="show"
-              viewport={{ once: true, margin: "-100px" }}
-              className="space-y-24"
-            >
-              <motion.div variants={fadeUp} className="space-y-8">
-                <div className="border-b border-border pb-4">
-                  <h2 className="text-3xl font-serif italic text-primary">Escolha o Estilo</h2>
-                  <p className="text-sm text-muted-foreground mt-2">Clique em um estilo para começar.</p>
-                </div>
-
-                <div className="space-y-10">
-                  {CATEGORIES.map((category) => (
-                    <CategorySection
-                      key={category.title}
-                      category={category}
-                      onOpenStyle={handleOpenStyle}
-                    />
-                  ))}
-                </div>
-              </motion.div>
-
-            </motion.div>
-          </div>
-        </section>
-
         {/* ── Seção quote / identidade ── */}
         <section className="py-24 md:py-36 bg-white border-y border-border/30">
           <div className="max-w-5xl mx-auto px-8 flex flex-col md:flex-row items-center gap-12 md:gap-20">
@@ -934,6 +904,37 @@ export default function Home() {
             <p className="text-muted-foreground font-sans tracking-wide uppercase text-xs font-semibold">
               Avaliação de 4.9/5 no Reclame Aqui
             </p>
+          </div>
+        </section>
+
+        {/* ── Galeria / escolha de estilo ── */}
+        <section id="como-funciona" className="py-12 bg-white border-y border-border/50">
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+            <motion.div
+              variants={staggerContainer}
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true, margin: "-100px" }}
+              className="space-y-24"
+            >
+              <motion.div variants={fadeUp} className="space-y-8">
+                <div className="border-b border-border pb-4">
+                  <h2 className="text-3xl font-serif italic text-primary">Escolha o Estilo</h2>
+                  <p className="text-sm text-muted-foreground mt-2">Clique em um estilo para começar.</p>
+                </div>
+
+                <div className="space-y-10">
+                  {CATEGORIES.map((category) => (
+                    <CategorySection
+                      key={category.title}
+                      category={category}
+                      onOpenStyle={handleOpenStyle}
+                    />
+                  ))}
+                </div>
+              </motion.div>
+
+            </motion.div>
           </div>
         </section>
 
