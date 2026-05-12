@@ -1052,7 +1052,7 @@ export default function Home() {
                   exit={{ opacity: 0, y: 24 }}
                   transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
                   onClick={() => overlayScrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' })}
-                  className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[60] w-[calc(100%-3rem)] max-w-sm flex items-center justify-center gap-2.5 py-3.5 rounded-xl text-white text-sm font-semibold tracking-widest uppercase"
+                  className="md:hidden fixed bottom-6 left-6 right-6 z-[60] flex items-center justify-center gap-2.5 py-3.5 rounded-xl text-white text-sm font-semibold tracking-widest uppercase"
                   style={{ background: '#C9A96E', boxShadow: '0 8px 28px rgba(201,169,110,0.4)' }}
                 >
                   <Camera className="w-4 h-4" />
