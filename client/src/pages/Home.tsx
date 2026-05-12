@@ -224,7 +224,7 @@ function FaceUploadSlot({ slot, onUpload, onRemove }: { slot: FaceSlot; onUpload
               <Plus className="w-2.5 h-2.5" style={{ color: 'rgba(45,38,32,0.55)' }} />
             </div>
           </div>
-          <p className="text-base font-semibold tracking-wide" style={{ color: 'rgba(45,38,32,0.65)' }}>
+          <p className="text-sm font-semibold tracking-wide" style={{ color: 'rgba(45,38,32,0.65)' }}>
             Adicionar foto
           </p>
         </div>
@@ -1146,6 +1146,12 @@ export default function Home() {
                 </p>
 
                 {/* Upload / Loading inline */}
+                {!isGenerating && (
+                  <p className="text-sm mb-3 font-medium tracking-wide text-center md:text-left" style={{ color: 'rgba(45,38,32,0.5)' }}>
+                    Envie uma foto do grupo ou separada de cada pessoa.
+                  </p>
+                )}
+
                 <AnimatePresence mode="wait">
                   {isGenerating ? (
                     <motion.div
