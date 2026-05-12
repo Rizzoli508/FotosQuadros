@@ -1413,93 +1413,45 @@ export default function Home() {
               </div>
             </section>
 
-            {/* ── FOOTER — brand closing ── */}
-            <footer style={{ background: '#faf8f4' }}>
+            {/* ── FOOTER ── */}
+            <footer style={{ background: '#faf8f4', borderTop: '1px solid rgba(45,38,32,0.10)' }}>
 
-              {/* Zona 1 — Brand centerpiece */}
-              <motion.div
-                className="text-center py-20 md:py-28"
-                style={{ borderBottom: '1px solid rgba(45,38,32,0.10)' }}
-                initial={{ opacity: 0, y: 32 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 1.0, ease: [0.22, 1, 0.36, 1] }}
-                viewport={{ once: true, amount: 0.4 }}
-              >
-                {/* Linha + ponto decorativo */}
-                <div className="flex items-center justify-center gap-5 mb-10">
-                  <motion.div
-                    className="h-px flex-1 max-w-[120px]"
-                    style={{ background: 'rgba(201,169,110,0.3)', transformOrigin: 'center' }}
-                    initial={{ scaleX: 0 }}
-                    whileInView={{ scaleX: 1 }}
-                    transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
-                    viewport={{ once: true }}
-                  />
-                  <div className="w-1.5 h-1.5 rounded-full" style={{ background: '#C9A96E', opacity: 0.5 }} />
-                  <motion.div
-                    className="h-px flex-1 max-w-[120px]"
-                    style={{ background: 'rgba(201,169,110,0.3)', transformOrigin: 'center' }}
-                    initial={{ scaleX: 0 }}
-                    whileInView={{ scaleX: 1 }}
-                    transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
-                    viewport={{ once: true }}
-                  />
-                </div>
-
-                {/* Wordmark */}
-                <motion.span
-                  className="font-serif italic block"
-                  style={{ color: '#C9A96E', letterSpacing: '0.06em', fontWeight: 400, fontSize: 'clamp(2.5rem, 6vw, 5rem)', lineHeight: 1 }}
-                  initial={{ opacity: 0, scale: 0.94 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.9, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
-                  viewport={{ once: true }}
-                >
+              {/* Wordmark centrado */}
+              <div className="text-center pt-12 pb-8">
+                <span className="font-serif italic" style={{ color: '#C9A96E', fontSize: '2rem', letterSpacing: '0.06em', fontWeight: 400 }}>
                   retravium
-                </motion.span>
+                </span>
+                <p className="text-[10px] tracking-[0.35em] uppercase mt-2 font-sans" style={{ color: 'rgba(45,38,32,0.35)' }}>
+                  por amor ao detalhe
+                </p>
+              </div>
 
-                {/* Tagline */}
-                <div className="flex items-center justify-center gap-4 mt-5">
-                  <div className="h-px w-12" style={{ background: 'rgba(45,38,32,0.12)' }} />
-                  <span className="text-[9px] tracking-[0.4em] uppercase font-sans" style={{ color: 'rgba(45,38,32,0.38)' }}>por amor ao detalhe</span>
-                  <div className="h-px w-12" style={{ background: 'rgba(45,38,32,0.12)' }} />
+              {/* Info grid */}
+              <div className="max-w-3xl mx-auto px-6 pb-10 grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left" style={{ borderTop: '1px solid rgba(45,38,32,0.08)' }}>
+                <div className="pt-8">
+                  <p className="text-[9px] tracking-[0.3em] uppercase font-sans mb-3" style={{ color: 'rgba(45,38,32,0.35)' }}>Suporte</p>
+                  <a href="mailto:suporte@retravium.com" className="text-sm transition-colors duration-200 hover:opacity-60" style={{ color: '#2d2620' }}>
+                    suporte@retravium.com
+                  </a>
                 </div>
-              </motion.div>
-
-              {/* Zona 2 — Info grid */}
-              <motion.div
-                className="max-w-5xl mx-auto px-6 md:px-12 py-14 grid grid-cols-1 md:grid-cols-3 gap-10"
-                variants={{
-                  hidden: {},
-                  visible: { transition: { staggerChildren: 0.1, delayChildren: 0.05 } },
-                }}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true, amount: 0.2 }}
-              >
-                <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] } } }}>
-                  <p className="text-[10px] tracking-[0.25em] uppercase font-sans mb-4" style={{ color: 'rgba(45,38,32,0.4)' }}>Suporte</p>
-                  <a href="mailto:suporte@retravium.com" className="text-sm transition-colors duration-200" style={{ color: '#2d2620' }}
-                    onMouseEnter={e => (e.currentTarget.style.color = '#C9A96E')}
-                    onMouseLeave={e => (e.currentTarget.style.color = '#2d2620')}
-                  >suporte@retravium.com</a>
-                </motion.div>
-                <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] } } }}>
-                  <p className="text-[10px] tracking-[0.25em] uppercase font-sans mb-4" style={{ color: 'rgba(45,38,32,0.4)' }}>Sobre a retravium</p>
-                  <p className="text-sm font-light leading-relaxed" style={{ color: 'rgba(45,38,32,0.55)' }}>Retratos artísticos gerados por IA, entregues no seu WhatsApp em minutos. Feito com cuidado para cada família.</p>
-                </motion.div>
-                <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] } } }}>
-                  <p className="text-[10px] tracking-[0.25em] uppercase font-sans mb-4" style={{ color: 'rgba(45,38,32,0.4)' }}>Legal</p>
+                <div className="pt-8">
+                  <p className="text-[9px] tracking-[0.3em] uppercase font-sans mb-3" style={{ color: 'rgba(45,38,32,0.35)' }}>Sobre</p>
+                  <p className="text-sm font-light leading-relaxed" style={{ color: 'rgba(45,38,32,0.5)' }}>
+                    Retratos artísticos únicos, entregues direto no seu WhatsApp. Feitos com cuidado para cada família.
+                  </p>
+                </div>
+                <div className="pt-8">
+                  <p className="text-[9px] tracking-[0.3em] uppercase font-sans mb-3" style={{ color: 'rgba(45,38,32,0.35)' }}>Legal</p>
                   <div className="space-y-2">
-                    <p className="text-sm" style={{ color: 'rgba(45,38,32,0.55)' }}>Termos de Uso</p>
-                    <p className="text-sm" style={{ color: 'rgba(45,38,32,0.55)' }}>Política de Privacidade</p>
+                    <p className="text-sm cursor-pointer hover:opacity-60 transition-opacity" style={{ color: 'rgba(45,38,32,0.55)' }}>Termos de Uso</p>
+                    <p className="text-sm cursor-pointer hover:opacity-60 transition-opacity" style={{ color: 'rgba(45,38,32,0.55)' }}>Política de Privacidade</p>
                   </div>
-                </motion.div>
-              </motion.div>
+                </div>
+              </div>
 
-              {/* Zona 3 — Legal bar */}
-              <div style={{ borderTop: '1px solid rgba(45,38,32,0.10)' }} className="py-6 px-6">
-                <p className="text-[9px] tracking-[0.2em] uppercase text-center" style={{ color: 'rgba(45,38,32,0.35)' }}>
+              {/* Copyright */}
+              <div className="py-5 px-6" style={{ borderTop: '1px solid rgba(45,38,32,0.08)' }}>
+                <p className="text-[9px] tracking-[0.2em] uppercase text-center" style={{ color: 'rgba(45,38,32,0.3)' }}>
                   &copy; {new Date().getFullYear()} retravium · Todos os direitos reservados
                 </p>
               </div>
