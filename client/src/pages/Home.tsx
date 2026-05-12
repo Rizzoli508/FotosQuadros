@@ -984,62 +984,57 @@ export default function Home() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
-            className="fixed inset-0 z-50 flex flex-col"
-            style={{ background: '#faf8f4' }}
-            onClick={handleCloseModal}
+            className="fixed inset-0 z-50 flex flex-col md:flex-row overflow-hidden"
             data-testid="modal-style-overlay"
           >
+            {/* ── ESQUERDA: Imagem ── */}
+            <div className="relative flex-shrink-0 w-full md:w-[58%] h-[46vh] md:h-full overflow-hidden" style={{ background: '#111' }}>
+              <AnimatePresence mode="crossfade">
+                <motion.img
+                  key={finish + '-' + selectedSubStyle}
+                  src={
+                    selectedSubStyle === 'intimo'
+                      ? (finish === 'color' ? ((openMold as any).intimoColorImage || (openMold as any).colorImage || openMold.intimoImage) : openMold.intimoImage)
+                      : (finish === 'color' ? ((openMold as any).colorImage || openMold.image) : openMold.image)
+                  }
+                  alt={openMold.label}
+                  className="absolute inset-0 w-full h-full object-cover"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.5 }}
+                />
+              </AnimatePresence>
+              {/* Gradiente mobile (fundo do painel de imagem) */}
+              <div className="absolute bottom-0 inset-x-0 h-10 md:hidden" style={{ background: 'linear-gradient(to top, #faf8f4, transparent)' }} />
+            </div>
+
+            {/* ── DIREITA: Controles ── */}
             <div
-              className="relative flex-1 flex flex-col z-20"
+              className="relative flex-1 flex flex-col justify-center px-8 md:px-14 py-10 md:py-16 overflow-y-auto"
               style={{ background: '#faf8f4' }}
-              onClick={(e) => e.stopPropagation()}
               data-testid="modal-style-content"
             >
-              <button
-                onClick={handleCloseModal}
-                data-testid="button-close-modal"
-                className="absolute top-4 left-4 z-40 transition-all" style={{ color: 'rgba(45,38,32,0.5)' }}
-                aria-label="Fechar"
-              >
-                <X className="w-6 h-6" />
-              </button>
-
-              <div className="flex-1 relative overflow-hidden group/modal" style={{ background: '#faf8f4' }}>
-                {/* Overlay: geração em andamento */}
-                {isGenerating && (
-                  <div className="absolute inset-0 z-40 flex flex-col items-center justify-center px-6" style={{ background: '#faf8f4' }}>
-                    {/* Card principal */}
-                    <div className="w-full max-w-md sm:max-w-2xl rounded-3xl px-8 py-10 sm:px-20 sm:py-16 flex flex-col items-center gap-7 sm:gap-10" style={{ background: 'white', border: '1.5px solid #ddd6c8', boxShadow: '0 8px 48px rgba(100,80,50,0.13), 0 2px 8px rgba(100,80,50,0.07)' }}>
-                    {/* Ícone com spinner dourado */}
+              {/* Overlay: geração em andamento */}
+              {isGenerating && (
+                <div className="absolute inset-0 z-40 flex flex-col items-center justify-center px-6" style={{ background: '#faf8f4' }}>
+                  <div className="w-full max-w-md sm:max-w-2xl rounded-3xl px-8 py-10 sm:px-20 sm:py-16 flex flex-col items-center gap-7 sm:gap-10" style={{ background: 'white', border: '1.5px solid #ddd6c8', boxShadow: '0 8px 48px rgba(100,80,50,0.13), 0 2px 8px rgba(100,80,50,0.07)' }}>
                     <div className="relative flex items-center justify-center w-20 h-20 sm:w-28 sm:h-28">
                       <div className="absolute inset-0 rounded-full border-2 border-black/5" />
                       <div className="absolute inset-0 rounded-full border-2 border-t-transparent animate-spin" style={{ borderColor: 'rgba(201,169,110,0.2)', borderTopColor: '#C9A96E' }} />
                       <Camera className="absolute w-7 h-7 sm:w-10 sm:h-10" style={{ color: '#C9A96E' }} />
                     </div>
-
-                    {/* Texto */}
                     <div className="text-center space-y-2">
                       <p className="font-serif text-2xl sm:text-4xl italic" style={{ color: '#2d2620' }}>Criando sua obra...</p>
                       <p className="text-xs sm:text-sm tracking-widest uppercase" style={{ color: 'rgba(45,38,32,0.4)' }}>Pode levar até 30 segundos</p>
                     </div>
-
-                    {/* Barra de progresso */}
                     <div className="w-full space-y-2">
                       <div className="h-px rounded-full overflow-hidden" style={{ background: 'rgba(45,38,32,0.1)' }}>
-                        <div
-                          className="h-full rounded-full transition-all duration-700 ease-out"
-                          style={{ background: 'linear-gradient(90deg, #C9A96E, #e8c98a)', width: `${genProgress}%` }}
-                        />
+                        <div className="h-full rounded-full transition-all duration-700 ease-out" style={{ background: 'linear-gradient(90deg, #C9A96E, #e8c98a)', width: `${genProgress}%` }} />
                       </div>
-                      <p className="text-center text-xs sm:text-sm font-medium" style={{ color: '#C9A96E' }}>
-                        {Math.round(genProgress)}%
-                      </p>
+                      <p className="text-center text-xs sm:text-sm font-medium" style={{ color: '#C9A96E' }}>{Math.round(genProgress)}%</p>
                     </div>
-
-                    {/* Separador */}
                     <div className="w-full h-px" style={{ background: 'rgba(45,38,32,0.08)' }} />
-
-                    {/* Review centralizada */}
                     <div className="w-full">
                       <AnimatePresence mode="wait">
                         <motion.div
@@ -1050,39 +1045,23 @@ export default function Home() {
                           transition={{ duration: 0.4 }}
                           className="flex items-stretch gap-5"
                         >
-                          {/* Foto grande à esquerda */}
                           <div className="flex-shrink-0 w-24 h-32 sm:w-36 sm:h-52 rounded-2xl overflow-hidden shadow-lg">
                             {(LOADING_REVIEWS[reviewIndex] as any).photo ? (
-                              <img
-                                src={(LOADING_REVIEWS[reviewIndex] as any).photo}
-                                alt={LOADING_REVIEWS[reviewIndex].name}
-                                className="w-full h-full object-cover"
-                                style={(LOADING_REVIEWS[reviewIndex] as any).photo === reviewDogImg ? { transform: 'scale(1.08)', transformOrigin: 'left center' } : {}}
-                              />
+                              <img src={(LOADING_REVIEWS[reviewIndex] as any).photo} alt={LOADING_REVIEWS[reviewIndex].name} className="w-full h-full object-cover" style={(LOADING_REVIEWS[reviewIndex] as any).photo === reviewDogImg ? { transform: 'scale(1.08)', transformOrigin: 'left center' } : {}} />
                             ) : (
-                              <div
-                                className="w-full h-full flex items-center justify-center text-white text-2xl sm:text-3xl font-bold"
-                                style={{ background: `linear-gradient(135deg, ${LOADING_REVIEWS[reviewIndex].color}, ${LOADING_REVIEWS[reviewIndex].color}99)` }}
-                              >
+                              <div className="w-full h-full flex items-center justify-center text-white text-2xl sm:text-3xl font-bold" style={{ background: `linear-gradient(135deg, ${LOADING_REVIEWS[reviewIndex].color}, ${LOADING_REVIEWS[reviewIndex].color}99)` }}>
                                 {LOADING_REVIEWS[reviewIndex].initials}
                               </div>
                             )}
                           </div>
-                          {/* Conteúdo à direita */}
                           <div className="flex flex-col justify-center gap-1.5 sm:gap-2">
-                            <div className="flex gap-0.5">
-                              {[1,2,3,4,5].map(s => (
-                                <span key={s} style={{ color: '#C9A96E', fontSize: '16px' }}>★</span>
-                              ))}
-                            </div>
+                            <div className="flex gap-0.5">{[1,2,3,4,5].map(s => <span key={s} style={{ color: '#C9A96E', fontSize: '16px' }}>★</span>)}</div>
                             <p className="text-base sm:text-lg font-semibold leading-tight" style={{ color: 'rgba(45,38,32,0.85)' }}>{LOADING_REVIEWS[reviewIndex].name}</p>
                             <p className="text-xs sm:text-sm" style={{ color: 'rgba(45,38,32,0.35)' }}>{LOADING_REVIEWS[reviewIndex].location}</p>
                             <p className="text-sm sm:text-base leading-relaxed italic mt-1" style={{ color: 'rgba(45,38,32,0.6)' }}>{LOADING_REVIEWS[reviewIndex].text}</p>
                           </div>
                         </motion.div>
                       </AnimatePresence>
-
-                      {/* Indicadores */}
                       <div className="flex justify-center gap-1.5 mt-4">
                         {LOADING_REVIEWS.map((_, i) => (
                           <div
@@ -1100,144 +1079,91 @@ export default function Home() {
                     </div>{/* fim card */}
                   </div>
                 )}
-                <div className="absolute top-12 left-0 right-0 z-30 flex justify-center">
-                  <div className="flex p-1 rounded-full border border-[#efe8d8] bg-white/80 backdrop-blur-md shadow-sm">
-                    <button
-                      onClick={() => setFinish('bw')}
-                      data-testid="button-finish-bw"
-                      className={cn(
-                        "px-6 py-2 rounded-full text-[13px] font-serif uppercase tracking-[0.15em] transition-all duration-300",
-                        finish === 'bw'
-                          ? "shadow-md text-white"
-                          : "bg-transparent text-foreground/50 hover:text-foreground/80"
-                      )}
-                      style={finish === 'bw' ? { background: '#C9A96E' } : {}}
-                    >
-                      Preto e Branco
-                    </button>
-                    <button
-                      onClick={() => setFinish('color')}
-                      data-testid="button-finish-color"
-                      className={cn(
-                        "px-6 py-2 rounded-full text-[13px] font-serif uppercase tracking-[0.15em] transition-all duration-300",
-                        finish === 'color'
-                          ? "shadow-md text-white"
-                          : "bg-transparent text-foreground/50 hover:text-foreground/80"
-                      )}
-                      style={finish === 'color' ? { background: '#C9A96E' } : {}}
-                    >
-                      Colorido
-                    </button>
-                  </div>
-                </div>
+              {/* Botão fechar */}
+              <button
+                onClick={handleCloseModal}
+                data-testid="button-close-modal"
+                className="absolute top-4 right-4 md:top-6 md:right-6 z-40 transition-all"
+                style={{ color: 'rgba(45,38,32,0.4)' }}
+                aria-label="Fechar"
+              >
+                <X className="w-5 h-5" />
+              </button>
 
-                <div className="absolute inset-0 flex transition-transform duration-500 ease-in-out" style={{ transform: `translateX(${selectedSubStyle === 'classico' ? '0%' : '-100%'})` }}>
-                  {/* Classico View */}
-                  <div className="min-w-full h-full relative border-r border-white/5">
-                    {openMold?.image ? (
-                      <AnimatePresence mode="crossfade">
-                        <motion.img
-                          key={finish + '-classico'}
-                          src={finish === 'color' ? ((openMold as any).colorImage || openMold.image) : openMold.image}
-                          alt="Retrato Clássico"
-                          className="absolute inset-0 w-full h-full object-cover sm:object-contain"
-                          style={{}}
-
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          exit={{ opacity: 0 }}
-                          transition={{ duration: 0.4 }}
-                        />
-                      </AnimatePresence>
-                    ) : (
-                      <div className="absolute inset-8 border border-white/10 flex items-center justify-center">
-                        <Camera className="w-16 h-16 text-white/10" />
-                      </div>
-                    )}
-                  </div>
-                  {/* Intimo View */}
-                  <div className="min-w-full h-full relative">
-                    {openMold?.intimoImage ? (
-                      <AnimatePresence mode="crossfade">
-                        <motion.img
-                          key={finish + '-intimo'}
-                          src={finish === 'color' ? ((openMold as any).intimoColorImage || (openMold as any).colorImage || openMold.intimoImage) : openMold.intimoImage}
-                          alt="Retrato Íntimo"
-                          className="absolute inset-0 w-full h-full object-cover sm:object-contain"
-                          style={{}}
-
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          exit={{ opacity: 0 }}
-                          transition={{ duration: 0.4 }}
-                        />
-                      </AnimatePresence>
-                    ) : (
-                      <div className="absolute inset-8 border border-white/10 flex items-center justify-center bg-white/5">
-                        <Star className="w-16 h-16 text-white/10" />
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {selectedSubStyle === 'intimo' && (openMold?.categoryTitle !== '2 Pessoas' || openMold?.id === '2p_1') && (
-                  <button
-                    onClick={() => setSelectedSubStyle('classico')}
-                    className="absolute left-4 top-1/2 -translate-y-1/2 z-20 bg-white backdrop-blur-md rounded-full p-2 hover:bg-[#efe8d8] transition-all shadow-md border border-[#efe8d8]" style={{ color: '#2d2620' }}
-                  >
-                    <ChevronRight className="w-6 h-6 rotate-180" />
-                  </button>
-                )}
-
-                {selectedSubStyle === 'classico' && (openMold?.categoryTitle !== '2 Pessoas' || openMold?.id === '2p_1') && (
-                  <button
-                    onClick={() => setSelectedSubStyle('intimo')}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 z-20 bg-white backdrop-blur-md rounded-full p-2 hover:bg-[#efe8d8] transition-all shadow-md border border-[#efe8d8]" style={{ color: '#2d2620' }}
-                  >
-                    <ChevronRight className="w-6 h-6" />
-                  </button>
-                )}
-
-                <div className="absolute inset-x-0 bottom-0 pointer-events-none" style={{ height: '45%', background: 'linear-gradient(to top, #faf8f4 0%, #faf8f4 12%, rgba(250,248,244,0.5) 45%, transparent 100%)' }} />
-
-                <div className="absolute bottom-0 left-0 right-0 pt-24 pb-6 px-6">
-                  <div className="mb-2 text-center">
-                    <span className="font-serif text-2xl md:text-3xl block" style={{ color: '#2d2620' }}>
-                      {selectedSubStyle === 'intimo' ? 'Retrato Íntimo' : 'Retrato Clássico'}
-                    </span>
-                  </div>
-
-                  <p className="text-xs text-center mb-4 font-medium tracking-wide leading-relaxed" style={{ color: 'rgba(45,38,32,0.55)' }}>
-                    Envie uma foto do grupo ou uma foto separada de cada pessoa.
-                  </p>
-                  <div className="flex justify-center gap-4 md:gap-6 flex-wrap">
-                    {faceSlots.map((slot, index) => (
-                      <FaceUploadSlot
-                        key={slot.role}
-                        slot={slot}
-                        onUpload={(file) => handleFaceUpload(index, file)}
-                        onRemove={() => handleFaceRemove(index)}
-                      />
-                    ))}
-                  </div>
-                </div>
+              {/* Toggle P&B / Colorido */}
+              <div className="flex p-1 rounded-full border border-[#efe8d8] bg-white shadow-sm self-start mb-7">
+                <button
+                  onClick={() => setFinish('bw')}
+                  data-testid="button-finish-bw"
+                  className={cn("px-5 py-2 rounded-full text-[12px] font-serif uppercase tracking-[0.15em] transition-all duration-300", finish === 'bw' ? "shadow-md text-white" : "bg-transparent text-foreground/50 hover:text-foreground/80")}
+                  style={finish === 'bw' ? { background: '#C9A96E' } : {}}
+                >Preto e Branco</button>
+                <button
+                  onClick={() => setFinish('color')}
+                  data-testid="button-finish-color"
+                  className={cn("px-5 py-2 rounded-full text-[12px] font-serif uppercase tracking-[0.15em] transition-all duration-300", finish === 'color' ? "shadow-md text-white" : "bg-transparent text-foreground/50 hover:text-foreground/80")}
+                  style={finish === 'color' ? { background: '#C9A96E' } : {}}
+                >Colorido</button>
               </div>
 
-              <div className="shrink-0 px-4 py-5 flex flex-col items-center border-t border-[#efe8d8]" style={{ background: '#faf8f4' }}>
-                <button
-                  disabled={!hasAtLeastOnePhoto || isGenerating}
-                  onClick={handleGenerate}
-                  data-testid="button-submit-order"
-                  className={cn(
-                    "w-full max-w-md py-4 font-sans font-semibold tracking-widest uppercase text-sm rounded-xl hover-elevate active-elevate-2 text-white transition-all",
-                    hasAtLeastOnePhoto && !isGenerating
-                      ? "cursor-pointer"
-                      : "opacity-40 cursor-not-allowed"
-                  )}
-                  style={{ background: '#C9A96E' }}
-                >
-                  {isGenerating ? "Gerando..." : generatedImage ? "Gerar Novamente" : "Gerar Meu Retrato"}
-                </button>
+              {/* Toggle Clássico / Íntimo (quando aplicável) */}
+              {(openMold.categoryTitle !== '2 Pessoas' || openMold.id === '2p_1') && (
+                <div className="flex gap-2 mb-7">
+                  {(['classico', 'intimo'] as const).map((s) => (
+                    <button
+                      key={s}
+                      onClick={() => setSelectedSubStyle(s)}
+                      className={cn(
+                        "px-4 py-1.5 text-xs font-serif uppercase tracking-widest border rounded-full transition-all",
+                        selectedSubStyle === s ? "border-primary/40 text-primary bg-white shadow-sm" : "border-transparent text-foreground/40 hover:text-foreground/60"
+                      )}
+                    >{s === 'classico' ? 'Clássico' : 'Íntimo'}</button>
+                  ))}
+                </div>
+              )}
+
+              {/* Headline */}
+              <h1 className="font-serif text-3xl md:text-4xl lg:text-5xl leading-tight mb-3" style={{ color: '#2d2620' }}>
+                Eternize <em style={{ color: '#C9A96E' }}>{openMold.label}</em><br />
+                em uma Obra Atemporal.
+              </h1>
+              <p className="text-sm mb-10 font-light" style={{ color: 'rgba(45,38,32,0.5)' }}>
+                Prévia gratuita · Retratos a partir de R$ 29
+              </p>
+
+              {/* Upload */}
+              <p className="text-xs mb-5 font-medium tracking-wide" style={{ color: 'rgba(45,38,32,0.5)' }}>
+                Envie uma foto do grupo ou uma foto separada de cada pessoa.
+              </p>
+              <div className="flex gap-5 mb-10 flex-wrap">
+                {faceSlots.map((slot, index) => (
+                  <FaceUploadSlot
+                    key={slot.role}
+                    slot={slot}
+                    onUpload={(file) => handleFaceUpload(index, file)}
+                    onRemove={() => handleFaceRemove(index)}
+                  />
+                ))}
+              </div>
+
+              {/* Botão gerar */}
+              <button
+                disabled={!hasAtLeastOnePhoto || isGenerating}
+                onClick={handleGenerate}
+                data-testid="button-submit-order"
+                className={cn(
+                  "w-full max-w-sm py-4 font-sans font-semibold tracking-widest uppercase text-sm rounded-xl text-white transition-all",
+                  hasAtLeastOnePhoto && !isGenerating ? "cursor-pointer hover:opacity-90" : "opacity-40 cursor-not-allowed"
+                )}
+                style={{ background: '#C9A96E' }}
+              >
+                {generatedImage ? "Gerar Novamente" : "Gerar Meu Retrato"}
+              </button>
+
+              {/* Prova social */}
+              <div className="mt-8 flex items-center gap-3">
+                <div className="flex gap-0.5">{[1,2,3,4,5].map(s => <span key={s} style={{ color: '#C9A96E', fontSize: '14px' }}>★</span>)}</div>
+                <span className="text-xs font-light tracking-wide" style={{ color: 'rgba(45,38,32,0.4)' }}>Mais de 10.000 retratos gerados</span>
               </div>
             </div>
           </motion.div>
