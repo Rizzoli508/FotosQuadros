@@ -1052,15 +1052,15 @@ export default function Home() {
                 </AnimatePresence>
               </div>
 
-              {/* ── CONTEÚDO: bottom-sheet no mobile, coluna direita no desktop ── */}
+              {/* ── CONTEÚDO: frosted glass no mobile, coluna direita no desktop ── */}
               <div
-                className="absolute bottom-0 left-0 right-0 max-h-[72vh] overflow-y-auto rounded-t-3xl md:relative md:inset-auto md:max-h-none md:overflow-visible md:rounded-none md:flex-1 md:flex md:flex-col md:justify-center px-6 md:px-14 py-6 md:py-16"
-                style={{ background: '#faf8f4' }}
+                className="absolute bottom-0 left-0 right-0 max-h-[75vh] overflow-y-auto rounded-t-[28px] backdrop-blur-xl md:backdrop-blur-none md:relative md:inset-auto md:max-h-none md:overflow-visible md:rounded-none md:flex-1 md:flex md:flex-col md:justify-center px-6 md:px-14 py-6 md:py-16"
+                style={{ background: 'rgba(250,248,244,0.78)' }}
                 data-testid="modal-style-content"
               >
                 {/* Handle visual — mobile only */}
-                <div className="flex justify-center mb-5 md:hidden">
-                  <div className="w-10 h-1 rounded-full" style={{ background: 'rgba(45,38,32,0.18)' }} />
+                <div className="flex justify-center mb-4 md:hidden">
+                  <div className="w-10 h-1 rounded-full" style={{ background: 'rgba(45,38,32,0.22)' }} />
                 </div>
                 {/* Overlay: geração em andamento */}
                 {isGenerating && (
