@@ -1579,6 +1579,21 @@ export default function Home() {
                 </button>
               </div>
 
+              {/* ── Prova social ── */}
+              <div className="rounded-2xl overflow-hidden mb-14" style={{ background: '#111' }}>
+                <div className="py-10 px-6 text-center">
+                  <p className="font-serif italic text-2xl md:text-3xl mb-5" style={{ color: '#f5f0e8', letterSpacing: '0.01em' }}>
+                    Escolhido por mais de 10.000 famílias
+                  </p>
+                  <div className="flex items-center justify-center gap-1.5">
+                    {[1,2,3,4,5].map(i => (
+                      <Star key={i} className="w-5 h-5" style={{ fill: '#C9A96E', color: '#C9A96E' }} />
+                    ))}
+                    <span className="ml-3 text-sm font-medium" style={{ color: 'rgba(255,255,255,0.45)' }}>4.9 · Avaliações verificadas</span>
+                  </div>
+                </div>
+              </div>
+
               {/* Seção de formatos */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -1755,6 +1770,48 @@ export default function Home() {
                 </div>
               </motion.div>
             </div>
+
+            {/* ── FOOTER ── */}
+            <footer style={{ background: '#faf8f4', borderTop: '1px solid rgba(45,38,32,0.10)' }}>
+              {/* Wordmark centrado */}
+              <div className="text-center pt-12 pb-8">
+                <span className="font-serif italic" style={{ color: '#C9A96E', fontSize: '2rem', letterSpacing: '0.06em', fontWeight: 400 }}>
+                  retravium
+                </span>
+                <p className="text-[10px] tracking-[0.35em] uppercase mt-2 font-sans" style={{ color: 'rgba(45,38,32,0.35)' }}>
+                  por amor ao detalhe
+                </p>
+              </div>
+              {/* Info grid */}
+              <div className="max-w-3xl mx-auto px-6 pb-10 grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left" style={{ borderTop: '1px solid rgba(45,38,32,0.08)' }}>
+                <div className="pt-8">
+                  <p className="text-[9px] tracking-[0.3em] uppercase font-sans mb-3" style={{ color: 'rgba(45,38,32,0.35)' }}>Suporte</p>
+                  <a href="mailto:suporte@retravium.com" className="text-sm transition-colors duration-200 hover:opacity-60" style={{ color: '#2d2620' }}>
+                    suporte@retravium.com
+                  </a>
+                </div>
+                <div className="pt-8">
+                  <p className="text-[9px] tracking-[0.3em] uppercase font-sans mb-3" style={{ color: 'rgba(45,38,32,0.35)' }}>Sobre</p>
+                  <p className="text-sm font-light leading-relaxed" style={{ color: 'rgba(45,38,32,0.5)' }}>
+                    Retratos artísticos únicos, entregues direto no seu WhatsApp. Feitos com cuidado para cada família.
+                  </p>
+                </div>
+                <div className="pt-8">
+                  <p className="text-[9px] tracking-[0.3em] uppercase font-sans mb-3" style={{ color: 'rgba(45,38,32,0.35)' }}>Legal</p>
+                  <div className="space-y-2">
+                    <p className="text-sm cursor-pointer hover:opacity-60 transition-opacity" style={{ color: 'rgba(45,38,32,0.55)' }}>Termos de Uso</p>
+                    <p className="text-sm cursor-pointer hover:opacity-60 transition-opacity" style={{ color: 'rgba(45,38,32,0.55)' }}>Política de Privacidade</p>
+                  </div>
+                </div>
+              </div>
+              {/* Copyright */}
+              <div className="py-5 px-6" style={{ borderTop: '1px solid rgba(45,38,32,0.08)' }}>
+                <p className="text-[9px] tracking-[0.2em] uppercase text-center" style={{ color: 'rgba(45,38,32,0.3)' }}>
+                  &copy; {new Date().getFullYear()} retravium · Todos os direitos reservados
+                </p>
+              </div>
+            </footer>
+
           </motion.div>
         )}
       </AnimatePresence>
