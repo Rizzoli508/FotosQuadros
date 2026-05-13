@@ -147,10 +147,7 @@ async function callGemini(
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       contents: [{ parts }],
-      generationConfig: {
-        responseModalities: ['IMAGE', 'TEXT'],
-        responseFormat: { image: { imageSize: '1K' } },
-      },
+      generationConfig: { responseModalities: ['IMAGE', 'TEXT'] },
     }),
     signal: AbortSignal.timeout(attemptTimeout),
   });
