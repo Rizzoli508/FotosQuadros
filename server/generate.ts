@@ -174,7 +174,7 @@ export async function generatePortrait(
       contents: [{ parts }],
       generationConfig: { response_modalities: ['IMAGE', 'TEXT'] },
     }),
-    signal: AbortSignal.timeout(120_000),
+    signal: AbortSignal.timeout(240_000),
   });
 
   if (!response.ok) {

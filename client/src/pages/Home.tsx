@@ -757,8 +757,8 @@ export default function Home() {
     });
   };
 
-  // Comprime imagem para JPEG (max 1024px) via Canvas — resolve fotos grandes e HEIC do iPhone
-  const compressImageForApi = (src: string, maxPx = 1024, quality = 0.88): Promise<string> => {
+  // Comprime imagem para JPEG (max 800px) via Canvas — resolve fotos grandes e HEIC do iPhone
+  const compressImageForApi = (src: string, maxPx = 800, quality = 0.88): Promise<string> => {
     return new Promise((resolve, reject) => {
       const img = new Image();
       img.onload = () => {

@@ -79,7 +79,13 @@ export async function registerRoutes(
     // Processa em background — não bloqueia a resposta HTTP
     generatePortrait(moldId, subStyle, finish, images)
       .then(result => generateJobs.set(jobId, { status: 'done', result, createdAt: Date.now() }))
-      .catch(err  => generateJobs.set(jobId, { status: 'error', error: err.message, createdAt: Date.now() }));
+      .catch(err  => {
+        const isTimeout = err?.name === 'TimeoutError' || (err?.message || '').includes('aborted');
+        const message = isTimeout
+          ? 'A geração demorou mais que o esperado. Tente novamente.'
+          : (err?.message || 'Erro ao gerar retrato.');
+        generateJobs.set(jobId, { status: 'error', error: message, createdAt: Date.now() });
+      });
 
     return res.json({ jobId }); // responde em <100ms, sem risco de timeout
   });
