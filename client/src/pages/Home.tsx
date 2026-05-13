@@ -1160,7 +1160,12 @@ export default function Home() {
                     key={finish}
                     src={finish === 'color' ? ((openMold as any).colorImage || openMold.image) : openMold.image}
                     alt={openMold.label}
-                    className="absolute inset-0 w-full h-full object-cover object-center"
+                    className={cn(
+                      "absolute inset-0 w-full h-full object-cover",
+                      (openMold.id.startsWith('3p_') || openMold.id.startsWith('4p_'))
+                        ? "object-[50%_30%] md:object-center"
+                        : "object-center"
+                    )}
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
