@@ -536,6 +536,18 @@ export default function Home() {
     } catch { /* silently ignore */ }
   };
 
+  // Registra retrato + contato no servidor para entrega via webhook (sem precisar do site aberto)
+  const registerDelivery = async (orderId: number) => {
+    if (!generatedImage || !orderId) return;
+    try {
+      await fetch(`/api/deliveries/${orderId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ imageBase64: generatedImage, phone: form.phone, name: form.name }),
+      });
+    } catch { /* silently ignore */ }
+  };
+
   const handlePayment = async () => {
     if (!checkoutProduct) return;
     setCheckoutLoading(true);
@@ -552,6 +564,8 @@ export default function Home() {
         if (!res.ok) { setCheckoutError(data.message || 'Erro ao gerar Pix.'); return; }
         setPixData({ qrCode: data.qrCode, pixCopyPaste: data.pixCopyPaste });
         setPixOrderId(data.orderId || null);
+        // Registra para entrega via webhook (pessoa pode fechar o site e ainda receber)
+        if (data.orderId) registerDelivery(data.orderId);
         setPixTimer(30 * 60);
         const totalPix = getPackCredits(checkoutProduct.description);
         const remainingPix = totalPix - 1;
@@ -570,6 +584,8 @@ export default function Home() {
         });
         const data = await res.json();
         if (!res.ok) { setCheckoutError(data.message || 'Cartão recusado. Verifique os dados.'); return; }
+        // Registra para entrega via webhook
+        if (data.orderId) registerDelivery(data.orderId);
         const total = getPackCredits(checkoutProduct.description);
         const remaining = total - 1;
         if (remaining > 0) {
