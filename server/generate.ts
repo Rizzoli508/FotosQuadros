@@ -172,7 +172,7 @@ export async function generatePortrait(
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       contents: [{ parts }],
-      generationConfig: { response_modalities: ['IMAGE', 'TEXT'] },
+      generationConfig: { responseModalities: ['TEXT', 'IMAGE'] },
     }),
     signal: AbortSignal.timeout(240_000),
   });
