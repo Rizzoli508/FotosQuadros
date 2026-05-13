@@ -468,16 +468,16 @@ export default function Home() {
     autoSentRef.current = false;
   };
 
-  // ── Auto-send portrait via WhatsApp when payment is approved ──────────────
+  // ── Envio de retrato via WhatsApp (base64 direto, sem depender do Supabase) ──
   const sendPortraitToPhone = async (phone: string) => {
-    if (!portraitId) return;
+    if (!generatedImage) return;
     setWhatsappStatus('sending');
     setCheckoutError('');
     try {
-      const res = await fetch(`/api/portraits/${portraitId}/send`, {
+      const res = await fetch('/api/whatsapp/portrait', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone, name: form.name }),
+        body: JSON.stringify({ phone, imageBase64: generatedImage, name: form.name }),
       });
       if (res.ok) {
         setWhatsappStatus('sent');
@@ -503,14 +503,15 @@ export default function Home() {
     }
   };
 
+  // Auto-send: dispara assim que o pagamento é aprovado (não depende mais do portraitId)
   useEffect(() => {
     if (checkoutStep !== 'success') return;
-    if (!portraitId || autoSentRef.current) return;
+    if (!generatedImage || autoSentRef.current) return;
     const phone = form.phone.trim();
-    if (!phone) return; // no phone → skip auto-send, fallback UI will show
+    if (!phone) return;
     autoSentRef.current = true;
     sendPortraitToPhone(phone);
-  }, [checkoutStep, portraitId]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [checkoutStep, generatedImage]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const saveOrderToSheet = async (orderId?: number) => {
     if (!checkoutProduct) return;
@@ -2441,7 +2442,7 @@ export default function Home() {
                       )}
 
                       {/* ── WhatsApp: auto-envio + fallback (digital e físico) ── */}
-                      {portraitId && generatedImage && (
+                      {generatedImage && (
                         <div className="w-full space-y-2 text-center">
                           {whatsappStatus === 'sending' && (
                             <div className="w-full py-3 rounded-2xl text-sm flex items-center justify-center gap-2" style={{ background: '#fdf6ec', color: '#8a6a2a' }}>
