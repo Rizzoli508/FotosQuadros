@@ -756,6 +756,23 @@ export default function Home() {
     });
   };
 
+  // Comprime imagem para JPEG (max 1024px) via Canvas — resolve fotos grandes e HEIC do iPhone
+  const compressImageForApi = (src: string, maxPx = 1024, quality = 0.88): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => {
+        const scale = Math.min(1, maxPx / Math.max(img.width, img.height));
+        const canvas = document.createElement('canvas');
+        canvas.width  = Math.round(img.width  * scale);
+        canvas.height = Math.round(img.height * scale);
+        canvas.getContext('2d')!.drawImage(img, 0, 0, canvas.width, canvas.height);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.onerror = reject;
+      img.src = src; // aceita blob URL, data URI ou caminho de asset
+    });
+  };
+
   // Salva retrato no servidor e retorna o ID (falha silenciosa)
   const savePortraitToServer = async (imageSrc: string): Promise<string | null> => {
     try {
@@ -783,9 +800,9 @@ export default function Home() {
     setWhatsappStatus('idle');
 
     try {
-      // Converte todas as fotos para base64
+      // Comprime as fotos antes de enviar (resolve fotos grandes e HEIC do iPhone)
       const images = await Promise.all(
-        faceSlots.filter(s => s.preview).map(s => imageToBase64(s.preview!))
+        faceSlots.filter(s => s.preview).map(s => compressImageForApi(s.preview!))
       );
 
       // Mapeamento de IDs de display → moldId real da API + subStyle
