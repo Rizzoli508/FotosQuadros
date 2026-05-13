@@ -828,19 +828,31 @@ export default function Home() {
       const subStyle = mapped ? mapped.subStyle : selectedSubStyle;
       const finishParam = finish === 'color' ? 'color' : 'pb';
 
-      const response = await fetch('/api/generate', {
+      // Inicia o job (resposta imediata — sem risco de timeout do Railway)
+      const startRes = await fetch('/api/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ moldId, subStyle, finish: finishParam, images }),
-        signal: AbortSignal.timeout(130_000),
+        signal: AbortSignal.timeout(30_000),
       });
-
-      if (!response.ok) {
-        const errData = await response.json().catch(() => ({}));
-        throw new Error(errData.message || `Erro ${response.status} ao gerar retrato.`);
+      if (!startRes.ok) {
+        const errData = await startRes.json().catch(() => ({}));
+        throw new Error(errData.message || `Erro ${startRes.status} ao iniciar geração.`);
       }
+      const { jobId } = await startRes.json();
 
-      const data = await response.json();
+      // Polling: consulta o status a cada 5 segundos até concluir
+      let data: any = null;
+      for (let attempt = 0; attempt < 60; attempt++) {
+        await new Promise(r => setTimeout(r, 5_000));
+        const pollRes = await fetch(`/api/generate/status/${jobId}`, { signal: AbortSignal.timeout(10_000) });
+        const pollData = await pollRes.json();
+        if (pollData.status === 'done')  { data = pollData; break; }
+        if (pollData.status === 'error') throw new Error(pollData.message || 'Erro ao gerar retrato.');
+        // 'pending' → continua polling
+      }
+      if (!data) throw new Error('Tempo esgotado aguardando o retrato. Tente novamente.');
+
       const newImage = `data:${data.mimeType};base64,${data.imageBase64}`;
       setIsGenerating(false);
 

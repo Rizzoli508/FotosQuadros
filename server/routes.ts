@@ -50,19 +50,47 @@ export async function registerRoutes(
     }
   });
 
-  // ── Geração de retrato via Gemini ──────────────────────────────────────────
-  app.post('/api/generate', async (req, res) => {
-    try {
-      const { moldId, subStyle = 'classico', finish = 'pb', images = [] } = req.body;
-      if (!moldId) return res.status(400).json({ message: 'moldId é obrigatório.' });
-      if (!Array.isArray(images) || images.length === 0) return res.status(400).json({ message: 'Envie pelo menos uma imagem.' });
+  // ── Jobs de geração (evita timeout do proxy Railway) ─────────────────────
+  const generateJobs = new Map<string, {
+    status: 'pending' | 'done' | 'error';
+    result?: { imageBase64: string; mimeType: string };
+    error?: string;
+    createdAt: number;
+  }>();
 
-      const result = await generatePortrait(moldId, subStyle, finish, images);
-      return res.json(result);
-    } catch (err: any) {
-      console.error('[Gemini] Erro:', err.message);
-      return res.status(500).json({ message: err.message || 'Erro ao gerar retrato.' });
+  // Limpa jobs com mais de 30 minutos a cada 10 minutos
+  setInterval(() => {
+    const cutoff = Date.now() - 30 * 60 * 1000;
+    for (const [id, job] of generateJobs) {
+      if (job.createdAt < cutoff) generateJobs.delete(id);
     }
+  }, 10 * 60 * 1000);
+
+  // ── Geração de retrato via Gemini (inicia job e responde imediatamente) ───
+  app.post('/api/generate', async (req, res) => {
+    const { moldId, subStyle = 'classico', finish = 'pb', images = [] } = req.body;
+    if (!moldId) return res.status(400).json({ message: 'moldId é obrigatório.' });
+    if (!Array.isArray(images) || images.length === 0) return res.status(400).json({ message: 'Envie pelo menos uma imagem.' });
+
+    const { randomUUID } = await import('crypto');
+    const jobId = randomUUID();
+    generateJobs.set(jobId, { status: 'pending', createdAt: Date.now() });
+
+    // Processa em background — não bloqueia a resposta HTTP
+    generatePortrait(moldId, subStyle, finish, images)
+      .then(result => generateJobs.set(jobId, { status: 'done', result, createdAt: Date.now() }))
+      .catch(err  => generateJobs.set(jobId, { status: 'error', error: err.message, createdAt: Date.now() }));
+
+    return res.json({ jobId }); // responde em <100ms, sem risco de timeout
+  });
+
+  // ── Polling do status do job de geração ──────────────────────────────────
+  app.get('/api/generate/status/:jobId', (req, res) => {
+    const job = generateJobs.get(req.params.jobId);
+    if (!job) return res.status(404).json({ message: 'Job não encontrado.' });
+    if (job.status === 'pending') return res.json({ status: 'pending' });
+    if (job.status === 'error')   return res.status(500).json({ status: 'error', message: job.error });
+    return res.json({ status: 'done', ...job.result });
   });
 
   // ── Pix via AppMax ──
