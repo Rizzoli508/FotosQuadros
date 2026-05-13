@@ -757,8 +757,8 @@ export default function Home() {
     });
   };
 
-  // Comprime imagem para JPEG (max 800px) via Canvas — resolve fotos grandes e HEIC do iPhone
-  const compressImageForApi = (src: string, maxPx = 800, quality = 0.88): Promise<string> => {
+  // Comprime imagem para JPEG (max 1024px) via Canvas — resolve fotos grandes e HEIC do iPhone
+  const compressImageForApi = (src: string, maxPx = 1024, quality = 0.88): Promise<string> => {
     return new Promise((resolve, reject) => {
       const img = new Image();
       img.onload = () => {
@@ -842,10 +842,10 @@ export default function Home() {
       }
       const { jobId } = await startRes.json();
 
-      // Polling: consulta o status a cada 5 segundos até concluir
+      // Polling: consulta o status a cada 2 segundos até concluir
       let data: any = null;
-      for (let attempt = 0; attempt < 60; attempt++) {
-        await new Promise(r => setTimeout(r, 5_000));
+      for (let attempt = 0; attempt < 150; attempt++) {
+        await new Promise(r => setTimeout(r, 2_000));
         const pollRes = await fetch(`/api/generate/status/${jobId}`, { signal: AbortSignal.timeout(10_000) });
         const pollData = await pollRes.json();
         if (pollData.status === 'done')  { data = pollData; break; }
