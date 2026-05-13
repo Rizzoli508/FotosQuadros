@@ -136,29 +136,29 @@ const PROMPTS: Record<string, Record<string, Record<string, string>>> = {
   },
 };
 
-// ─── Vertex AI config ─────────────────────────────────────────────────────────
-const VERTEX_PROJECT  = process.env.GOOGLE_PROJECT_ID ?? 'gen-lang-client-0149214197';
-const VERTEX_LOCATION = 'us-central1';
-const VERTEX_MODEL    = 'gemini-3.1-flash-image-preview';
-const VERTEX_URL      = `https://${VERTEX_LOCATION}-aiplatform.googleapis.com/v1/projects/${VERTEX_PROJECT}/locations/${VERTEX_LOCATION}/publishers/google/models/${VERTEX_MODEL}:generateContent`;
+// ─── Gemini API com OAuth (service account) ───────────────────────────────────
+// Usa o mesmo endpoint do AI Studio mas autenticado via service account OAuth2,
+// vinculando ao projeto com billing ativo em vez da API key de cota gratuita.
+const GEMINI_MODEL = 'gemini-3.1-flash-image-preview';
+const GEMINI_URL   = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
 
 // Cache do access token (válido ~1h)
 let tokenCache: { token: string; expiresAt: number } | null = null;
 
-async function getVertexToken(): Promise<string> {
+async function getOAuthToken(): Promise<string | null> {
+  const rawJson = process.env.GOOGLE_SERVICE_ACCOUNT_JSON;
+  if (!rawJson) return null; // fallback para API key
+
   if (tokenCache && tokenCache.expiresAt > Date.now() + 60_000) {
     return tokenCache.token;
   }
 
-  const rawJson = process.env.GOOGLE_SERVICE_ACCOUNT_JSON;
-  if (!rawJson) throw new Error('GOOGLE_SERVICE_ACCOUNT_JSON não configurada.');
   const creds = JSON.parse(rawJson);
-
   const now = Math.floor(Date.now() / 1000);
   const headerB64  = Buffer.from(JSON.stringify({ alg: 'RS256', typ: 'JWT' })).toString('base64url');
   const payloadB64 = Buffer.from(JSON.stringify({
     iss:   creds.client_email,
-    scope: 'https://www.googleapis.com/auth/cloud-platform',
+    scope: 'https://www.googleapis.com/auth/generative-language',
     aud:   creds.token_uri,
     iat:   now,
     exp:   now + 3600,
@@ -180,27 +180,38 @@ async function getVertexToken(): Promise<string> {
 
   if (!tokenRes.ok) {
     const err = await tokenRes.text().catch(() => '');
-    throw new Error(`Vertex AI auth falhou (${tokenRes.status}): ${err}`);
+    console.warn(`[OAuth] Falha ao obter token (${tokenRes.status}): ${err}`);
+    return null;
   }
 
   const tokenData = await tokenRes.json();
-  tokenCache = { token: tokenData.access_token, expiresAt: Date.now() + 3_500_000 }; // ~58 min
-  console.log('[Vertex AI] Access token obtido com sucesso.');
+  tokenCache = { token: tokenData.access_token, expiresAt: Date.now() + 3_500_000 };
+  console.log('[OAuth] Access token obtido com sucesso.');
   return tokenData.access_token;
 }
 
-async function callVertexAI(
+async function callGemini(
   parts: any[],
+  apiKey: string,
   attemptTimeout = 120_000,
 ): Promise<{ imageBase64: string; mimeType: string }> {
-  const accessToken = await getVertexToken();
+  // Tenta OAuth primeiro (service account), cai no API key se falhar
+  const oauthToken = await getOAuthToken();
 
-  const response = await fetch(VERTEX_URL, {
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+  let url = GEMINI_URL;
+
+  if (oauthToken) {
+    headers['Authorization'] = `Bearer ${oauthToken}`;
+    console.log('[Gemini] Usando autenticação OAuth (service account)');
+  } else {
+    url = `${GEMINI_URL}?key=${apiKey}`;
+    console.log('[Gemini] Usando API key');
+  }
+
+  const response = await fetch(url, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${accessToken}`,
-    },
+    headers,
     body: JSON.stringify({
       contents: [{ parts }],
       generationConfig: { responseModalities: ['IMAGE', 'TEXT'] },
@@ -210,7 +221,7 @@ async function callVertexAI(
 
   if (!response.ok) {
     const err = await response.text().catch(() => '');
-    throw new Error(`Vertex AI retornou ${response.status}: ${err}`);
+    throw new Error(`Gemini retornou ${response.status}: ${err}`);
   }
 
   const data = await response.json();
@@ -228,7 +239,7 @@ async function callVertexAI(
     }
   }
 
-  throw new Error('Vertex AI não retornou imagem na resposta.');
+  throw new Error('Gemini não retornou imagem na resposta.');
 }
 
 export async function generatePortrait(
@@ -237,7 +248,7 @@ export async function generatePortrait(
   finish: string,
   images: string[]
 ): Promise<{ imageBase64: string; mimeType: string }> {
-  if (!process.env.GOOGLE_SERVICE_ACCOUNT_JSON) throw new Error('GOOGLE_SERVICE_ACCOUNT_JSON não configurada.');
+  const apiKey = process.env.GEMINI_API_KEY ?? '';
 
   const promptMap = PROMPTS[moldId];
   if (!promptMap) throw new Error(`Mold ID não encontrado: ${moldId}`);
@@ -249,12 +260,12 @@ export async function generatePortrait(
 
   if (!prompt) throw new Error(`Prompt não encontrado: ${moldId}/${styleKey}/${finish}`);
 
-  // Monta partes da requisição (camelCase para Vertex AI)
+  // Monta partes da requisição
   const parts: any[] = [{ text: prompt }];
   for (const imgBase64 of images) {
     const cleanBase64 = imgBase64.replace(/^data:image\/[a-z]+;base64,/, '');
     parts.push({
-      inlineData: { mimeType: 'image/jpeg', data: cleanBase64 },
+      inline_data: { mime_type: 'image/jpeg', data: cleanBase64 },
     });
   }
 
@@ -264,13 +275,13 @@ export async function generatePortrait(
 
   for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
     try {
-      console.log(`[Vertex AI] Tentativa ${attempt}/${MAX_ATTEMPTS} — moldId=${moldId}`);
-      const result = await callVertexAI(parts, 120_000);
-      console.log(`[Vertex AI] Sucesso na tentativa ${attempt}`);
+      console.log(`[Gemini] Tentativa ${attempt}/${MAX_ATTEMPTS} — moldId=${moldId}`);
+      const result = await callGemini(parts, apiKey, 120_000);
+      console.log(`[Gemini] Sucesso na tentativa ${attempt}`);
       return result;
     } catch (err: any) {
       lastError = err;
-      console.warn(`[Vertex AI] Tentativa ${attempt} falhou: ${err.message}`);
+      console.warn(`[Gemini] Tentativa ${attempt} falhou: ${err.message}`);
       if (attempt < MAX_ATTEMPTS) {
         await new Promise(r => setTimeout(r, 3_000));
       }
