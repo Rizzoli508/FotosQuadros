@@ -159,11 +159,9 @@ export async function generatePortrait(
   // Monta partes da requisição
   const parts: any[] = [{ text: prompt }];
   for (const imgBase64 of images) {
-    const mimeMatch = imgBase64.match(/^data:(image\/[a-zA-Z0-9+.-]+);base64,/);
-    const mimeType  = mimeMatch ? mimeMatch[1] : 'image/jpeg';
-    const cleanBase64 = imgBase64.replace(/^data:image\/[a-zA-Z0-9+.-]+;base64,/, '');
+    const cleanBase64 = imgBase64.replace(/^data:image\/[a-z]+;base64,/, '');
     parts.push({
-      inline_data: { mime_type: mimeType, data: cleanBase64 },
+      inline_data: { mime_type: 'image/jpeg', data: cleanBase64 },
     });
   }
 
@@ -172,7 +170,7 @@ export async function generatePortrait(
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       contents: [{ parts }],
-      generationConfig: { responseModalities: ['TEXT', 'IMAGE'] },
+      generationConfig: { response_modalities: ['IMAGE', 'TEXT'] },
     }),
     signal: AbortSignal.timeout(240_000),
   });
