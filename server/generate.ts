@@ -137,6 +137,45 @@ const PROMPTS: Record<string, Record<string, Record<string, string>>> = {
 const GEMINI_MODEL = 'gemini-3.1-flash-image-preview';
 const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
 
+async function callGemini(
+  apiKey: string,
+  parts: any[],
+  attemptTimeout = 120_000,
+): Promise<{ imageBase64: string; mimeType: string }> {
+  const response = await fetch(`${GEMINI_URL}?key=${apiKey}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      contents: [{ parts }],
+      generationConfig: { responseModalities: ['IMAGE', 'TEXT'] },
+    }),
+    signal: AbortSignal.timeout(attemptTimeout),
+  });
+
+  if (!response.ok) {
+    const err = await response.text().catch(() => '');
+    throw new Error(`Gemini retornou ${response.status}: ${err}`);
+  }
+
+  const data = await response.json();
+
+  // Extrai a imagem da resposta (API retorna camelCase: inlineData / mimeType)
+  const candidates = data?.candidates ?? [];
+  for (const candidate of candidates) {
+    for (const part of candidate?.content?.parts ?? []) {
+      const img = part.inlineData || part.inline_data;
+      if (img?.data) {
+        return {
+          imageBase64: img.data,
+          mimeType: img.mimeType || img.mime_type || 'image/png',
+        };
+      }
+    }
+  }
+
+  throw new Error('Gemini não retornou imagem na resposta.');
+}
+
 export async function generatePortrait(
   moldId: string,
   subStyle: string,
@@ -165,36 +204,25 @@ export async function generatePortrait(
     });
   }
 
-  const response = await fetch(`${GEMINI_URL}?key=${apiKey}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      contents: [{ parts }],
-      generationConfig: { response_modalities: ['IMAGE', 'TEXT'] },
-    }),
-    signal: AbortSignal.timeout(240_000),
-  });
+  // Tenta até 3 vezes — o modelo preview às vezes falha na primeira tentativa
+  const MAX_ATTEMPTS = 3;
+  let lastError: Error = new Error('Erro desconhecido.');
 
-  if (!response.ok) {
-    const err = await response.text().catch(() => '');
-    throw new Error(`Gemini retornou ${response.status}: ${err}`);
-  }
-
-  const data = await response.json();
-
-  // Extrai a imagem da resposta (API retorna camelCase: inlineData / mimeType)
-  const candidates = data?.candidates ?? [];
-  for (const candidate of candidates) {
-    for (const part of candidate?.content?.parts ?? []) {
-      const img = part.inlineData || part.inline_data;
-      if (img?.data) {
-        return {
-          imageBase64: img.data,
-          mimeType: img.mimeType || img.mime_type || 'image/png',
-        };
+  for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+    try {
+      console.log(`[Gemini] Tentativa ${attempt}/${MAX_ATTEMPTS} — moldId=${moldId}`);
+      const result = await callGemini(apiKey, parts, 120_000);
+      console.log(`[Gemini] Sucesso na tentativa ${attempt}`);
+      return result;
+    } catch (err: any) {
+      lastError = err;
+      console.warn(`[Gemini] Tentativa ${attempt} falhou: ${err.message}`);
+      if (attempt < MAX_ATTEMPTS) {
+        // Espera 3s antes de tentar de novo
+        await new Promise(r => setTimeout(r, 3_000));
       }
     }
   }
 
-  throw new Error('Gemini não retornou imagem na resposta.');
+  throw lastError;
 }

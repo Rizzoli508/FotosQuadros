@@ -416,7 +416,6 @@ export default function Home() {
   const [checkoutFormPage, setCheckoutFormPage] = useState<1 | 2 | 3>(1);
   const [plansOpen, setPlansOpen] = useState(false);
   const [genProgress, setGenProgress] = useState(0);
-  const [loadingPhraseIdx, setLoadingPhraseIdx] = useState(0);
   const [reviewIndex, setReviewIndex] = useState(0);
   const [packCredits, setPackCredits] = useState(0);
   const [packTotal, setPackTotal] = useState(0);
@@ -610,29 +609,38 @@ export default function Home() {
   };
 
   const SIZES = [
-    { label: 'A5 (15×20 cm)', fineArtPrice: 1, canvasPrice: 1 },
-    { label: 'A4 (20×30 cm)', fineArtPrice: 1, canvasPrice: 1 },
-    { label: 'A3 (30×40 cm)', fineArtPrice: 1, canvasPrice: 1 },
-    { label: 'A2 (40×60 cm)', fineArtPrice: 1, canvasPrice: 1 },
-    { label: 'A1 (60×90 cm)', fineArtPrice: 1, canvasPrice: 1 },
+    { label: 'A5 (15×20 cm)', fineArtPrice: 79,  canvasPrice: 119 },
+    { label: 'A4 (20×30 cm)', fineArtPrice: 99,  canvasPrice: 159 },
+    { label: 'A3 (30×40 cm)', fineArtPrice: 139, canvasPrice: 199 },
+    { label: 'A2 (40×60 cm)', fineArtPrice: 219, canvasPrice: 349 },
+    { label: 'A1 (60×90 cm)', fineArtPrice: 329, canvasPrice: 599 },
   ];
   const createOrder = useCreateOrder();
 
-  // Progresso fake da geração
+  // Progresso fake da geração — calibrado para ~60-90s de espera
   useEffect(() => {
     if (!isGenerating) { setGenProgress(0); return; }
-    setGenProgress(5);
+    setGenProgress(2);
     const interval = setInterval(() => {
       setGenProgress(prev => {
-        if (prev < 80) {
-          // Fase rápida: chega a 80% rapidamente
-          return Math.min(80, prev + Math.random() * 6 + 3);
+        if (prev < 20) {
+          // Fase 1 — arranque (0-20%): ~8s
+          return Math.min(20, prev + Math.random() * 1.8 + 1.2);
+        } else if (prev < 50) {
+          // Fase 2 — processando (20-50%): ~25s
+          return Math.min(50, prev + Math.random() * 0.9 + 0.6);
+        } else if (prev < 75) {
+          // Fase 3 — gerando (50-75%): ~35s
+          return Math.min(75, prev + Math.random() * 0.5 + 0.3);
+        } else if (prev < 90) {
+          // Fase 4 — finalizando (75-90%): ~30s
+          return Math.min(90, prev + Math.random() * 0.25 + 0.15);
         } else {
-          // Fase lenta: avança devagar mas constante, nunca trava, máx 99%
-          return Math.min(99, prev + Math.random() * 0.3 + 0.2);
+          // Fase 5 — quase lá (90-99%): rasteja, nunca trava
+          return Math.min(99, prev + Math.random() * 0.08 + 0.04);
         }
       });
-    }, 700);
+    }, 800);
     return () => clearInterval(interval);
   }, [isGenerating]);
 
@@ -937,21 +945,17 @@ export default function Home() {
     return () => el.removeEventListener('scroll', onScroll);
   }, [openStyleId]);
 
-  // Frases ciclicas durante o carregamento
+  // Frases sincronizadas com o progresso da geração
   const loadingPhrases = [
-    'Analisando as fotos enviadas...',
-    'Gerando seu retrato exclusivo...',
-    'Aplicando o estilo escolhido...',
-    'Ajustando os detalhes do rosto...',
-    'Finalizando sua obra de arte...',
+    { minProgress: 0,  text: 'Analisando as fotos enviadas...' },
+    { minProgress: 20, text: 'Identificando os rostos...' },
+    { minProgress: 35, text: 'Gerando seu retrato exclusivo...' },
+    { minProgress: 55, text: 'Aplicando o estilo escolhido...' },
+    { minProgress: 72, text: 'Ajustando os detalhes do rosto...' },
+    { minProgress: 87, text: 'Finalizando sua obra de arte...' },
   ];
-  useEffect(() => {
-    if (!isGenerating) { setLoadingPhraseIdx(0); return; }
-    const interval = setInterval(() => {
-      setLoadingPhraseIdx(i => (i + 1) % loadingPhrases.length);
-    }, 3500);
-    return () => clearInterval(interval);
-  }, [isGenerating]);
+  const currentLoadingPhrase = [...loadingPhrases].reverse().find(p => genProgress >= p.minProgress)?.text
+    ?? loadingPhrases[0].text;
 
   const hasAtLeastOnePhoto = faceSlots.some(s => s.file !== null);
 
@@ -1208,9 +1212,11 @@ export default function Home() {
                     alt={openMold.label}
                     className={cn(
                       "absolute inset-0 w-full h-full object-cover object-center",
-                      (openMold.id.startsWith('3p_') || openMold.id.startsWith('4p_'))
-                        ? "scale-[1.25] -translate-y-[14%] md:scale-100 md:translate-y-0"
-                        : ""
+                      openMold.id === '4p_2'
+                        ? "scale-[1.25] -translate-y-[14%] md:scale-[1.18] md:translate-y-0"
+                        : (openMold.id.startsWith('3p_') || openMold.id.startsWith('4p_'))
+                          ? "scale-[1.25] -translate-y-[14%] md:scale-100 md:translate-y-0"
+                          : ""
                     )}
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
@@ -1295,7 +1301,7 @@ export default function Home() {
                     >
                       <AnimatePresence mode="wait">
                         <motion.p
-                          key={loadingPhraseIdx}
+                          key={currentLoadingPhrase}
                           initial={{ opacity: 0, y: 7 }}
                           animate={{ opacity: 1, y: 0 }}
                           exit={{ opacity: 0, y: -7 }}
@@ -1303,7 +1309,7 @@ export default function Home() {
                           className="font-serif italic text-base"
                           style={{ color: 'rgba(45,38,32,0.65)' }}
                         >
-                          {loadingPhrases[loadingPhraseIdx]}
+                          {currentLoadingPhrase}
                         </motion.p>
                       </AnimatePresence>
                       <div className="w-full max-w-[220px]">
@@ -1745,7 +1751,7 @@ export default function Home() {
                       ))}
                     </ul>
                     <button
-                      onClick={() => openCheckout('Retrato Digital HD retravium', 1, false)}
+                      onClick={() => openCheckout('Retrato Digital HD retravium', 29, false)}
                       className="w-full py-4 bg-primary text-white font-sans font-bold text-sm uppercase tracking-widest rounded-xl text-center hover:bg-primary/90 transition-colors flex items-center justify-center gap-2 mb-3"
                     >
                       <Download className="w-4 h-4" />
@@ -2682,7 +2688,7 @@ export default function Home() {
                       ))}
                     </ul>
                     <button
-                      onClick={() => { setPlansOpen(false); openCheckout('Retrato Digital HD retravium', 1, false); }}
+                      onClick={() => { setPlansOpen(false); openCheckout('Retrato Digital HD retravium', 29, false); }}
                       className="w-full py-4 rounded-xl font-bold text-sm transition-all duration-200 border-2 border-gray-900 text-gray-900 hover:bg-gray-900 hover:text-white"
                     >
                       Começar →
@@ -2719,7 +2725,7 @@ export default function Home() {
                       ))}
                     </ul>
                     <button
-                      onClick={() => { setPlansOpen(false); openCheckout('Pack Família — 3 Retratos HD retravium', 1, false); }}
+                      onClick={() => { setPlansOpen(false); openCheckout('Pack Família — 3 Retratos HD retravium', 49, false); }}
                       className="w-full py-4 rounded-xl font-bold text-sm transition-all duration-200 hover:opacity-90 shadow-md text-white"
                       style={{ background: '#C9A96E' }}
                     >
@@ -2757,7 +2763,7 @@ export default function Home() {
                       ))}
                     </ul>
                     <button
-                      onClick={() => { setPlansOpen(false); openCheckout('Pack Memórias — 6 Retratos HD retravium', 1, false); }}
+                      onClick={() => { setPlansOpen(false); openCheckout('Pack Memórias — 6 Retratos HD retravium', 89, false); }}
                       className="w-full py-4 rounded-xl font-bold text-sm transition-all duration-200 border-2 border-gray-900 text-gray-900 hover:bg-gray-900 hover:text-white"
                     >
                       Escolher Studio Pack →
