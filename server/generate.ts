@@ -139,7 +139,7 @@ const PROMPTS: Record<string, Record<string, Record<string, string>>> = {
 // ─── Gemini API com OAuth (service account) ───────────────────────────────────
 // Usa o mesmo endpoint do AI Studio mas autenticado via service account OAuth2,
 // vinculando ao projeto com billing ativo em vez da API key de cota gratuita.
-const GEMINI_MODEL = 'gemini-2.5-flash-preview-05-20';
+const GEMINI_MODEL = 'gemini-3.1-flash-image-preview';
 const GEMINI_URL   = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
 
 // Cache do access token (válido ~1h)
