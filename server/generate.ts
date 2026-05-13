@@ -1,7 +1,9 @@
 /**
  * generate.ts
- * Geração de retratos via Gemini API (migrado do n8n)
+ * Geração de retratos via Vertex AI (Gemini) com autenticação por Service Account
  */
+
+import { createSign } from 'crypto';
 
 const PREAMBLE_2P = `Use the uploaded face photos as the ONLY and EXCLUSIVE identity references for both subjects. Discard EVERYTHING from the original photos EXCEPT the facial identities. Completely ignore and overwrite the original clothing, background, lighting, colors, environment, and any visual elements from the source images. Identity lock — do not change the faces. Preserve 100% each subject's real facial identity: same bone structure, same eyes, nose, mouth shape, teeth shape, wrinkles, pores, natural asymmetry, skin tone. Facial expression and head angle may adapt naturally to the pose. CRITICAL ACCESSORY LOCK: If any subject in the uploaded photos is wearing glasses, a cap, a hat, or any facial accessory, you must keep it in the final generation. `;
 
@@ -134,17 +136,71 @@ const PROMPTS: Record<string, Record<string, Record<string, string>>> = {
   },
 };
 
-const GEMINI_MODEL = 'gemini-3.1-flash-image-preview';
-const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
+// ─── Vertex AI config ─────────────────────────────────────────────────────────
+const VERTEX_PROJECT  = process.env.GOOGLE_PROJECT_ID ?? 'gen-lang-client-0149214197';
+const VERTEX_LOCATION = 'us-central1';
+const VERTEX_MODEL    = 'gemini-2.0-flash-exp';
+const VERTEX_URL      = `https://${VERTEX_LOCATION}-aiplatform.googleapis.com/v1/projects/${VERTEX_PROJECT}/locations/${VERTEX_LOCATION}/publishers/google/models/${VERTEX_MODEL}:generateContent`;
 
-async function callGemini(
-  apiKey: string,
+// Cache do access token (válido ~1h)
+let tokenCache: { token: string; expiresAt: number } | null = null;
+
+async function getVertexToken(): Promise<string> {
+  if (tokenCache && tokenCache.expiresAt > Date.now() + 60_000) {
+    return tokenCache.token;
+  }
+
+  const rawJson = process.env.GOOGLE_SERVICE_ACCOUNT_JSON;
+  if (!rawJson) throw new Error('GOOGLE_SERVICE_ACCOUNT_JSON não configurada.');
+  const creds = JSON.parse(rawJson);
+
+  const now = Math.floor(Date.now() / 1000);
+  const headerB64  = Buffer.from(JSON.stringify({ alg: 'RS256', typ: 'JWT' })).toString('base64url');
+  const payloadB64 = Buffer.from(JSON.stringify({
+    iss:   creds.client_email,
+    scope: 'https://www.googleapis.com/auth/cloud-platform',
+    aud:   creds.token_uri,
+    iat:   now,
+    exp:   now + 3600,
+  })).toString('base64url');
+
+  const sign = createSign('RSA-SHA256');
+  sign.update(`${headerB64}.${payloadB64}`);
+  const signature = sign.sign(creds.private_key, 'base64url');
+  const jwt = `${headerB64}.${payloadB64}.${signature}`;
+
+  const tokenRes = await fetch(creds.token_uri, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({
+      grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
+      assertion:  jwt,
+    }),
+  });
+
+  if (!tokenRes.ok) {
+    const err = await tokenRes.text().catch(() => '');
+    throw new Error(`Vertex AI auth falhou (${tokenRes.status}): ${err}`);
+  }
+
+  const tokenData = await tokenRes.json();
+  tokenCache = { token: tokenData.access_token, expiresAt: Date.now() + 3_500_000 }; // ~58 min
+  console.log('[Vertex AI] Access token obtido com sucesso.');
+  return tokenData.access_token;
+}
+
+async function callVertexAI(
   parts: any[],
   attemptTimeout = 120_000,
 ): Promise<{ imageBase64: string; mimeType: string }> {
-  const response = await fetch(`${GEMINI_URL}?key=${apiKey}`, {
+  const accessToken = await getVertexToken();
+
+  const response = await fetch(VERTEX_URL, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${accessToken}`,
+    },
     body: JSON.stringify({
       contents: [{ parts }],
       generationConfig: { responseModalities: ['IMAGE', 'TEXT'] },
@@ -154,12 +210,11 @@ async function callGemini(
 
   if (!response.ok) {
     const err = await response.text().catch(() => '');
-    throw new Error(`Gemini retornou ${response.status}: ${err}`);
+    throw new Error(`Vertex AI retornou ${response.status}: ${err}`);
   }
 
   const data = await response.json();
 
-  // Extrai a imagem da resposta (API retorna camelCase: inlineData / mimeType)
   const candidates = data?.candidates ?? [];
   for (const candidate of candidates) {
     for (const part of candidate?.content?.parts ?? []) {
@@ -173,7 +228,7 @@ async function callGemini(
     }
   }
 
-  throw new Error('Gemini não retornou imagem na resposta.');
+  throw new Error('Vertex AI não retornou imagem na resposta.');
 }
 
 export async function generatePortrait(
@@ -182,8 +237,7 @@ export async function generatePortrait(
   finish: string,
   images: string[]
 ): Promise<{ imageBase64: string; mimeType: string }> {
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) throw new Error('GEMINI_API_KEY não configurada.');
+  if (!process.env.GOOGLE_SERVICE_ACCOUNT_JSON) throw new Error('GOOGLE_SERVICE_ACCOUNT_JSON não configurada.');
 
   const promptMap = PROMPTS[moldId];
   if (!promptMap) throw new Error(`Mold ID não encontrado: ${moldId}`);
@@ -195,30 +249,29 @@ export async function generatePortrait(
 
   if (!prompt) throw new Error(`Prompt não encontrado: ${moldId}/${styleKey}/${finish}`);
 
-  // Monta partes da requisição
+  // Monta partes da requisição (camelCase para Vertex AI)
   const parts: any[] = [{ text: prompt }];
   for (const imgBase64 of images) {
     const cleanBase64 = imgBase64.replace(/^data:image\/[a-z]+;base64,/, '');
     parts.push({
-      inline_data: { mime_type: 'image/jpeg', data: cleanBase64 },
+      inlineData: { mimeType: 'image/jpeg', data: cleanBase64 },
     });
   }
 
-  // Tenta até 3 vezes — o modelo preview às vezes falha na primeira tentativa
+  // Tenta até 3 vezes
   const MAX_ATTEMPTS = 3;
   let lastError: Error = new Error('Erro desconhecido.');
 
   for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
     try {
-      console.log(`[Gemini] Tentativa ${attempt}/${MAX_ATTEMPTS} — moldId=${moldId}`);
-      const result = await callGemini(apiKey, parts, 120_000);
-      console.log(`[Gemini] Sucesso na tentativa ${attempt}`);
+      console.log(`[Vertex AI] Tentativa ${attempt}/${MAX_ATTEMPTS} — moldId=${moldId}`);
+      const result = await callVertexAI(parts, 120_000);
+      console.log(`[Vertex AI] Sucesso na tentativa ${attempt}`);
       return result;
     } catch (err: any) {
       lastError = err;
-      console.warn(`[Gemini] Tentativa ${attempt} falhou: ${err.message}`);
+      console.warn(`[Vertex AI] Tentativa ${attempt} falhou: ${err.message}`);
       if (attempt < MAX_ATTEMPTS) {
-        // Espera 3s antes de tentar de novo
         await new Promise(r => setTimeout(r, 3_000));
       }
     }
