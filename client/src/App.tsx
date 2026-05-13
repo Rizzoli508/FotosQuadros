@@ -22,9 +22,16 @@ function Router() {
       <Route path="/mae-filho-2" component={Home} />
       <Route path="/pai-filho"   component={Home} />
       <Route path="/pai-filho-2" component={Home} />
-      <Route path="/familia-3"   component={Home} />
-      <Route path="/familia-4"   component={Home} />
-      <Route path="/pet"         component={Home} />
+      <Route path="/familia-3"         component={Home} />
+      <Route path="/familia-3-ternura" component={Home} />
+      <Route path="/familia-3-laco"    component={Home} />
+      <Route path="/familia-4"         component={Home} />
+      <Route path="/familia-4-amor"    component={Home} />
+      <Route path="/familia-4-lacos"   component={Home} />
+      <Route path="/familia-4-memoria" component={Home} />
+      <Route path="/pet"               component={Home} />
+      <Route path="/pet-amor-peludo"   component={Home} />
+      <Route path="/pet-familia"       component={Home} />
       <Route component={NotFound} />
     </Switch>
   );

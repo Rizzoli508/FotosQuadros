@@ -156,9 +156,16 @@ const URL_MOLD_MAP: Record<string, string> = {
   '/mae-filho-2': '2p_5i',
   '/pai-filho':   '2p_6c',
   '/pai-filho-2': '2p_6i',
-  '/familia-3':   '3p_1',
-  '/familia-4':   '4p_1',
-  '/pet':         'pet_1',
+  '/familia-3':         '3p_1',
+  '/familia-3-ternura': '3p_3',
+  '/familia-3-laco':    '3p_4',
+  '/familia-4':         '4p_1',
+  '/familia-4-amor':    '4p_2',
+  '/familia-4-lacos':   '4p_3',
+  '/familia-4-memoria': '4p_4',
+  '/pet':               'pet_1',
+  '/pet-amor-peludo':   'pet_2',
+  '/pet-familia':       'pet_3',
 };
 
 // molde → URL (para atualizar a barra de endereço ao clicar na galeria)
@@ -169,9 +176,9 @@ const MOLD_URL_MAP: Record<string, string> = {
   '2p_4c': '/pai-filha',   '2p_4i': '/pai-filha-2',
   '2p_5c': '/mae-filho',   '2p_5i': '/mae-filho-2',
   '2p_6c': '/pai-filho',   '2p_6i': '/pai-filho-2',
-  '3p_1': '/familia-3', '3p_3': '/familia-3', '3p_4': '/familia-3',
-  '4p_1': '/familia-4', '4p_2': '/familia-4', '4p_3': '/familia-4', '4p_4': '/familia-4',
-  'pet_1': '/pet', 'pet_2': '/pet', 'pet_3': '/pet',
+  '3p_1': '/familia-3', '3p_3': '/familia-3-ternura', '3p_4': '/familia-3-laco',
+  '4p_1': '/familia-4', '4p_2': '/familia-4-amor', '4p_3': '/familia-4-lacos', '4p_4': '/familia-4-memoria',
+  'pet_1': '/pet', 'pet_2': '/pet-amor-peludo', 'pet_3': '/pet-familia',
   'mae_1': '/mae-filha', 'mae_2': '/mae-filha-2', 'mae_3': '/mae-filho', 'mae_4': '/mae-filho-2',
 };
 
