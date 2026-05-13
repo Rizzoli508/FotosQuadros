@@ -139,7 +139,7 @@ const PROMPTS: Record<string, Record<string, Record<string, string>>> = {
 // ─── Vertex AI config ─────────────────────────────────────────────────────────
 const VERTEX_PROJECT  = process.env.GOOGLE_PROJECT_ID ?? 'gen-lang-client-0149214197';
 const VERTEX_LOCATION = 'us-central1';
-const VERTEX_MODEL    = 'gemini-2.0-flash-exp';
+const VERTEX_MODEL    = 'gemini-2.0-flash-001';
 const VERTEX_URL      = `https://${VERTEX_LOCATION}-aiplatform.googleapis.com/v1/projects/${VERTEX_PROJECT}/locations/${VERTEX_LOCATION}/publishers/google/models/${VERTEX_MODEL}:generateContent`;
 
 // Cache do access token (válido ~1h)
