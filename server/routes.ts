@@ -22,6 +22,7 @@ import {
   ensureBucket,
 } from "./portraits";
 import { generatePortrait } from "./generate";
+import { generatePortraitFal } from "./generate-fal";
 import { appendOrderToSheet, ensureSheetHeaders } from "./sheets";
 
 const VALID_PRICES = new Set([29, 49, 89, 79, 99, 139, 219, 329, 119, 159, 199, 349, 599, 1]);
@@ -133,6 +134,24 @@ export async function registerRoutes(
       if (job.createdAt < cutoff) generateJobs.delete(id);
     }
   }, 10 * 60 * 1000);
+
+  // ── Geração de retrato via fal.ai (teste) ────────────────────────────────
+  app.post('/api/generate-fal', async (req, res) => {
+    if (!process.env.FAL_KEY) return res.status(500).json({ message: 'FAL_KEY não configurada.' });
+    const { moldId, subStyle = 'classico', finish = 'pb', images = [] } = req.body;
+    if (!moldId) return res.status(400).json({ message: 'moldId é obrigatório.' });
+    if (!Array.isArray(images) || images.length === 0) return res.status(400).json({ message: 'Envie pelo menos uma imagem.' });
+
+    const { randomUUID } = await import('crypto');
+    const jobId = randomUUID();
+    generateJobs.set(jobId, { status: 'pending', createdAt: Date.now() });
+
+    generatePortraitFal(moldId, subStyle, finish, images)
+      .then(result => generateJobs.set(jobId, { status: 'done', result, createdAt: Date.now() }))
+      .catch(err => generateJobs.set(jobId, { status: 'error', error: err?.message || 'Erro fal.ai', createdAt: Date.now() }));
+
+    return res.json({ jobId });
+  });
 
   // ── Geração de retrato via Gemini (inicia job e responde imediatamente) ───
   app.post('/api/generate', async (req, res) => {
