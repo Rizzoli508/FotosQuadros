@@ -71,8 +71,8 @@ export async function generatePortraitFal(
   const imageUrls = await Promise.all(images.map(uploadToFal));
   console.log(`[fal.ai] ${imageUrls.length} imagem(ns) enviada(s) ao storage`);
 
-  // Chama FLUX Kontext Pro com as imagens de referência
-  const result = await fal.subscribe('fal-ai/flux-kontext-pro', {
+  // Chama FLUX Pro Kontext com as imagens de referência
+  const result = await fal.subscribe('fal-ai/flux-pro/kontext', {
     input: {
       prompt,
       image_url: imageUrls[0],
