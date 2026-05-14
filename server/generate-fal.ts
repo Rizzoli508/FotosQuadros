@@ -6,6 +6,9 @@
 
 import { fal } from '@fal-ai/client';
 
+// Configura credenciais no nível do módulo
+fal.config({ credentials: process.env.FAL_KEY! });
+
 // Reutiliza os mesmos prompts do generate.ts
 const PREAMBLE_2P = `Two people portrait. Use the uploaded face photos as identity references for both subjects. Preserve 100% each subject's real facial identity: same bone structure, eyes, nose, mouth shape, skin tone. `;
 
@@ -54,8 +57,6 @@ export async function generatePortraitFal(
   finish: string,
   images: string[]
 ): Promise<{ imageBase64: string; mimeType: string }> {
-  fal.config({ credentials: process.env.FAL_KEY! });
-
   const promptMap = PROMPTS[moldId];
   if (!promptMap) throw new Error(`Mold ID não encontrado: ${moldId}`);
 
@@ -70,15 +71,13 @@ export async function generatePortraitFal(
   const imageUrls = await Promise.all(images.map(uploadToFal));
   console.log(`[fal.ai] ${imageUrls.length} imagem(ns) enviada(s) ao storage`);
 
-  // Chama FLUX Kontext Max com as imagens de referência
-  const result = await fal.subscribe('fal-ai/flux-kontext-max', {
+  // Chama FLUX Kontext Pro com as imagens de referência
+  const result = await fal.subscribe('fal-ai/flux-kontext-pro', {
     input: {
       prompt,
-      image_url: imageUrls[0],               // referência principal
-      ...(imageUrls[1] ? { image_url_2: imageUrls[1] } : {}),
+      image_url: imageUrls[0],
       num_images: 1,
       output_format: 'jpeg',
-      guidance_scale: 3.5,
     },
   }) as any;
 
