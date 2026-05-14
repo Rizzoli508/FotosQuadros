@@ -1,7 +1,7 @@
 /**
  * generate-fal.ts
- * Protótipo de geração via fal.ai (FLUX Kontext Max)
- * Substitui o Gemini para testes de velocidade e qualidade
+ * Geração via fal.ai usando Nano Banana 2 (gemini-3.1-flash-image-preview)
+ * Mesmo modelo do Gemini direto, mas com infraestrutura estável do fal.ai
  */
 
 import { fal } from '@fal-ai/client';
@@ -14,8 +14,7 @@ async function uploadToFal(base64: string): Promise<string> {
   const cleanBase64 = base64.replace(/^data:image\/[a-z]+;base64,/, '');
   const buffer = Buffer.from(cleanBase64, 'base64');
   const blob = new Blob([buffer], { type: 'image/jpeg' });
-  const url = await fal.storage.upload(blob as any);
-  return url;
+  return await fal.storage.upload(blob as any);
 }
 
 export async function generatePortraitFal(
@@ -38,13 +37,12 @@ export async function generatePortraitFal(
   const imageUrls = await Promise.all(images.map(uploadToFal));
   console.log(`[fal.ai] ${imageUrls.length} imagem(ns) enviada(s) ao storage`);
 
-  // Chama FLUX Pro Kontext com as imagens de referência
-  const result = await fal.subscribe('fal-ai/flux-pro/kontext', {
+  // Chama Nano Banana 2 (mesmo modelo que usávamos no Gemini direto)
+  const result = await fal.subscribe('fal-ai/nano-banana-2', {
     input: {
       prompt,
       image_url: imageUrls[0],
-      num_images: 1,
-      output_format: 'jpeg',
+      ...(imageUrls[1] ? { image_urls: imageUrls } : {}),
     },
   }) as any;
 
