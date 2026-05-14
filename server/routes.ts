@@ -164,7 +164,7 @@ export async function registerRoutes(
     generateJobs.set(jobId, { status: 'pending', createdAt: Date.now() });
 
     // Processa em background — não bloqueia a resposta HTTP
-    generatePortrait(moldId, subStyle, finish, images)
+    generatePortraitFal(moldId, subStyle, finish, images)
       .then(result => generateJobs.set(jobId, { status: 'done', result, createdAt: Date.now() }))
       .catch(err  => {
         const isTimeout = err?.name === 'TimeoutError' || (err?.message || '').includes('aborted');
