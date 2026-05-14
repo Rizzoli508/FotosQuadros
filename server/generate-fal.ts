@@ -4,7 +4,7 @@
  * Substitui o Gemini para testes de velocidade e qualidade
  */
 
-import * as fal from '@fal-ai/client';
+import { fal } from '@fal-ai/client';
 
 // Reutiliza os mesmos prompts do generate.ts
 const PREAMBLE_2P = `Two people portrait. Use the uploaded face photos as identity references for both subjects. Preserve 100% each subject's real facial identity: same bone structure, eyes, nose, mouth shape, skin tone. `;
