@@ -3,7 +3,6 @@
  * Geração de retratos via Vertex AI (Gemini) com autenticação por Service Account
  */
 
-import { createSign } from 'crypto';
 
 const PREAMBLE_2P = `Use the uploaded face photos as the ONLY and EXCLUSIVE identity references for both subjects. Discard EVERYTHING from the original photos EXCEPT the facial identities. Completely ignore and overwrite the original clothing, background, lighting, colors, environment, and any visual elements from the source images. Identity lock — do not change the faces. Preserve 100% each subject's real facial identity: same bone structure, same eyes, nose, mouth shape, teeth shape, wrinkles, pores, natural asymmetry, skin tone. Facial expression and head angle may adapt naturally to the pose. CRITICAL ACCESSORY LOCK: If any subject in the uploaded photos is wearing glasses, a cap, a hat, or any facial accessory, you must keep it in the final generation. `;
 
@@ -136,46 +135,9 @@ const PROMPTS: Record<string, Record<string, Record<string, string>>> = {
   },
 };
 
-// ─── Gemini API (AI Studio) ───────────────────────────────────────────────────
+// ─── Gemini API ───────────────────────────────────────────────────────────────
 const GEMINI_MODEL = 'gemini-3.1-flash-image-preview';
 const GEMINI_URL   = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
-
-async function callGemini(
-  apiKey: string,
-  parts: any[],
-): Promise<{ imageBase64: string; mimeType: string }> {
-  const response = await fetch(`${GEMINI_URL}?key=${apiKey}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      contents: [{ parts }],
-      generationConfig: { responseModalities: ['IMAGE', 'TEXT'] },
-    }),
-    signal: AbortSignal.timeout(300_000),
-  });
-
-  if (!response.ok) {
-    const err = await response.text().catch(() => '');
-    throw new Error(`Gemini retornou ${response.status}: ${err}`);
-  }
-
-  const data = await response.json();
-
-  const candidates = data?.candidates ?? [];
-  for (const candidate of candidates) {
-    for (const part of candidate?.content?.parts ?? []) {
-      const img = part.inlineData || part.inline_data;
-      if (img?.data) {
-        return {
-          imageBase64: img.data,
-          mimeType: img.mimeType || img.mime_type || 'image/png',
-        };
-      }
-    }
-  }
-
-  throw new Error('Gemini não retornou imagem na resposta.');
-}
 
 export async function generatePortrait(
   moldId: string,
@@ -192,34 +154,51 @@ export async function generatePortrait(
   const styleKey = promptMap[subStyle] ? subStyle : Object.keys(promptMap)[0];
   const finishMap = promptMap[styleKey];
   const prompt = finishMap[finish] || finishMap['pb'];
-
   if (!prompt) throw new Error(`Prompt não encontrado: ${moldId}/${styleKey}/${finish}`);
 
   const parts: any[] = [{ text: prompt }];
   for (const imgBase64 of images) {
     const cleanBase64 = imgBase64.replace(/^data:image\/[a-z]+;base64,/, '');
-    parts.push({
-      inline_data: { mime_type: 'image/jpeg', data: cleanBase64 },
-    });
+    parts.push({ inline_data: { mime_type: 'image/jpeg', data: cleanBase64 } });
   }
 
-  const MAX_ATTEMPTS = 3;
-  let lastError: Error = new Error('Erro desconhecido.');
+  const doRequest = () => fetch(`${GEMINI_URL}?key=${apiKey}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      contents: [{ parts }],
+      generationConfig: { response_modalities: ['IMAGE', 'TEXT'] },
+    }),
+    signal: AbortSignal.timeout(180_000),
+  });
 
-  for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
-    try {
-      console.log(`[Gemini] Tentativa ${attempt}/${MAX_ATTEMPTS} — moldId=${moldId}`);
-      const result = await callGemini(apiKey, parts);
-      console.log(`[Gemini] Sucesso na tentativa ${attempt}`);
-      return result;
-    } catch (err: any) {
-      lastError = err;
-      console.warn(`[Gemini] Tentativa ${attempt} falhou: ${err.message}`);
-      if (attempt < MAX_ATTEMPTS) {
-        await new Promise(r => setTimeout(r, 35_000));
+  console.log(`[Gemini] Iniciando geração — moldId=${moldId}`);
+  let response = await doRequest();
+
+  // Se o Google retornar 502 (sobrecarga momentânea), aguarda 35s e tenta mais uma vez
+  if (response.status === 502) {
+    console.warn(`[Gemini] 502 recebido — aguardando 35s para nova tentativa`);
+    await new Promise(r => setTimeout(r, 35_000));
+    response = await doRequest();
+  }
+
+  if (!response.ok) {
+    const err = await response.text().catch(() => '');
+    throw new Error(`Gemini retornou ${response.status}: ${err}`);
+  }
+
+  const data = await response.json();
+  console.log(`[Gemini] Resposta recebida — moldId=${moldId}`);
+
+  const candidates = data?.candidates ?? [];
+  for (const candidate of candidates) {
+    for (const part of candidate?.content?.parts ?? []) {
+      const img = part.inlineData || part.inline_data;
+      if (img?.data) {
+        return { imageBase64: img.data, mimeType: img.mimeType || img.mime_type || 'image/png' };
       }
     }
   }
 
-  throw lastError;
+  throw new Error('Gemini não retornou imagem na resposta.');
 }
