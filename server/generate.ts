@@ -12,7 +12,7 @@ const PREAMBLE_PET = `Use the uploaded photos as the ONLY and EXCLUSIVE identity
 
 const SUFFIX = `85mm lens, ultra sharp focus on eyes, 8K resolution. Vertical format 1080x1350.`;
 
-const PROMPTS: Record<string, Record<string, Record<string, string>>> = {
+export const PROMPTS: Record<string, Record<string, Record<string, string>>> = {
   '2p_1': {
     classico: {
       pb: PREAMBLE_2P + `Ultra-realistic black and white couple portrait. The man is seated in front, fitted plain black t-shirt, looking confidently at the camera. The woman is standing upright directly behind him, her body fully behind his, taller than him in this composition, leaning slightly forward, both arms wrapped around his chest from behind with hands resting on his torso, her face positioned just above and behind his head, looking softly at the camera. Both bodies face the camera directly. She wears an oversized white button-up shirt with sleeves slightly rolled. Her hair must remain completely natural and loose, never tied, never in a bun, never pinned up. Clean light gray seamless background. High-end beauty lighting setup, large soft key light from the front, luminous and flattering skin tones, very gentle shadow definition on jawlines, smooth highlights, elegant cinematic black and white grading. Medium portrait from mid-torso up. ` + SUFFIX,
