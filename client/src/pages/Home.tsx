@@ -868,7 +868,7 @@ export default function Home() {
 
       // Polling: consulta o status a cada 2 segundos até concluir
       let data: any = null;
-      for (let attempt = 0; attempt < 150; attempt++) {
+      for (let attempt = 0; attempt < 250; attempt++) {
         await new Promise(r => setTimeout(r, 2_000));
         const pollRes = await fetch(`/api/generate/status/${jobId}`, { signal: AbortSignal.timeout(10_000) });
         const pollData = await pollRes.json();
