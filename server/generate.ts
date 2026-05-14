@@ -143,7 +143,6 @@ const GEMINI_URL   = `https://generativelanguage.googleapis.com/v1beta/models/${
 async function callGemini(
   apiKey: string,
   parts: any[],
-  attemptTimeout = 120_000,
 ): Promise<{ imageBase64: string; mimeType: string }> {
   const response = await fetch(`${GEMINI_URL}?key=${apiKey}`, {
     method: 'POST',
@@ -152,7 +151,7 @@ async function callGemini(
       contents: [{ parts }],
       generationConfig: { responseModalities: ['IMAGE', 'TEXT'] },
     }),
-    signal: AbortSignal.timeout(attemptTimeout),
+    signal: AbortSignal.timeout(300_000),
   });
 
   if (!response.ok) {
@@ -210,14 +209,14 @@ export async function generatePortrait(
   for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
     try {
       console.log(`[Gemini] Tentativa ${attempt}/${MAX_ATTEMPTS} — moldId=${moldId}`);
-      const result = await callGemini(apiKey, parts, 120_000);
+      const result = await callGemini(apiKey, parts);
       console.log(`[Gemini] Sucesso na tentativa ${attempt}`);
       return result;
     } catch (err: any) {
       lastError = err;
       console.warn(`[Gemini] Tentativa ${attempt} falhou: ${err.message}`);
       if (attempt < MAX_ATTEMPTS) {
-        await new Promise(r => setTimeout(r, 3_000));
+        await new Promise(r => setTimeout(r, 35_000));
       }
     }
   }
