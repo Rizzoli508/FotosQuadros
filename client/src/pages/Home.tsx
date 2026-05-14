@@ -423,6 +423,7 @@ export default function Home() {
   const [packPortraits, setPackPortraits] = useState<(string | null)[]>([]);
   const [activePackSlot, setActivePackSlot] = useState<number | null>(null);
   const [packRegens, setPackRegens] = useState<number[]>([]);
+  const [singleRegenCount, setSingleRegenCount] = useState(0);
   const [portraitId, setPortraitId] = useState<string | null>(null);
   const [whatsappStatus, setWhatsappStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
   const [successPhone, setSuccessPhone] = useState('');
@@ -745,6 +746,7 @@ export default function Home() {
     setSelectedSubStyle(intimoIds.includes(moldId) ? 'intimo' : 'classico');
     setGeneratedImage(null);
     setIsGenerating(false);
+    setSingleRegenCount(0);
     const url = MOLD_URL_MAP[moldId];
     if (url) navigate(url);
   };
@@ -755,6 +757,7 @@ export default function Home() {
     setFaceSlots([]);
     setGeneratedImage(null);
     setIsGenerating(false);
+    setSingleRegenCount(0);
     navigate('/');
   };
 
@@ -1702,13 +1705,17 @@ export default function Home() {
 
               {/* Gerar novamente */}
               <div className="text-center mb-14">
-                <button
-                  onClick={() => { setGeneratedImage(null); }}
-                  className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground text-xs transition-colors"
-                >
-                  <RotateCcw className="w-3 h-3" />
-                  Não gostou? Gerar novamente
-                </button>
+                {singleRegenCount < 1 ? (
+                  <button
+                    onClick={() => { setSingleRegenCount(c => c + 1); setGeneratedImage(null); }}
+                    className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground text-xs transition-colors"
+                  >
+                    <RotateCcw className="w-3 h-3" />
+                    Não gostou? Gerar novamente
+                  </button>
+                ) : (
+                  <p className="text-xs text-muted-foreground/60">Limite de tentativas atingido. Tente com uma foto com melhor iluminação.</p>
+                )}
               </div>
 
               {/* Seção de formatos */}
@@ -2861,7 +2868,7 @@ export default function Home() {
                           <Download className="w-4 h-4" />
                           Baixar
                         </a>
-                        {(packRegens[i] ?? 0) < 2 && (
+                        {(packRegens[i] ?? 0) < 1 && (
                           <button
                             onClick={() => {
                               setPackRegens(prev => { const r = [...prev]; r[i] = (r[i] ?? 0) + 1; return r; });
@@ -2869,7 +2876,7 @@ export default function Home() {
                             }}
                             className="w-full py-2 rounded-xl text-xs font-semibold text-foreground/45 border border-foreground/15 hover:border-foreground/30 hover:text-foreground/60 transition-all"
                           >
-                            Gerar novamente ({(packRegens[i] ?? 0) + 1}/2)
+                            Gerar novamente
                           </button>
                         )}
                       </div>
