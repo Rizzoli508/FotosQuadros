@@ -41,8 +41,10 @@ export async function generatePortraitFal(
   const result = await fal.subscribe('fal-ai/nano-banana-2', {
     input: {
       prompt,
-      image_url: imageUrls[0],
-      ...(imageUrls[1] ? { image_urls: imageUrls } : {}),
+      image_refs: imageUrls,   // todas as fotos de referência
+      resolution: '1K',        // força 1K pra custo de $0.08 (evita 2K default = $0.16)
+      output_format: 'jpeg',
+      aspect_ratio: '4:5',
     },
   }) as any;
 
