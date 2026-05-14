@@ -21,7 +21,6 @@ import {
   cleanupOldPortraits,
   ensureBucket,
 } from "./portraits";
-import { generatePortrait } from "./generate";
 import { generatePortraitFal } from "./generate-fal";
 import { appendOrderToSheet, ensureSheetHeaders } from "./sheets";
 

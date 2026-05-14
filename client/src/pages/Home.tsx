@@ -70,7 +70,7 @@ const FAQ = [
   { q: 'A qualidade do retrato é boa?', a: 'Sim. Nossa IA gera retratos em altíssima resolução, com detalhes refinados, cores ricas e acabamento artístico único. Cada retrato é criado especialmente para a sua família, com um nível de realismo e beleza que surpreende.' },
   { q: 'Como posso usar meu retrato?', a: 'Seu retrato digital pode ser usado como foto de perfil, wallpaper do celular, compartilhado com a família ou enviado como presente. E se quiser algo ainda mais especial, peça seu quadro impresso para decorar sua casa.' },
   { q: 'Posso pedir um quadro impresso?', a: 'Sim! Você escolhe o tamanho e o estilo da moldura. O quadro chega pronto para pendurar na sua casa.' },
-  { q: 'E se eu não gostar?', a: 'Você pode gerar novamente gratuitamente até ficar satisfeito.' },
+  { q: 'E se eu não gostar?', a: 'Você tem uma tentativa adicional de geração incluída. Caso o resultado não esteja do seu agrado, recomendamos enviar uma foto com rosto mais visível e boa iluminação para garantir o melhor resultado.' },
 ];
 
 const CATEGORIES = [
@@ -820,6 +820,9 @@ export default function Home() {
 
   const handleGenerate = async () => {
     if (!openStyleId || !hasAtLeastOnePhoto || isGenerating) return;
+    // Bloqueia segunda tentativa pelo botão principal (limite de 1 retry)
+    if (generatedImage && singleRegenCount >= 1) return;
+    if (generatedImage) setSingleRegenCount(c => c + 1);
     const currentPackSlot = activePackSlot;
     setIsGenerating(true);
     setGeneratedImage(null);
@@ -1353,16 +1356,16 @@ export default function Home() {
 
                 {/* Botão gerar */}
                 <button
-                  disabled={!hasAtLeastOnePhoto || isGenerating}
+                  disabled={!hasAtLeastOnePhoto || isGenerating || (!!generatedImage && singleRegenCount >= 1)}
                   onClick={handleGenerate}
                   data-testid="button-submit-order"
                   className={cn(
                     "w-full max-w-sm mx-auto block py-3.5 font-sans font-semibold tracking-widest uppercase text-sm rounded-xl text-white transition-all",
-                    hasAtLeastOnePhoto && !isGenerating ? "cursor-pointer hover:opacity-90" : "opacity-40 cursor-not-allowed"
+                    hasAtLeastOnePhoto && !isGenerating && !(generatedImage && singleRegenCount >= 1) ? "cursor-pointer hover:opacity-90" : "opacity-40 cursor-not-allowed"
                   )}
                   style={{ background: '#C9A96E' }}
                 >
-                  {isGenerating ? "Criando..." : generatedImage ? "Criar Novamente" : "Criar Meu Retrato"}
+                  {isGenerating ? "Criando..." : (generatedImage && singleRegenCount >= 1) ? "Limite Atingido" : generatedImage ? "Criar Novamente" : "Criar Meu Retrato"}
                 </button>
 
                 {/* Prova social */}
