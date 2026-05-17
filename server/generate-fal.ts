@@ -1,7 +1,7 @@
 /**
  * generate-fal.ts
- * Geração via fal.ai usando Nano Banana 2 (gemini-3.1-flash-image-preview)
- * Mesmo modelo do Gemini direto, mas com infraestrutura estável do fal.ai
+ * Geração via fal.ai usando GPT Image 2 Edit (openai/gpt-image-2/edit)
+ * Low quality — ~$0.015/imagem, aceita múltiplas fotos de referência
  */
 
 import { fal } from '@fal-ai/client';
@@ -37,18 +37,18 @@ export async function generatePortraitFal(
   const imageUrls = await Promise.all(images.map(uploadToFal));
   console.log(`[fal.ai] ${imageUrls.length} imagem(ns) enviada(s) ao storage`);
 
-  // Chama Nano Banana 2 Edit (aceita imagens de referência via image_urls)
-  const result = await fal.subscribe('fal-ai/nano-banana-2/edit', {
+  // GPT Image 2 Edit — low quality (~$0.015), aceita fotos de referência via image_urls
+  const result = await fal.subscribe('openai/gpt-image-2/edit', {
     input: {
       prompt,
-      image_urls: imageUrls,   // fotos de referência das pessoas
-      resolution: '1K',        // força 1K pra custo de $0.08 (evita 2K default = $0.16)
+      image_urls: imageUrls,       // fotos de referência das pessoas
+      quality: 'low',              // ~$0.015/imagem (vs $0.08 anterior)
+      image_size: 'portrait_4_3',  // formato retrato
       output_format: 'jpeg',
-      aspect_ratio: '4:5',
     },
   }) as any;
 
-  console.log(`[fal.ai] Geração concluída (edit) — moldId=${moldId}`);
+  console.log(`[fal.ai] Geração concluída (gpt-image-2/edit) — moldId=${moldId}`);
 
   const imageUrl: string = result.data?.images?.[0]?.url;
   if (!imageUrl) throw new Error('fal.ai não retornou imagem na resposta.');
