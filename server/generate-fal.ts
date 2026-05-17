@@ -41,10 +41,11 @@ export async function generatePortraitFal(
   const result = await fal.subscribe('openai/gpt-image-2/edit', {
     input: {
       prompt,
-      image_urls: imageUrls,       // fotos de referência das pessoas
-      quality: 'low',              // ~$0.015/imagem (vs $0.08 anterior)
-      image_size: 'portrait_4_3',  // formato retrato
+      image_urls: imageUrls,                        // fotos de referência das pessoas
+      quality: 'low',                               // ~$0.015/imagem (vs $0.08 anterior)
+      image_size: 'portrait_4_3',                   // formato retrato
       output_format: 'jpeg',
+      openai_api_key: process.env.OPENAI_API_KEY,   // BYOK — chave própria da OpenAI
     },
   }) as any;
 
