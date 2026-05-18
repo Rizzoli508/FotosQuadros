@@ -3,6 +3,43 @@ import type { Server } from "http";
 import { storage } from "./storage";
 import { api } from "@shared/routes";
 import { z } from "zod";
+import { createClient } from '@supabase/supabase-js';
+
+const supabase = createClient(
+  process.env.SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!,
+);
+
+async function persistDelivery(orderId: number, imageBase64: string, phone: string, name: string) {
+  try {
+    const clean = imageBase64.replace(/^data:image\/[a-z]+;base64,/, '');
+    const imgBuffer = Buffer.from(clean, 'base64');
+    const meta = Buffer.from(JSON.stringify({ phone, name }));
+    await Promise.all([
+      supabase.storage.from('portraits').upload(`deliveries/${orderId}.jpg`, imgBuffer, { contentType: 'image/jpeg', upsert: true }),
+      supabase.storage.from('portraits').upload(`deliveries/${orderId}.json`, meta, { contentType: 'application/json', upsert: true }),
+    ]);
+    console.log(`[Delivery] Persistido no Supabase — orderId=${orderId}`);
+  } catch (e: any) {
+    console.error(`[Delivery] Erro ao persistir no Supabase:`, e.message);
+  }
+}
+
+async function loadDeliveryFromSupabase(orderId: number): Promise<{ imageBase64: string; phone: string; name: string } | null> {
+  try {
+    const [imgRes, metaRes] = await Promise.all([
+      supabase.storage.from('portraits').download(`deliveries/${orderId}.jpg`),
+      supabase.storage.from('portraits').download(`deliveries/${orderId}.json`),
+    ]);
+    if (imgRes.error || metaRes.error || !imgRes.data || !metaRes.data) return null;
+    const imageBase64 = Buffer.from(await imgRes.data.arrayBuffer()).toString('base64');
+    const { phone, name } = JSON.parse(await metaRes.data.text());
+    console.log(`[Delivery] Recuperado do Supabase — orderId=${orderId}`);
+    return { imageBase64, phone, name };
+  } catch {
+    return null;
+  }
+}
 import {
   appmaxGetOrCreateCustomer,
   appmaxCreateOrder,
@@ -67,13 +104,15 @@ export async function registerRoutes(
   }, 30 * 60 * 1000);
 
   // Registra retrato + contato para entrega automática via webhook
-  app.post('/api/deliveries/:orderId', (req, res) => {
+  app.post('/api/deliveries/:orderId', async (req, res) => {
     const orderId = parseInt(req.params.orderId);
     const { imageBase64, phone, name } = req.body;
     if (!orderId || !imageBase64 || !phone) {
       return res.status(400).json({ message: 'orderId, imageBase64 e phone são obrigatórios.' });
     }
     deliveries.set(orderId, { imageBase64, phone, name: name || '', sent: false, createdAt: Date.now() });
+    // Persiste no Supabase — sobrevive a restarts do servidor
+    persistDelivery(orderId, imageBase64, phone, name || '');
     return res.json({ ok: true });
   });
 
@@ -89,7 +128,15 @@ export async function registerRoutes(
     console.log(`[Webhook AppMax] orderId=${orderId} status=${rawStatus} isPaid=${isPaid}`);
     if (!orderId || !isPaid) return;
 
-    const delivery = deliveries.get(orderId);
+    // Tenta memória primeiro; fallback ao Supabase se servidor reiniciou
+    let delivery = deliveries.get(orderId);
+    if (!delivery) {
+      const saved = await loadDeliveryFromSupabase(orderId);
+      if (saved) {
+        delivery = { ...saved, sent: false, createdAt: Date.now() };
+        deliveries.set(orderId, delivery);
+      }
+    }
     if (!delivery || delivery.sent) return;
     delivery.sent = true;
 
