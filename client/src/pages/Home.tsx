@@ -618,24 +618,24 @@ export default function Home() {
   ];
   const createOrder = useCreateOrder();
 
-  // Progresso fake da geração — calibrado para ~60-90s de espera
+  // Progresso fake da geração — calibrado para ~25-35s de espera
   useEffect(() => {
     if (!isGenerating) { setGenProgress(0); return; }
     setGenProgress(2);
     const interval = setInterval(() => {
       setGenProgress(prev => {
         if (prev < 20) {
-          // Fase 1 — arranque (0-20%): ~8s
-          return Math.min(20, prev + Math.random() * 1.8 + 1.2);
+          // Fase 1 — arranque (0-20%): ~4s
+          return Math.min(20, prev + Math.random() * 2.5 + 2.5);
         } else if (prev < 50) {
-          // Fase 2 — processando (20-50%): ~25s
-          return Math.min(50, prev + Math.random() * 0.9 + 0.6);
+          // Fase 2 — processando (20-50%): ~10s
+          return Math.min(50, prev + Math.random() * 1.5 + 1.5);
         } else if (prev < 75) {
-          // Fase 3 — gerando (50-75%): ~35s
-          return Math.min(75, prev + Math.random() * 0.5 + 0.3);
+          // Fase 3 — gerando (50-75%): ~12s
+          return Math.min(75, prev + Math.random() * 1.0 + 0.8);
         } else if (prev < 90) {
-          // Fase 4 — finalizando (75-90%): ~30s
-          return Math.min(90, prev + Math.random() * 0.25 + 0.15);
+          // Fase 4 — finalizando (75-90%): ~8s
+          return Math.min(90, prev + Math.random() * 0.8 + 0.7);
         } else {
           // Fase 5 — quase lá (90-99%): rasteja, nunca trava
           return Math.min(99, prev + Math.random() * 0.08 + 0.04);
