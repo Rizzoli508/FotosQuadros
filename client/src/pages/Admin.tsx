@@ -32,14 +32,14 @@ interface Slot {
   finish: 'pb' | 'color';
   photos: (string | null)[];
   status: 'idle' | 'generating' | 'done' | 'error';
-  result: string | null;
+  results: string[];   // empilha todas as gerações
   error: string | null;
   log: string;
 }
 
 let nextId = 1;
 function newSlot(): Slot {
-  return { id: nextId++, moldIndex: 0, finish: 'pb', photos: [null, null, null, null], status: 'idle', result: null, error: null, log: '' };
+  return { id: nextId++, moldIndex: 0, finish: 'pb', photos: [null, null, null, null], status: 'idle', results: [], error: null, log: '' };
 }
 
 function PhotoSlot({ index, preview, onUpload, onRemove }: {
@@ -87,7 +87,7 @@ async function runGeneration(slot: Slot, onUpdate: (patch: Partial<Slot>) => voi
       const data = await poll.json();
       onUpdate({ log: `Aguardando... ${i * 2}s` });
       if (data.status === 'done') {
-        onUpdate({ status: 'done', result: `data:${data.mimeType};base64,${data.imageBase64}`, log: 'Pronto!' });
+        onUpdate({ status: 'done', results: [...(slot.results || []), `data:${data.mimeType};base64,${data.imageBase64}`], log: 'Pronto!' });
         return;
       }
       if (data.status === 'error') {
@@ -119,11 +119,10 @@ export default function Admin() {
     });
   };
 
-  const handleDownload = (slot: Slot) => {
-    if (!slot.result) return;
+  const handleDownload = (slot: Slot, result: string, index: number) => {
     const a = document.createElement('a');
-    a.href = slot.result;
-    a.download = `retravium_${MOLDS[slot.moldIndex].id}_${slot.finish}.png`;
+    a.href = result;
+    a.download = `retravium_${MOLDS[slot.moldIndex].id}_${slot.finish}_${index + 1}.png`;
     a.click();
   };
 
@@ -161,7 +160,7 @@ export default function Admin() {
                   {slot.status === 'generating' && (
                     <span className="text-xs text-blue-500 font-medium animate-pulse">● {slot.log}</span>
                   )}
-                  {slot.status === 'done' && <span className="text-xs text-green-500 font-medium">✓ Pronto</span>}
+                  {slot.status === 'done' && <span className="text-xs text-green-500 font-medium">✓ {slot.results.length} geração(ões)</span>}
                   {slot.status === 'error' && <span className="text-xs text-red-500 font-medium">✗ Erro</span>}
                   {slots.length > 1 && (
                     <button onClick={() => removeSlot(slot.id)} className="text-gray-300 hover:text-red-400 text-lg leading-none">✕</button>
@@ -239,18 +238,23 @@ export default function Admin() {
                 {/* Erro */}
                 {slot.error && <p className="text-xs text-red-500">{slot.error}</p>}
 
-                {/* Resultado */}
-                {slot.result && (
-                  <div>
-                    <div className="flex justify-end mb-1">
-                      <button
-                        onClick={() => handleDownload(slot)}
-                        className="px-3 py-1.5 bg-green-600 text-white text-xs font-semibold rounded-lg hover:bg-green-700 transition-all"
-                      >
-                        ⬇ Baixar
-                      </button>
-                    </div>
-                    <img src={slot.result} alt="Resultado" className="w-full rounded-lg" />
+                {/* Resultados empilhados */}
+                {slot.results.length > 0 && (
+                  <div className="space-y-4">
+                    {slot.results.map((result, i) => (
+                      <div key={i}>
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-xs text-gray-400 font-medium">Geração {i + 1}</span>
+                          <button
+                            onClick={() => handleDownload(slot, result, i)}
+                            className="px-3 py-1 bg-green-600 text-white text-xs font-semibold rounded-lg hover:bg-green-700 transition-all"
+                          >
+                            ⬇ Baixar
+                          </button>
+                        </div>
+                        <img src={result} alt={`Resultado ${i + 1}`} className="w-full rounded-lg" />
+                      </div>
+                    ))}
                   </div>
                 )}
 
