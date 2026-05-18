@@ -58,7 +58,7 @@ import {
   cleanupOldPortraits,
   ensureBucket,
 } from "./portraits";
-import { generatePortraitOpenAI } from "./generate-openai";
+import { generatePortraitOpenAI, generatePortraitCustom } from "./generate-openai";
 import { appendOrderToSheet, ensureSheetHeaders } from "./sheets";
 
 const VALID_PRICES = new Set([19, 29, 39, 49, 79, 89, 99, 119, 139, 159, 199, 219, 329, 349, 599, 1]);
@@ -217,10 +217,11 @@ export async function registerRoutes(
     return res.json({ jobId });
   });
 
-  // ── Geração de retrato via Gemini (inicia job e responde imediatamente) ───
+  // ── Geração de retrato (inicia job e responde imediatamente) ─────────────
+  // Aceita moldId (padrão) OU rawPrompt (pedido personalizado admin)
   app.post('/api/generate', async (req, res) => {
-    const { moldId, subStyle = 'classico', finish = 'pb', images = [] } = req.body;
-    if (!moldId) return res.status(400).json({ message: 'moldId é obrigatório.' });
+    const { moldId, subStyle = 'classico', finish = 'pb', images = [], rawPrompt } = req.body;
+    if (!rawPrompt && !moldId) return res.status(400).json({ message: 'moldId ou rawPrompt é obrigatório.' });
     if (!Array.isArray(images) || images.length === 0) return res.status(400).json({ message: 'Envie pelo menos uma imagem.' });
 
     const { randomUUID } = await import('crypto');
@@ -228,7 +229,11 @@ export async function registerRoutes(
     generateJobs.set(jobId, { status: 'pending', createdAt: Date.now() });
 
     // Processa em background — não bloqueia a resposta HTTP
-    generatePortraitOpenAI(moldId, subStyle, finish, images)
+    const gen = rawPrompt
+      ? generatePortraitCustom(rawPrompt as string, images)
+      : generatePortraitOpenAI(moldId, subStyle, finish, images);
+
+    gen
       .then(result => generateJobs.set(jobId, { status: 'done', result, createdAt: Date.now() }))
       .catch(err  => {
         const isTimeout = err?.name === 'TimeoutError' || (err?.message || '').includes('aborted');
@@ -269,6 +274,29 @@ export async function registerRoutes(
       return res.json({ qrCode: pix.qrCode, pixCopyPaste: pix.pixCopyPaste, expiresAt: pix.expiresAt, orderId: order.id });
     } catch (err: any) {
       console.error('AppMax Pix error:', err.message);
+      res.status(500).json({ message: err.message || 'Erro ao gerar Pix.' });
+    }
+  });
+
+  // ── Pix admin (sem validação de preço — qualquer valor) ──────────────────
+  app.post('/api/admin/pix', async (req, res) => {
+    try {
+      const { name, cpf, phone, amount, description } = req.body;
+      let { email } = req.body;
+      if (!name || !cpf || !amount || !description) {
+        return res.status(400).json({ message: 'Preencha nome, CPF, valor e descrição.' });
+      }
+      const parsedAmount = parseFloat(String(amount).replace(',', '.'));
+      if (isNaN(parsedAmount) || parsedAmount <= 0) {
+        return res.status(400).json({ message: 'Valor inválido.' });
+      }
+      if (!email) email = `${String(cpf).replace(/\D/g, '')}@cliente.retravium.com`;
+      const customer = await appmaxGetOrCreateCustomer({ name, email, cpf, phone: phone || '11999999999' });
+      const order = await appmaxCreateOrder(customer.id, description, parsedAmount);
+      const pix = await appmaxCreatePix(order.id, customer.id, cpf);
+      return res.json({ qrCode: pix.qrCode, pixCopyPaste: pix.pixCopyPaste, expiresAt: pix.expiresAt, orderId: order.id });
+    } catch (err: any) {
+      console.error('Admin Pix error:', err.message);
       res.status(500).json({ message: err.message || 'Erro ao gerar Pix.' });
     }
   });

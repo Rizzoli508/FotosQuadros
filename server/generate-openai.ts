@@ -50,3 +50,33 @@ export async function generatePortraitOpenAI(
 
   return { imageBase64, mimeType: 'image/png' };
 }
+
+/** Geração com prompt livre — sem lookup de PROMPTS, sem moldId */
+export async function generatePortraitCustom(
+  prompt: string,
+  images: string[]
+): Promise<{ imageBase64: string; mimeType: string }> {
+  const imageFiles = await Promise.all(
+    images.map(async (base64: string, i: number) => {
+      const clean = base64.replace(/^data:image\/[a-z]+;base64,/, '');
+      const buffer = Buffer.from(clean, 'base64');
+      return await toFile(buffer, `ref-${i}.jpg`, { type: 'image/jpeg' });
+    })
+  );
+
+  console.log(`[openai] Custom generation — ${imageFiles.length} imagem(ns), prompt: ${prompt.slice(0, 80)}...`);
+
+  const response = await client.images.edit({
+    model: 'gpt-image-2',
+    image: imageFiles as any,
+    prompt,
+    quality: 'low',
+  });
+
+  console.log(`[openai] Custom generation concluída`);
+
+  const imageBase64 = response.data[0].b64_json;
+  if (!imageBase64) throw new Error('OpenAI não retornou imagem na resposta.');
+
+  return { imageBase64, mimeType: 'image/png' };
+}
