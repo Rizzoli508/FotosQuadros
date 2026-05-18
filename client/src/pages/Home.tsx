@@ -566,6 +566,8 @@ export default function Home() {
         setPixOrderId(data.orderId || null);
         // Registra para entrega via webhook (pessoa pode fechar o site e ainda receber)
         if (data.orderId) registerDelivery(data.orderId);
+        // Salva na planilha AQUI (enquanto form ainda é current) — não no polling, que usa stale closure
+        saveOrderToSheet(data.orderId || undefined);
         setPixTimer(30 * 60);
         const totalPix = getPackCredits(checkoutProduct.description);
         const remainingPix = totalPix - 1;
@@ -681,7 +683,6 @@ export default function Home() {
         const data = await res.json();
         if (data.paid) {
           clearInterval(interval);
-          await saveOrderToSheet(pixOrderId ?? undefined);
           (window as any).fbq?.('track', 'Purchase', { value: checkoutProduct?.amount, currency: 'BRL' });
           setCheckoutStep('success');
         }
