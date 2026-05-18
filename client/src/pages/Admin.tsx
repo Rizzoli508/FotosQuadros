@@ -56,6 +56,9 @@ interface CustomOrder {
   pixOrderId: number | null;
   pixError: string | null;
   pixCopied: boolean;
+  testPhone: string;
+  testStatus: 'idle' | 'sending' | 'done' | 'error';
+  testError: string | null;
 }
 
 // ── Helpers ────────────────────────────────────────────────────────────────
@@ -91,6 +94,9 @@ function defaultCustomOrder(): CustomOrder {
     pixOrderId: null,
     pixError: null,
     pixCopied: false,
+    testPhone: '',
+    testStatus: 'idle',
+    testError: null,
   };
 }
 
@@ -593,7 +599,50 @@ export default function Admin() {
                     ⬇ Baixar
                   </button>
                 </div>
-                <img src={customOrder.genResult} alt="Retrato personalizado" className="w-full rounded-lg mb-4" />
+                <img src={customOrder.genResult} alt="Retrato personalizado" className="w-full rounded-lg mb-3" />
+
+                {/* Teste visualização única */}
+                <div className="border border-orange-200 rounded-xl p-3 bg-orange-50 space-y-2">
+                  <p className="text-xs font-bold text-orange-700">Teste — Visualização única</p>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      placeholder="Telefone para teste (ex: 11999999999)"
+                      value={customOrder.testPhone}
+                      onChange={e => updateCustom({ testPhone: e.target.value, testStatus: 'idle', testError: null })}
+                      className="flex-1 px-3 py-2 border border-orange-200 rounded-lg text-sm focus:outline-none focus:border-orange-400 bg-white"
+                    />
+                    <button
+                      onClick={async () => {
+                        if (!customOrder.testPhone.trim()) return;
+                        updateCustom({ testStatus: 'sending', testError: null });
+                        try {
+                          const res = await fetch('/api/test/viewonce', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ phone: customOrder.testPhone, imageBase64: customOrder.genResult }),
+                          });
+                          const data = await res.json();
+                          if (!res.ok) throw new Error(data.message || 'Erro.');
+                          updateCustom({ testStatus: 'done' });
+                        } catch (e: any) {
+                          updateCustom({ testStatus: 'error', testError: e.message });
+                        }
+                      }}
+                      disabled={customOrder.testStatus === 'sending'}
+                      className="px-4 py-2 bg-orange-500 text-white text-xs font-bold rounded-lg hover:bg-orange-600 disabled:opacity-50 transition-all whitespace-nowrap"
+                    >
+                      {customOrder.testStatus === 'sending' ? 'Enviando...' : 'Enviar visu única'}
+                    </button>
+                  </div>
+                  {customOrder.testStatus === 'done' && (
+                    <p className="text-xs text-green-600 font-medium">✓ Enviado! Verifique o WhatsApp.</p>
+                  )}
+                  {customOrder.testError && (
+                    <p className="text-xs text-red-500">{customOrder.testError}</p>
+                  )}
+                </div>
+                <div className="mb-1" />
 
                 {/* ── Seção de Pix ── */}
                 <div className="border border-gray-200 rounded-xl p-4 space-y-3 bg-gray-50">

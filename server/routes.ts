@@ -467,6 +467,32 @@ export async function registerRoutes(
     }
   });
 
+  // ── Teste: envia imagem em visualização única ─────────────────────────────────
+  app.post('/api/test/viewonce', async (req, res) => {
+    const { phone, imageBase64 } = req.body;
+    if (!phone || !imageBase64) return res.status(400).json({ message: 'phone e imageBase64 são obrigatórios.' });
+    const { ZAPI_INSTANCE_ID, ZAPI_TOKEN, ZAPI_CLIENT_TOKEN } = process.env;
+    if (!ZAPI_INSTANCE_ID || !ZAPI_TOKEN || !ZAPI_CLIENT_TOKEN) return res.status(500).json({ message: 'Z-API não configurado.' });
+    const rawPhone = phone.replace(/\D/g, '');
+    const normalizedPhone = rawPhone.startsWith('55') ? rawPhone : `55${rawPhone}`;
+    try {
+      const zapiUrl = `https://api.z-api.io/instances/${ZAPI_INSTANCE_ID}/token/${ZAPI_TOKEN}/send-image`;
+      const response = await fetch(zapiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Client-Token': ZAPI_CLIENT_TOKEN },
+        body: JSON.stringify({ phone: normalizedPhone, image: imageBase64, viewOnce: true }),
+        signal: AbortSignal.timeout(30_000),
+      });
+      if (!response.ok) {
+        const text = await response.text().catch(() => '');
+        throw new Error(`Z-API ${response.status}: ${text}`);
+      }
+      return res.json({ success: true });
+    } catch (err: any) {
+      return res.status(502).json({ message: err.message });
+    }
+  });
+
   // ── WhatsApp: mensagem de texto (pedidos físicos) ─────────────────────────────
   app.post('/api/whatsapp/text', async (req, res) => {
     const { phone, message } = req.body;
