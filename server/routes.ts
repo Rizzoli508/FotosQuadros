@@ -111,8 +111,8 @@ export async function registerRoutes(
       return res.status(400).json({ message: 'orderId, imageBase64 e phone são obrigatórios.' });
     }
     deliveries.set(orderId, { imageBase64, phone, name: name || '', sent: false, createdAt: Date.now() });
-    // Persiste no Supabase — sobrevive a restarts do servidor
-    persistDelivery(orderId, imageBase64, phone, name || '');
+    // Persiste no Supabase ANTES de responder — garante que sobrevive a restarts
+    await persistDelivery(orderId, imageBase64, phone, name || '');
     return res.json({ ok: true });
   });
 
