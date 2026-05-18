@@ -1743,7 +1743,7 @@ export default function Home() {
                         <span className="text-muted-foreground text-base line-through">R$ 49</span>
                         <span className="flex items-end gap-1">
                           <span className="text-primary text-2xl font-serif font-bold">R$</span>
-                          <span className="text-primary text-5xl font-serif font-bold">19,90</span>
+                          <span className="text-primary text-5xl font-serif font-bold">19</span>
                         </span>
                       </div>
                       <div className="text-foreground/45 text-xs font-semibold uppercase tracking-widest mb-3">Expira em {formatTime(timeLeft)}</div>
@@ -1761,7 +1761,7 @@ export default function Home() {
                       ))}
                     </ul>
                     <button
-                      onClick={() => openCheckout('Retrato Digital HD retravium', 19.9, false)}
+                      onClick={() => openCheckout('Retrato Digital HD retravium', 19, false)}
                       className="w-full py-4 bg-primary text-white font-sans font-bold text-sm uppercase tracking-widest rounded-xl text-center hover:bg-primary/90 transition-colors flex items-center justify-center gap-2 mb-3"
                     >
                       <Download className="w-4 h-4" />
@@ -2684,9 +2684,9 @@ export default function Home() {
                       <p className="font-serif text-2xl text-gray-800 mb-3">Digital Pack</p>
                       <div className="flex items-end justify-center gap-1 mb-2">
                         <span className="text-gray-500 text-xl font-serif font-bold mt-1">R$</span>
-                        <span className="text-gray-900 font-serif font-bold leading-none" style={{ fontSize: '56px', lineHeight: 1 }}>19,90</span>
+                        <span className="text-gray-900 font-serif font-bold leading-none" style={{ fontSize: '56px', lineHeight: 1 }}>19</span>
                       </div>
-                      <p className="text-gray-400 text-sm">R$ 19,90 por retrato</p>
+                      <p className="text-gray-400 text-sm">R$ 19 por retrato</p>
                     </div>
                     <div className="h-px bg-gray-200 mb-6" />
                     <ul className="space-y-3.5 mb-8 flex-1">
@@ -2698,7 +2698,7 @@ export default function Home() {
                       ))}
                     </ul>
                     <button
-                      onClick={() => { setPlansOpen(false); openCheckout('Retrato Digital HD retravium', 19.9, false); }}
+                      onClick={() => { setPlansOpen(false); openCheckout('Retrato Digital HD retravium', 19, false); }}
                       className="w-full py-4 rounded-xl font-bold text-sm transition-all duration-200 border-2 border-gray-900 text-gray-900 hover:bg-gray-900 hover:text-white"
                     >
                       Começar →
