@@ -2717,17 +2717,17 @@ export default function Home() {
                       <p className="font-serif text-2xl text-gray-800 mb-3">Starter Pack</p>
                       <div className="flex items-end justify-center gap-1 mb-2">
                         <span className="text-gray-500 text-xl font-serif font-bold mt-1">R$</span>
-                        <span className="text-gray-900 font-serif font-bold leading-none" style={{ fontSize: '56px', lineHeight: 1 }}>49</span>
+                        <span className="text-gray-900 font-serif font-bold leading-none" style={{ fontSize: '56px', lineHeight: 1 }}>39</span>
                       </div>
                       <div className="flex items-center justify-center gap-2">
                         <span className="text-gray-400 text-sm line-through">R$ 87</span>
-                        <span className="text-sm font-semibold" style={{ color: '#C9A96E' }}>economize R$ 38</span>
+                        <span className="text-sm font-semibold" style={{ color: '#C9A96E' }}>economize R$ 48</span>
                       </div>
-                      <p className="text-gray-400 text-sm mt-0.5">R$ 16,30 por retrato</p>
+                      <p className="text-gray-400 text-sm mt-0.5">R$ 13 por retrato</p>
                     </div>
                     <div className="h-px mb-6" style={{ background: '#efe8d8' }} />
                     <ul className="space-y-3.5 mb-8 flex-1">
-                      {["3 retratos artísticos HD", "Estilos diferentes em cada um", "Downloads instantâneos", "Todos sem marca d'água", "Preto e branco + Colorido"].map(item => (
+                      {["3 retratos artísticos HD", "Estilos diferentes em cada um", "Downloads instantâneos", "Todos sem marca d'água", "Preto e branco ou Colorido"].map(item => (
                         <li key={item} className="flex items-center gap-3 text-gray-600 text-sm">
                           <Check className="w-3.5 h-3.5 flex-shrink-0" style={{ color: '#C9A96E' }} />
                           {item}
@@ -2735,7 +2735,7 @@ export default function Home() {
                       ))}
                     </ul>
                     <button
-                      onClick={() => { setPlansOpen(false); openCheckout('Pack Família — 3 Retratos HD retravium', 49, false); }}
+                      onClick={() => { setPlansOpen(false); openCheckout('Pack Família — 3 Retratos HD retravium', 39, false); }}
                       className="w-full py-4 rounded-xl font-bold text-sm transition-all duration-200 hover:opacity-90 shadow-md text-white"
                       style={{ background: '#C9A96E' }}
                     >
@@ -2755,17 +2755,17 @@ export default function Home() {
                       <p className="font-serif text-2xl text-gray-800 mb-3">Studio Pack</p>
                       <div className="flex items-end justify-center gap-1 mb-2">
                         <span className="text-gray-500 text-xl font-serif font-bold mt-1">R$</span>
-                        <span className="text-gray-900 font-serif font-bold leading-none" style={{ fontSize: '56px', lineHeight: 1 }}>89</span>
+                        <span className="text-gray-900 font-serif font-bold leading-none" style={{ fontSize: '56px', lineHeight: 1 }}>79</span>
                       </div>
                       <div className="flex items-center justify-center gap-2">
                         <span className="text-gray-400 text-sm line-through">R$ 174</span>
-                        <span className="text-sm font-semibold" style={{ color: '#C9A96E' }}>economize 49%</span>
+                        <span className="text-sm font-semibold" style={{ color: '#C9A96E' }}>economize 55%</span>
                       </div>
-                      <p className="text-gray-400 text-sm mt-0.5">R$ 14,80 por retrato</p>
+                      <p className="text-gray-400 text-sm mt-0.5">R$ 13,17 por retrato</p>
                     </div>
                     <div className="h-px bg-gray-200 mb-6" />
                     <ul className="space-y-3.5 mb-8 flex-1">
-                      {["6 retratos artísticos HD", "Perfeito para toda a família", "Todos os estilos disponíveis", "Todos sem marca d'água", "Preto e branco + Colorido", "Prioridade no atendimento"].map(item => (
+                      {["6 retratos artísticos HD", "Perfeito para toda a família", "Todos os estilos disponíveis", "Todos sem marca d'água", "Preto e branco ou Colorido", "Prioridade no atendimento"].map(item => (
                         <li key={item} className="flex items-center gap-3 text-gray-600 text-sm">
                           <Check className="w-3.5 h-3.5 flex-shrink-0" style={{ color: '#C9A96E' }} />
                           {item}
@@ -2773,7 +2773,7 @@ export default function Home() {
                       ))}
                     </ul>
                     <button
-                      onClick={() => { setPlansOpen(false); openCheckout('Pack Memórias — 6 Retratos HD retravium', 89, false); }}
+                      onClick={() => { setPlansOpen(false); openCheckout('Pack Memórias — 6 Retratos HD retravium', 79, false); }}
                       className="w-full py-4 rounded-xl font-bold text-sm transition-all duration-200 border-2 border-gray-900 text-gray-900 hover:bg-gray-900 hover:text-white"
                     >
                       Escolher Studio Pack →
