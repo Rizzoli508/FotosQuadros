@@ -26,211 +26,244 @@ const MOLDS = [
   { id: 'pet_3', label: 'Pet — Família Completa',   subStyle: 'classico' },
 ];
 
+interface Slot {
+  id: number;
+  moldIndex: number;
+  finish: 'pb' | 'color';
+  photos: (string | null)[];
+  status: 'idle' | 'generating' | 'done' | 'error';
+  result: string | null;
+  error: string | null;
+  log: string;
+}
+
+let nextId = 1;
+function newSlot(): Slot {
+  return { id: nextId++, moldIndex: 0, finish: 'pb', photos: [null, null, null, null], status: 'idle', result: null, error: null, log: '' };
+}
+
 function PhotoSlot({ index, preview, onUpload, onRemove }: {
-  index: number;
-  preview: string | null;
-  onUpload: (file: File) => void;
-  onRemove: () => void;
+  index: number; preview: string | null;
+  onUpload: (file: File) => void; onRemove: () => void;
 }) {
   const onDrop = useCallback((files: File[]) => { if (files[0]) onUpload(files[0]); }, [onUpload]);
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    onDrop, accept: { 'image/*': [] }, maxFiles: 1,
-  });
-
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop, accept: { 'image/*': [] }, maxFiles: 1 });
   if (preview) {
     return (
       <div className="relative">
-        <img src={preview} className="w-24 h-24 object-cover rounded-lg border border-gray-300" />
-        <button
-          onClick={onRemove}
-          className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center"
-        >✕</button>
+        <img src={preview} className="w-20 h-20 object-cover rounded-lg border border-gray-300" />
+        <button onClick={onRemove} className="absolute -top-1.5 -right-1.5 bg-red-500 text-white rounded-full w-4 h-4 text-[10px] flex items-center justify-center">✕</button>
       </div>
     );
   }
-
   return (
-    <div
-      {...getRootProps()}
-      className={`w-24 h-24 border-2 border-dashed rounded-lg flex flex-col items-center justify-center cursor-pointer text-gray-400 text-xs text-center
-        ${isDragActive ? 'border-blue-400 bg-blue-50' : 'border-gray-300 hover:border-gray-400'}`}
-    >
+    <div {...getRootProps()} className={`w-20 h-20 border-2 border-dashed rounded-lg flex flex-col items-center justify-center cursor-pointer text-gray-400 text-xs text-center ${isDragActive ? 'border-blue-400 bg-blue-50' : 'border-gray-300 hover:border-gray-400'}`}>
       <input {...getInputProps()} />
-      <span className="text-2xl mb-1">+</span>
+      <span className="text-xl mb-0.5">+</span>
       <span>Foto {index + 1}</span>
     </div>
   );
 }
 
-export default function Admin() {
-  const [selectedMold, setSelectedMold] = useState(MOLDS[0]);
-  const [finish, setFinish] = useState<'pb' | 'color'>('pb');
-  const [photos, setPhotos] = useState<(string | null)[]>([null, null, null, null]);
-  const [generating, setGenerating] = useState(false);
-  const [result, setResult] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [log, setLog] = useState<string>('');
+async function runGeneration(slot: Slot, onUpdate: (patch: Partial<Slot>) => void) {
+  const images = slot.photos.filter(Boolean) as string[];
+  if (images.length === 0) { onUpdate({ status: 'error', error: 'Envie pelo menos uma foto.' }); return; }
 
-  const handleUpload = (index: number, file: File) => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const updated = [...photos];
-      updated[index] = e.target?.result as string;
-      setPhotos(updated);
-    };
-    reader.readAsDataURL(file);
-  };
+  const mold = MOLDS[slot.moldIndex];
+  onUpdate({ status: 'generating', log: 'Iniciando...', result: null, error: null });
 
-  const handleRemove = (index: number) => {
-    const updated = [...photos];
-    updated[index] = null;
-    setPhotos(updated);
-  };
+  try {
+    const startRes = await fetch('/api/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ moldId: mold.id, subStyle: mold.subStyle, finish: slot.finish, images }),
+    });
+    const { jobId } = await startRes.json();
+    onUpdate({ log: `Job: ${jobId.slice(0, 8)}...` });
 
-  const handleGenerate = async () => {
-    const images = photos.filter(Boolean) as string[];
-    if (images.length === 0) { setError('Envie pelo menos uma foto.'); return; }
-    setGenerating(true);
-    setResult(null);
-    setError(null);
-    setLog('Iniciando geração...');
-
-    try {
-      const startRes = await fetch('/api/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          moldId: selectedMold.id,
-          subStyle: selectedMold.subStyle,
-          finish,
-          images,
-        }),
-      });
-      const { jobId } = await startRes.json();
-      setLog(`Job iniciado: ${jobId}`);
-
-      for (let i = 0; i < 300; i++) {
-        await new Promise(r => setTimeout(r, 2000));
-        const poll = await fetch(`/api/generate/status/${jobId}`);
-        const data = await poll.json();
-        setLog(`Status: ${data.status} (tentativa ${i + 1})`);
-        if (data.status === 'done') {
-          setResult(`data:${data.mimeType};base64,${data.imageBase64}`);
-          setLog('Concluído!');
-          break;
-        }
-        if (data.status === 'error') {
-          setError(data.message || 'Erro na geração.');
-          break;
-        }
+    for (let i = 0; i < 300; i++) {
+      await new Promise(r => setTimeout(r, 2000));
+      const poll = await fetch(`/api/generate/status/${jobId}`);
+      const data = await poll.json();
+      onUpdate({ log: `Aguardando... ${i * 2}s` });
+      if (data.status === 'done') {
+        onUpdate({ status: 'done', result: `data:${data.mimeType};base64,${data.imageBase64}`, log: 'Pronto!' });
+        return;
       }
-    } catch (e: any) {
-      setError(e.message || 'Erro de conexão.');
-    } finally {
-      setGenerating(false);
+      if (data.status === 'error') {
+        onUpdate({ status: 'error', error: data.message || 'Erro.', log: '' });
+        return;
+      }
     }
+    onUpdate({ status: 'error', error: 'Timeout.', log: '' });
+  } catch (e: any) {
+    onUpdate({ status: 'error', error: e.message, log: '' });
+  }
+}
+
+export default function Admin() {
+  const [slots, setSlots] = useState<Slot[]>([newSlot()]);
+  const [showMoldPicker, setShowMoldPicker] = useState<number | null>(null);
+
+  const updateSlot = (id: number, patch: Partial<Slot>) => {
+    setSlots(prev => prev.map(s => s.id === id ? { ...s, ...patch } : s));
   };
 
-  const handleDownload = () => {
-    if (!result) return;
+  const addSlot = () => setSlots(prev => [...prev, newSlot()]);
+  const removeSlot = (id: number) => setSlots(prev => prev.filter(s => s.id !== id));
+
+  const handleGenerateAll = () => {
+    slots.forEach(slot => {
+      if (slot.status === 'generating') return;
+      runGeneration(slot, (patch) => updateSlot(slot.id, patch));
+    });
+  };
+
+  const handleDownload = (slot: Slot) => {
+    if (!slot.result) return;
     const a = document.createElement('a');
-    a.href = result;
-    a.download = `retravium_${selectedMold.id}_${finish}.png`;
+    a.href = slot.result;
+    a.download = `retravium_${MOLDS[slot.moldIndex].id}_${slot.finish}.png`;
     a.click();
   };
 
+  const anyGenerating = slots.some(s => s.status === 'generating');
+
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
-      <div className="max-w-3xl mx-auto">
-        <h1 className="text-2xl font-bold text-gray-800 mb-2">Admin — Geração</h1>
-        <p className="text-gray-500 text-sm mb-8">Sem limites de tentativas · Sem watermark · Sem checkout</p>
-
-        {/* Molde */}
-        <div className="bg-white rounded-xl p-6 mb-4 shadow-sm">
-          <label className="block text-sm font-semibold text-gray-700 mb-3">Molde</label>
-          <div className="grid grid-cols-2 gap-2">
-            {MOLDS.map((m, i) => (
-              <button
-                key={i}
-                onClick={() => setSelectedMold(m)}
-                className={`text-left px-3 py-2 rounded-lg text-sm border transition-all
-                  ${selectedMold === m
-                    ? 'border-blue-500 bg-blue-50 text-blue-700 font-semibold'
-                    : 'border-gray-200 text-gray-600 hover:border-gray-300'}`}
-              >
-                {m.label}
-              </button>
-            ))}
+    <div className="min-h-screen bg-gray-50 p-6">
+      <div className="max-w-6xl mx-auto">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-800">Admin — Geração</h1>
+            <p className="text-gray-400 text-sm">Sem limites · Sem watermark · Paralelo</p>
           </div>
-        </div>
-
-        {/* Acabamento */}
-        <div className="bg-white rounded-xl p-6 mb-4 shadow-sm">
-          <label className="block text-sm font-semibold text-gray-700 mb-3">Acabamento</label>
           <div className="flex gap-3">
-            {(['pb', 'color'] as const).map(f => (
-              <button
-                key={f}
-                onClick={() => setFinish(f)}
-                className={`px-5 py-2 rounded-lg text-sm border transition-all
-                  ${finish === f
-                    ? 'border-blue-500 bg-blue-50 text-blue-700 font-semibold'
-                    : 'border-gray-200 text-gray-600 hover:border-gray-300'}`}
-              >
-                {f === 'pb' ? 'Preto e Branco' : 'Colorido'}
-              </button>
-            ))}
+            <button onClick={addSlot} className="px-4 py-2 border-2 border-blue-500 text-blue-600 font-semibold rounded-lg hover:bg-blue-50 transition-all text-sm">
+              + Adicionar geração
+            </button>
+            <button
+              onClick={handleGenerateAll}
+              disabled={anyGenerating}
+              className="px-6 py-2 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all text-sm"
+            >
+              {anyGenerating ? 'Gerando...' : `▶ Gerar ${slots.length > 1 ? 'todas' : ''}`}
+            </button>
           </div>
         </div>
 
-        {/* Fotos */}
-        <div className="bg-white rounded-xl p-6 mb-4 shadow-sm">
-          <label className="block text-sm font-semibold text-gray-700 mb-3">Fotos de referência</label>
-          <div className="flex gap-3 flex-wrap">
-            {photos.map((preview, i) => (
-              <PhotoSlot
-                key={i}
-                index={i}
-                preview={preview}
-                onUpload={(f) => handleUpload(i, f)}
-                onRemove={() => handleRemove(i)}
-              />
-            ))}
-          </div>
-        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {slots.map((slot, slotIdx) => (
+            <div key={slot.id} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+              {/* Header do slot */}
+              <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 bg-gray-50">
+                <span className="text-sm font-semibold text-gray-600">Geração {slotIdx + 1}</span>
+                <div className="flex items-center gap-2">
+                  {slot.status === 'generating' && (
+                    <span className="text-xs text-blue-500 font-medium animate-pulse">● {slot.log}</span>
+                  )}
+                  {slot.status === 'done' && <span className="text-xs text-green-500 font-medium">✓ Pronto</span>}
+                  {slot.status === 'error' && <span className="text-xs text-red-500 font-medium">✗ Erro</span>}
+                  {slots.length > 1 && (
+                    <button onClick={() => removeSlot(slot.id)} className="text-gray-300 hover:text-red-400 text-lg leading-none">✕</button>
+                  )}
+                </div>
+              </div>
 
-        {/* Gerar */}
-        <button
-          onClick={handleGenerate}
-          disabled={generating}
-          className="w-full py-4 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all mb-4"
-        >
-          {generating ? 'Gerando...' : 'Gerar Retrato'}
-        </button>
+              <div className="p-4 space-y-4">
+                {/* Molde */}
+                <div>
+                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Molde</label>
+                  <button
+                    onClick={() => setShowMoldPicker(showMoldPicker === slot.id ? null : slot.id)}
+                    className="w-full text-left px-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-700 hover:border-blue-300 transition-all"
+                  >
+                    {MOLDS[slot.moldIndex].label} ▾
+                  </button>
+                  {showMoldPicker === slot.id && (
+                    <div className="mt-1 border border-gray-200 rounded-lg overflow-hidden shadow-lg z-10 bg-white max-h-48 overflow-y-auto">
+                      {MOLDS.map((m, i) => (
+                        <button
+                          key={i}
+                          onClick={() => { updateSlot(slot.id, { moldIndex: i }); setShowMoldPicker(null); }}
+                          className={`w-full text-left px-3 py-2 text-sm hover:bg-blue-50 transition-all ${slot.moldIndex === i ? 'bg-blue-50 text-blue-700 font-semibold' : 'text-gray-600'}`}
+                        >
+                          {m.label}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
 
-        {log && <p className="text-xs text-gray-400 mb-4 font-mono">{log}</p>}
-        {error && <p className="text-sm text-red-500 mb-4">{error}</p>}
+                {/* Acabamento */}
+                <div>
+                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Acabamento</label>
+                  <div className="flex gap-2">
+                    {(['pb', 'color'] as const).map(f => (
+                      <button
+                        key={f}
+                        onClick={() => updateSlot(slot.id, { finish: f })}
+                        className={`flex-1 py-1.5 rounded-lg text-xs font-semibold border transition-all ${slot.finish === f ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-gray-200 text-gray-500 hover:border-gray-300'}`}
+                      >
+                        {f === 'pb' ? 'P&B' : 'Colorido'}
+                      </button>
+                    ))}
+                  </div>
+                </div>
 
-        {/* Resultado */}
-        {result && (
-          <div className="bg-white rounded-xl p-6 shadow-sm">
-            <div className="flex items-center justify-between mb-4">
-              <span className="text-sm font-semibold text-gray-700">Resultado</span>
-              <button
-                onClick={handleDownload}
-                className="px-4 py-2 bg-green-600 text-white text-sm font-semibold rounded-lg hover:bg-green-700 transition-all"
-              >
-                ⬇ Baixar
-              </button>
+                {/* Fotos */}
+                <div>
+                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Fotos</label>
+                  <div className="flex gap-2 flex-wrap">
+                    {slot.photos.map((preview, i) => (
+                      <PhotoSlot
+                        key={i} index={i} preview={preview}
+                        onUpload={(f) => {
+                          const reader = new FileReader();
+                          reader.onload = (e) => {
+                            const updated = [...slot.photos];
+                            updated[i] = e.target?.result as string;
+                            updateSlot(slot.id, { photos: updated });
+                          };
+                          reader.readAsDataURL(f);
+                        }}
+                        onRemove={() => {
+                          const updated = [...slot.photos];
+                          updated[i] = null;
+                          updateSlot(slot.id, { photos: updated });
+                        }}
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                {/* Erro */}
+                {slot.error && <p className="text-xs text-red-500">{slot.error}</p>}
+
+                {/* Resultado */}
+                {slot.result && (
+                  <div>
+                    <div className="flex justify-end mb-1">
+                      <button
+                        onClick={() => handleDownload(slot)}
+                        className="px-3 py-1.5 bg-green-600 text-white text-xs font-semibold rounded-lg hover:bg-green-700 transition-all"
+                      >
+                        ⬇ Baixar
+                      </button>
+                    </div>
+                    <img src={slot.result} alt="Resultado" className="w-full rounded-lg" />
+                  </div>
+                )}
+
+                {/* Loading skeleton */}
+                {slot.status === 'generating' && !slot.result && (
+                  <div className="w-full aspect-[3/4] bg-gray-100 rounded-lg animate-pulse flex items-center justify-center text-gray-300 text-sm">
+                    Gerando...
+                  </div>
+                )}
+              </div>
             </div>
-            <img
-              src={result}
-              alt="Retrato gerado"
-              className="w-full rounded-lg"
-              onContextMenu={e => e.stopPropagation()} // permite clique direito
-            />
-          </div>
-        )}
+          ))}
+        </div>
       </div>
     </div>
   );
