@@ -10,11 +10,11 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!,
 );
 
-async function persistDelivery(orderId: number, imageBase64: string, phone: string, name: string) {
+async function persistDelivery(orderId: number, imageBase64: string, phone: string, name: string, isPhysical: boolean) {
   try {
     const clean = imageBase64.replace(/^data:image\/[a-z]+;base64,/, '');
     const imgBuffer = Buffer.from(clean, 'base64');
-    const meta = Buffer.from(JSON.stringify({ phone, name }));
+    const meta = Buffer.from(JSON.stringify({ phone, name, isPhysical }));
     await Promise.all([
       supabase.storage.from('portraits').upload(`deliveries/${orderId}.jpg`, imgBuffer, { contentType: 'image/jpeg', upsert: true }),
       supabase.storage.from('portraits').upload(`deliveries/${orderId}.json`, meta, { contentType: 'application/json', upsert: true }),
@@ -25,7 +25,7 @@ async function persistDelivery(orderId: number, imageBase64: string, phone: stri
   }
 }
 
-async function loadDeliveryFromSupabase(orderId: number): Promise<{ imageBase64: string; phone: string; name: string } | null> {
+async function loadDeliveryFromSupabase(orderId: number): Promise<{ imageBase64: string; phone: string; name: string; isPhysical: boolean } | null> {
   try {
     const [imgRes, metaRes] = await Promise.all([
       supabase.storage.from('portraits').download(`deliveries/${orderId}.jpg`),
@@ -33,9 +33,9 @@ async function loadDeliveryFromSupabase(orderId: number): Promise<{ imageBase64:
     ]);
     if (imgRes.error || metaRes.error || !imgRes.data || !metaRes.data) return null;
     const imageBase64 = Buffer.from(await imgRes.data.arrayBuffer()).toString('base64');
-    const { phone, name } = JSON.parse(await metaRes.data.text());
+    const { phone, name, isPhysical } = JSON.parse(await metaRes.data.text());
     console.log(`[Delivery] Recuperado do Supabase — orderId=${orderId}`);
-    return { imageBase64, phone, name };
+    return { imageBase64, phone, name, isPhysical: !!isPhysical };
   } catch {
     return null;
   }
@@ -92,6 +92,7 @@ export async function registerRoutes(
     imageBase64: string;
     phone: string;
     name: string;
+    isPhysical: boolean;
     sent: boolean;
     createdAt: number;
   }>();
@@ -106,13 +107,13 @@ export async function registerRoutes(
   // Registra retrato + contato para entrega automática via webhook
   app.post('/api/deliveries/:orderId', async (req, res) => {
     const orderId = parseInt(req.params.orderId);
-    const { imageBase64, phone, name } = req.body;
+    const { imageBase64, phone, name, isPhysical } = req.body;
     if (!orderId || !imageBase64 || !phone) {
       return res.status(400).json({ message: 'orderId, imageBase64 e phone são obrigatórios.' });
     }
-    deliveries.set(orderId, { imageBase64, phone, name: name || '', sent: false, createdAt: Date.now() });
+    deliveries.set(orderId, { imageBase64, phone, name: name || '', isPhysical: !!isPhysical, sent: false, createdAt: Date.now() });
     // Persiste no Supabase ANTES de responder — garante que sobrevive a restarts
-    await persistDelivery(orderId, imageBase64, phone, name || '');
+    await persistDelivery(orderId, imageBase64, phone, name || '', !!isPhysical);
     return res.json({ ok: true });
   });
 
@@ -148,9 +149,12 @@ export async function registerRoutes(
 
     try {
       const zapiUrl = `https://api.z-api.io/instances/${ZAPI_INSTANCE_ID}/token/${ZAPI_TOKEN}/send-image`;
+      const zapiTextUrl = `https://api.z-api.io/instances/${ZAPI_INSTANCE_ID}/token/${ZAPI_TOKEN}/send-text`;
+      const zapiHeaders = { 'Content-Type': 'application/json', 'Client-Token': ZAPI_CLIENT_TOKEN };
+
       await fetch(zapiUrl, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Client-Token': ZAPI_CLIENT_TOKEN },
+        headers: zapiHeaders,
         body: JSON.stringify({
           phone: normalizedPhone,
           image: delivery.imageBase64,
@@ -158,7 +162,21 @@ export async function registerRoutes(
         }),
         signal: AbortSignal.timeout(30_000),
       });
-      console.log(`[Webhook AppMax] WhatsApp enviado para pedido ${orderId}`);
+
+      // Produto físico — envia mensagem adicional sobre o quadro
+      if (delivery.isPhysical) {
+        await fetch(zapiTextUrl, {
+          method: 'POST',
+          headers: zapiHeaders,
+          body: JSON.stringify({
+            phone: normalizedPhone,
+            message: `📦 Seu pedido de impressão *retravium* foi confirmado!\n\nSeu quadro está sendo preparado com carinho e será enviado para entrega em breve. Assim que despacharmos, você receberá o código de rastreio aqui. 🎨\n\nQualquer dúvida é só falar!`,
+          }),
+          signal: AbortSignal.timeout(30_000),
+        });
+      }
+
+      console.log(`[Webhook AppMax] WhatsApp enviado para pedido ${orderId} (físico=${delivery.isPhysical})`);
     } catch (err: any) {
       delivery.sent = false; // permite nova tentativa
       console.error(`[Webhook AppMax] Erro no pedido ${orderId}:`, err.message);

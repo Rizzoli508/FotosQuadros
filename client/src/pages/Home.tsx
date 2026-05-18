@@ -543,7 +543,7 @@ export default function Home() {
       await fetch(`/api/deliveries/${orderId}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ imageBase64: generatedImage, phone: form.phone, name: form.name }),
+        body: JSON.stringify({ imageBase64: generatedImage, phone: form.phone, name: form.name, isPhysical: !!checkoutProduct?.isPhysical }),
       });
     } catch { /* silently ignore */ }
   };
