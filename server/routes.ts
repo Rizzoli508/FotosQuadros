@@ -255,6 +255,82 @@ export async function registerRoutes(
     return res.json({ status: 'done', ...job.result });
   });
 
+  // ── Lembretes de recompra (Pix gerado mas não pago) ─────────────────────
+  const pendingReminders = new Map<number, {
+    phone: string;
+    name: string;
+    pixCopyPaste: string;
+    sent: boolean;
+  }>();
+
+  // Limpa lembretes antigos a cada hora
+  setInterval(() => {
+    pendingReminders.clear();
+  }, 60 * 60 * 1000);
+
+  async function sendPixReminder(orderId: number) {
+    const reminder = pendingReminders.get(orderId);
+    if (!reminder || reminder.sent) return;
+
+    // Verifica se já pagou antes de incomodar
+    try {
+      const status = await appmaxGetOrderStatus(orderId);
+      const isPaid = ['paid', 'PAID', 'aprovado', 'APPROVED', 'APPROVED', 'CAPTURED', 'COMPLETE', 'COMPLETED'].includes(status);
+      if (isPaid) { pendingReminders.delete(orderId); return; }
+    } catch { /* se falhar a consulta, envia mesmo assim */ }
+
+    reminder.sent = true;
+
+    const { ZAPI_INSTANCE_ID, ZAPI_TOKEN, ZAPI_CLIENT_TOKEN } = process.env;
+    if (!ZAPI_INSTANCE_ID || !ZAPI_TOKEN || !ZAPI_CLIENT_TOKEN) return;
+
+    const rawPhone = reminder.phone.replace(/\D/g, '');
+    const normalizedPhone = rawPhone.startsWith('55') ? rawPhone : `55${rawPhone}`;
+    const zapiHeaders = { 'Content-Type': 'application/json', 'Client-Token': ZAPI_CLIENT_TOKEN };
+    const zapiTextUrl  = `https://api.z-api.io/instances/${ZAPI_INSTANCE_ID}/token/${ZAPI_TOKEN}/send-text`;
+    const zapiImageUrl = `https://api.z-api.io/instances/${ZAPI_INSTANCE_ID}/token/${ZAPI_TOKEN}/send-image`;
+
+    try {
+      // Mensagem 1 — texto de lembrete
+      const firstName = (reminder.name || '').split(' ')[0];
+      await fetch(zapiTextUrl, {
+        method: 'POST', headers: zapiHeaders,
+        body: JSON.stringify({
+          phone: normalizedPhone,
+          message: `Oi${firstName ? ` ${firstName}` : ''}! 👋\n\nSeu retrato *retravium* está pronto e guardado aqui pra você. ✨\n\nPara receber é simples, basta pagar o Pix abaixo 👇`,
+        }),
+        signal: AbortSignal.timeout(15_000),
+      });
+
+      // Mensagem 2 — somente o código Pix (para copiar e colar no banco)
+      await fetch(zapiTextUrl, {
+        method: 'POST', headers: zapiHeaders,
+        body: JSON.stringify({ phone: normalizedPhone, message: reminder.pixCopyPaste }),
+        signal: AbortSignal.timeout(15_000),
+      });
+
+      // Mensagem 3 — retrato em visualização única
+      const delivery = await loadDeliveryFromSupabase(orderId);
+      if (delivery) {
+        await fetch(zapiImageUrl, {
+          method: 'POST', headers: zapiHeaders,
+          body: JSON.stringify({
+            phone: normalizedPhone,
+            image: `data:image/jpeg;base64,${delivery.imageBase64}`,
+            viewOnce: true,
+          }),
+          signal: AbortSignal.timeout(30_000),
+        });
+      }
+
+      console.log(`[Reminder] Lembrete de recompra enviado — orderId=${orderId} phone=${normalizedPhone}`);
+    } catch (err: any) {
+      console.error(`[Reminder] Erro ao enviar lembrete orderId=${orderId}:`, err.message);
+    } finally {
+      pendingReminders.delete(orderId);
+    }
+  }
+
   // ── Pix via AppMax ──
   app.post('/api/payments/pix', async (req, res) => {
     try {
@@ -271,6 +347,14 @@ export async function registerRoutes(
       const customer = await appmaxGetOrCreateCustomer({ name, email, cpf, phone: phone || '11999999999' });
       const order = await appmaxCreateOrder(customer.id, description, amount);
       const pix = await appmaxCreatePix(order.id, customer.id, cpf);
+
+      // Agenda lembrete de recompra em 5 minutos se não pagar
+      if (pix.pixCopyPaste && phone) {
+        pendingReminders.set(order.id, { phone, name, pixCopyPaste: pix.pixCopyPaste, sent: false });
+        setTimeout(() => sendPixReminder(order.id), 5 * 60 * 1000);
+        console.log(`[Reminder] Lembrete agendado — orderId=${order.id} em 5 min`);
+      }
+
       return res.json({ qrCode: pix.qrCode, pixCopyPaste: pix.pixCopyPaste, expiresAt: pix.expiresAt, orderId: order.id });
     } catch (err: any) {
       console.error('AppMax Pix error:', err.message);
