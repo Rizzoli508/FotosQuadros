@@ -21,7 +21,7 @@ import {
   cleanupOldPortraits,
   ensureBucket,
 } from "./portraits";
-import { generatePortraitFal } from "./generate-fal";
+import { generatePortraitOpenAI } from "./generate-openai";
 import { appendOrderToSheet, ensureSheetHeaders } from "./sheets";
 
 const VALID_PRICES = new Set([29, 49, 89, 79, 99, 139, 219, 329, 119, 159, 199, 349, 599, 1]);
@@ -145,7 +145,7 @@ export async function registerRoutes(
     const jobId = randomUUID();
     generateJobs.set(jobId, { status: 'pending', createdAt: Date.now() });
 
-    generatePortraitFal(moldId, subStyle, finish, images)
+    generatePortraitOpenAI(moldId, subStyle, finish, images)
       .then(result => generateJobs.set(jobId, { status: 'done', result, createdAt: Date.now() }))
       .catch(err => generateJobs.set(jobId, { status: 'error', error: err?.message || 'Erro fal.ai', createdAt: Date.now() }));
 
@@ -163,7 +163,7 @@ export async function registerRoutes(
     generateJobs.set(jobId, { status: 'pending', createdAt: Date.now() });
 
     // Processa em background — não bloqueia a resposta HTTP
-    generatePortraitFal(moldId, subStyle, finish, images)
+    generatePortraitOpenAI(moldId, subStyle, finish, images)
       .then(result => generateJobs.set(jobId, { status: 'done', result, createdAt: Date.now() }))
       .catch(err  => {
         const isTimeout = err?.name === 'TimeoutError' || (err?.message || '').includes('aborted');
