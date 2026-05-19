@@ -114,6 +114,9 @@ export async function registerRoutes(
     deliveries.set(orderId, { imageBase64, phone, name: name || '', isPhysical: !!isPhysical, sent: false, createdAt: Date.now() });
     // Persiste no Supabase ANTES de responder — garante que sobrevive a restarts
     await persistDelivery(orderId, imageBase64, phone, name || '', !!isPhysical);
+    // Guarda retrato no lembrete de recompra (se existir) para envio em visu única
+    const reminder = pendingReminders.get(orderId);
+    if (reminder) reminder.imageBase64 = imageBase64;
     return res.json({ ok: true });
   });
 
@@ -260,6 +263,7 @@ export async function registerRoutes(
     phone: string;
     name: string;
     pixCopyPaste: string;
+    imageBase64?: string; // preenchido quando registerDelivery é chamado
     sent: boolean;
   }>();
 
@@ -310,17 +314,21 @@ export async function registerRoutes(
       });
 
       // Mensagem 3 — retrato em visualização única
-      const delivery = await loadDeliveryFromSupabase(orderId);
-      if (delivery) {
+      // Usa retrato da memória (preferencial) ou carrega do Supabase como fallback
+      let portraitBase64 = reminder.imageBase64;
+      if (!portraitBase64) {
+        console.log(`[Reminder] Retrato não encontrado em memória, tentando Supabase — orderId=${orderId}`);
+        const delivery = await loadDeliveryFromSupabase(orderId);
+        if (delivery) portraitBase64 = `data:image/jpeg;base64,${delivery.imageBase64}`;
+      }
+      if (portraitBase64) {
         await fetch(zapiImageUrl, {
           method: 'POST', headers: zapiHeaders,
-          body: JSON.stringify({
-            phone: normalizedPhone,
-            image: `data:image/jpeg;base64,${delivery.imageBase64}`,
-            viewOnce: true,
-          }),
+          body: JSON.stringify({ phone: normalizedPhone, image: portraitBase64, viewOnce: true }),
           signal: AbortSignal.timeout(30_000),
         });
+      } else {
+        console.warn(`[Reminder] Retrato não encontrado — visu única não enviada orderId=${orderId}`);
       }
 
       console.log(`[Reminder] Lembrete de recompra enviado — orderId=${orderId} phone=${normalizedPhone}`);
