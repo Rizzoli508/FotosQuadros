@@ -143,6 +143,8 @@ export async function registerRoutes(
     }
     if (!delivery || delivery.sent) return;
     delivery.sent = true;
+    // Remove lembrete de recompra — cliente pagou, não precisa mais incomodar
+    deleteReminderFromSupabase(orderId);
 
     const { ZAPI_INSTANCE_ID, ZAPI_TOKEN, ZAPI_CLIENT_TOKEN } = process.env;
     if (!ZAPI_INSTANCE_ID || !ZAPI_TOKEN || !ZAPI_CLIENT_TOKEN) return;
@@ -258,86 +260,120 @@ export async function registerRoutes(
     return res.json({ status: 'done', ...job.result });
   });
 
-  // ── Lembretes de recompra (Pix gerado mas não pago) ─────────────────────
-  const pendingReminders = new Map<number, {
-    phone: string;
-    name: string;
-    pixCopyPaste: string;
-    imageBase64?: string; // preenchido quando registerDelivery é chamado
-    sent: boolean;
-  }>();
-
-  // Limpa lembretes antigos a cada hora
-  setInterval(() => {
-    pendingReminders.clear();
-  }, 60 * 60 * 1000);
-
-  async function sendPixReminder(orderId: number) {
-    const reminder = pendingReminders.get(orderId);
-    if (!reminder || reminder.sent) return;
-
-    // Verifica se já pagou antes de incomodar
+  // ── Lembretes de recompra — persistidos no Supabase (sobrevivem a restarts) ──
+  // Salva lembrete no Supabase Storage
+  async function saveReminderToSupabase(orderId: number, phone: string, name: string, pixCopyPaste: string) {
     try {
-      const status = await appmaxGetOrderStatus(orderId);
-      const isPaid = ['paid', 'PAID', 'aprovado', 'APPROVED', 'APPROVED', 'CAPTURED', 'COMPLETE', 'COMPLETED'].includes(status);
-      if (isPaid) { pendingReminders.delete(orderId); return; }
-    } catch { /* se falhar a consulta, envia mesmo assim */ }
+      const data = JSON.stringify({ orderId, phone, name, pixCopyPaste, createdAt: Date.now() });
+      await supabase.storage.from('portraits').upload(
+        `reminders/${orderId}.json`,
+        Buffer.from(data),
+        { contentType: 'application/json', upsert: true }
+      );
+      console.log(`[Reminder] Salvo no Supabase — orderId=${orderId}`);
+    } catch (e: any) {
+      console.error(`[Reminder] Erro ao salvar no Supabase:`, e.message);
+    }
+  }
 
-    reminder.sent = true;
+  // Remove lembrete do Supabase (já enviado ou cliente pagou)
+  async function deleteReminderFromSupabase(orderId: number) {
+    try {
+      await supabase.storage.from('portraits').remove([`reminders/${orderId}.json`]);
+    } catch { /* ignora */ }
+  }
 
+  // Envia as 3 mensagens de lembrete via WhatsApp
+  async function sendReminderMessages(orderId: number, phone: string, name: string, pixCopyPaste: string) {
     const { ZAPI_INSTANCE_ID, ZAPI_TOKEN, ZAPI_CLIENT_TOKEN } = process.env;
     if (!ZAPI_INSTANCE_ID || !ZAPI_TOKEN || !ZAPI_CLIENT_TOKEN) return;
 
-    const rawPhone = reminder.phone.replace(/\D/g, '');
+    const rawPhone = phone.replace(/\D/g, '');
     const normalizedPhone = rawPhone.startsWith('55') ? rawPhone : `55${rawPhone}`;
     const zapiHeaders = { 'Content-Type': 'application/json', 'Client-Token': ZAPI_CLIENT_TOKEN };
     const zapiTextUrl  = `https://api.z-api.io/instances/${ZAPI_INSTANCE_ID}/token/${ZAPI_TOKEN}/send-text`;
     const zapiImageUrl = `https://api.z-api.io/instances/${ZAPI_INSTANCE_ID}/token/${ZAPI_TOKEN}/send-image`;
 
-    try {
-      // Mensagem 1 — texto de lembrete
-      const firstName = (reminder.name || '').split(' ')[0];
-      await fetch(zapiTextUrl, {
+    const firstName = (name || '').split(' ')[0];
+
+    // Mensagem 1 — texto de lembrete
+    await fetch(zapiTextUrl, {
+      method: 'POST', headers: zapiHeaders,
+      body: JSON.stringify({
+        phone: normalizedPhone,
+        message: `Oi${firstName ? ` ${firstName}` : ''}! 👋\n\nSeu retrato *retravium* está pronto e guardado aqui pra você. ✨\n\nPara receber é simples, basta pagar o Pix abaixo 👇`,
+      }),
+      signal: AbortSignal.timeout(15_000),
+    });
+
+    // Mensagem 2 — só o código Pix (copiar e colar no banco)
+    await fetch(zapiTextUrl, {
+      method: 'POST', headers: zapiHeaders,
+      body: JSON.stringify({ phone: normalizedPhone, message: pixCopyPaste }),
+      signal: AbortSignal.timeout(15_000),
+    });
+
+    // Mensagem 3 — retrato em visualização única (carrega do Supabase)
+    const delivery = await loadDeliveryFromSupabase(orderId);
+    if (delivery) {
+      await fetch(zapiImageUrl, {
         method: 'POST', headers: zapiHeaders,
         body: JSON.stringify({
           phone: normalizedPhone,
-          message: `Oi${firstName ? ` ${firstName}` : ''}! 👋\n\nSeu retrato *retravium* está pronto e guardado aqui pra você. ✨\n\nPara receber é simples, basta pagar o Pix abaixo 👇`,
+          image: `data:image/jpeg;base64,${delivery.imageBase64}`,
+          viewOnce: true,
         }),
-        signal: AbortSignal.timeout(15_000),
+        signal: AbortSignal.timeout(30_000),
       });
+    } else {
+      console.warn(`[Reminder] Retrato não encontrado no Supabase — visu única não enviada orderId=${orderId}`);
+    }
 
-      // Mensagem 2 — somente o código Pix (para copiar e colar no banco)
-      await fetch(zapiTextUrl, {
-        method: 'POST', headers: zapiHeaders,
-        body: JSON.stringify({ phone: normalizedPhone, message: reminder.pixCopyPaste }),
-        signal: AbortSignal.timeout(15_000),
-      });
+    console.log(`[Reminder] Lembrete enviado — orderId=${orderId} phone=${normalizedPhone}`);
+  }
 
-      // Mensagem 3 — retrato em visualização única
-      // Usa retrato da memória (preferencial) ou carrega do Supabase como fallback
-      let portraitBase64 = reminder.imageBase64;
-      if (!portraitBase64) {
-        console.log(`[Reminder] Retrato não encontrado em memória, tentando Supabase — orderId=${orderId}`);
-        const delivery = await loadDeliveryFromSupabase(orderId);
-        if (delivery) portraitBase64 = `data:image/jpeg;base64,${delivery.imageBase64}`;
+  // Verifica e processa lembretes vencidos (chamado a cada 2 min e no startup)
+  async function processOverdueReminders() {
+    try {
+      const { data: files, error } = await supabase.storage.from('portraits').list('reminders');
+      if (error || !files || files.length === 0) return;
+
+      const fiveMinAgo = Date.now() - 5 * 60 * 1000;
+      const twoHoursAgo = Date.now() - 2 * 60 * 60 * 1000;
+
+      for (const file of files) {
+        try {
+          const { data: blob } = await supabase.storage.from('portraits').download(`reminders/${file.name}`);
+          if (!blob) continue;
+          const reminder = JSON.parse(await blob.text()) as { orderId: number; phone: string; name: string; pixCopyPaste: string; createdAt: number };
+
+          // Ignora lembretes muito novos (ainda dentro dos 5 min) ou muito antigos (>2h)
+          if (reminder.createdAt > fiveMinAgo) continue;
+          if (reminder.createdAt < twoHoursAgo) { await deleteReminderFromSupabase(reminder.orderId); continue; }
+
+          // Remove ANTES de enviar para evitar envio duplo em caso de restart durante envio
+          await deleteReminderFromSupabase(reminder.orderId);
+
+          // Verifica se já pagou
+          try {
+            const status = await appmaxGetOrderStatus(reminder.orderId);
+            const isPaid = ['paid', 'PAID', 'aprovado', 'APPROVED', 'CAPTURED', 'COMPLETE', 'COMPLETED'].includes(status);
+            if (isPaid) { console.log(`[Reminder] orderId=${reminder.orderId} já pago, pulando`); continue; }
+          } catch { /* se falhar consulta, envia mesmo assim */ }
+
+          await sendReminderMessages(reminder.orderId, reminder.phone, reminder.name, reminder.pixCopyPaste);
+        } catch (e: any) {
+          console.error(`[Reminder] Erro ao processar ${file.name}:`, e.message);
+        }
       }
-      if (portraitBase64) {
-        await fetch(zapiImageUrl, {
-          method: 'POST', headers: zapiHeaders,
-          body: JSON.stringify({ phone: normalizedPhone, image: portraitBase64, viewOnce: true }),
-          signal: AbortSignal.timeout(30_000),
-        });
-      } else {
-        console.warn(`[Reminder] Retrato não encontrado — visu única não enviada orderId=${orderId}`);
-      }
-
-      console.log(`[Reminder] Lembrete de recompra enviado — orderId=${orderId} phone=${normalizedPhone}`);
-    } catch (err: any) {
-      console.error(`[Reminder] Erro ao enviar lembrete orderId=${orderId}:`, err.message);
-    } finally {
-      pendingReminders.delete(orderId);
+    } catch (e: any) {
+      console.error(`[Reminder] Erro ao listar lembretes:`, e.message);
     }
   }
+
+  // Roda a cada 2 minutos e também 15s após o startup (pega lembretes de antes do restart)
+  setInterval(processOverdueReminders, 2 * 60 * 1000);
+  setTimeout(processOverdueReminders, 15_000);
 
   // ── Pix via AppMax ──
   app.post('/api/payments/pix', async (req, res) => {
@@ -356,11 +392,10 @@ export async function registerRoutes(
       const order = await appmaxCreateOrder(customer.id, description, amount);
       const pix = await appmaxCreatePix(order.id, customer.id, cpf);
 
-      // Agenda lembrete de recompra em 5 minutos se não pagar
+      // Salva lembrete no Supabase — sobrevive a restarts do servidor
       if (pix.pixCopyPaste && phone) {
-        pendingReminders.set(order.id, { phone, name, pixCopyPaste: pix.pixCopyPaste, sent: false });
-        setTimeout(() => sendPixReminder(order.id), 5 * 60 * 1000);
-        console.log(`[Reminder] Lembrete agendado — orderId=${order.id} em 5 min`);
+        saveReminderToSupabase(order.id, phone, name, pix.pixCopyPaste);
+        console.log(`[Reminder] Lembrete salvo no Supabase — orderId=${order.id}`);
       }
 
       return res.json({ qrCode: pix.qrCode, pixCopyPaste: pix.pixCopyPaste, expiresAt: pix.expiresAt, orderId: order.id });
