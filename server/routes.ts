@@ -120,6 +120,9 @@ export async function registerRoutes(
     return res.json({ ok: true });
   });
 
+  // Set para evitar envio duplo quando AppMax dispara o webhook mais de uma vez
+  const processedWebhooks = new Set<number>();
+
   // Webhook AppMax — dispara quando pagamento é aprovado, envia WhatsApp sem a pessoa estar no site
   app.post('/api/webhooks/appmax', async (req, res) => {
     res.json({ ok: true }); // responde imediatamente para o AppMax não retentar
@@ -131,6 +134,15 @@ export async function registerRoutes(
 
     console.log(`[Webhook AppMax] orderId=${orderId} status=${rawStatus} isPaid=${isPaid}`);
     if (!orderId || !isPaid) return;
+
+    // Bloqueia webhook duplicado (AppMax às vezes dispara 2x para o mesmo pedido)
+    if (processedWebhooks.has(orderId)) {
+      console.log(`[Webhook AppMax] orderId=${orderId} já processado, ignorando duplicata`);
+      return;
+    }
+    processedWebhooks.add(orderId);
+    // Limpa da memória após 1 hora para não crescer indefinidamente
+    setTimeout(() => processedWebhooks.delete(orderId), 60 * 60 * 1000);
 
     // Tenta memória primeiro; fallback ao Supabase se servidor reiniciou
     let delivery = deliveries.get(orderId);
