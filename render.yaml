@@ -1,0 +1,48 @@
+services:
+  - type: web
+    name: fotosquadros
+    runtime: node
+    plan: starter
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: BASE_URL
+        value: https://fotosquadros.onrender.com
+      - key: BOT_WEBHOOK_URL
+        value: https://fotosquadros.onrender.com/api/whatsapp/webhook
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: FAL_KEY
+        sync: false
+      - key: ASAAS_API_KEY
+        sync: false
+      - key: ASAAS_BASE_URL
+        value: https://api.asaas.com/v3
+      - key: MP_ACCESS_TOKEN
+        sync: false
+      - key: APPMAX_TOKEN
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: ZAPI_INSTANCE_ID
+        sync: false
+      - key: ZAPI_TOKEN
+        sync: false
+      - key: ZAPI_CLIENT_TOKEN
+        sync: false
+      - key: GOOGLE_CLIENT_EMAIL
+        sync: false
+      - key: GOOGLE_PRIVATE_KEY
+        sync: false
+      - key: GOOGLE_SHEETS_ID
+        sync: false
+      - key: CAPI_PIXEL_ID
+        sync: false
+      - key: CAPI_ACCESS_TOKEN
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
