@@ -61,7 +61,7 @@ import {
 import { generatePortraitOpenAI, generatePortraitCustom } from "./generate-openai";
 import { appendOrderToSheet, ensureSheetHeaders } from "./sheets";
 
-const VALID_PRICES = new Set([19, 29, 39, 49, 79, 89, 99, 119, 139, 159, 199, 219, 329, 349, 599, 1]);
+const VALID_PRICES = new Set([19, 29, 39, 49, 79, 89, 99, 119, 139, 159, 199, 219, 329, 349, 599, 1, 9, 14, 15]);
 
 function validatePrice(amount: number): boolean {
   return VALID_PRICES.has(Number(amount));
