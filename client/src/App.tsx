@@ -6,7 +6,6 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
 import Admin from "@/pages/Admin";
-import Figurinha from "@/pages/Figurinha";
 
 function Router() {
   return (
@@ -35,8 +34,6 @@ function Router() {
       <Route path="/pet-amor-peludo"   component={Home} />
       <Route path="/pet-familia"       component={Home} />
       <Route path="/admin" component={Admin} />
-      {/* Copa Figurinha — Arte da Copa */}
-      <Route path="/figurinha" component={Figurinha} />
       <Route component={NotFound} />
     </Switch>
   );
