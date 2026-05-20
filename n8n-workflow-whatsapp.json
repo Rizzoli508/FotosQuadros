@@ -1,0 +1,126 @@
+{
+  "name": "retravium - Enviar Retrato WhatsApp",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "retravium-whatsapp",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-node",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 300],
+      "webhookId": "retravium-whatsapp"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Valida e prepara os dados recebidos\nconst body = $input.first().json.body;\n\nconst { portraitId, phone, name, imageBase64 } = body;\n\nif (!phone) throw new Error('phone ausente');\nif (!imageBase64) throw new Error('imageBase64 ausente');\n\n// Normaliza telefone: só dígitos, garante DDI 55\nlet normalizedPhone = phone.replace(/\\D/g, '');\nif (!normalizedPhone.startsWith('55')) {\n  normalizedPhone = '55' + normalizedPhone;\n}\n\n// Valida tamanho mínimo (55 + DDD + número = 13 dígitos)\nif (normalizedPhone.length < 12) {\n  throw new Error('Número de telefone inválido: ' + normalizedPhone);\n}\n\n// Garante que base64 tem prefixo correto\nlet image = imageBase64;\nif (!image.startsWith('data:')) {\n  image = 'data:image/png;base64,' + image;\n}\n\nreturn [{\n  json: {\n    portraitId: portraitId || 'sem-id',\n    phone: normalizedPhone,\n    name: name || 'Cliente',\n    image,\n    caption: `Olá ${name || 'cliente'}! 🎨\\n\\nSeu retrato *retravium* está pronto! ✨\\n\\nObrigado pela sua compra. Qualquer dúvida, é só falar aqui! 😊`\n  }\n}];"
+      },
+      "id": "prepare-node",
+      "name": "Preparar dados",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.z-api.io/instances/3F24BC250B7211CE35B7C60C7A17E6CF/token/01109ED8748C219E13AD19CD/send-image",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Client-Token",
+              "value": "Fff902da7a88f4890a5cd3f7acd8d4917S"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "phone",
+              "value": "={{ $json.phone }}"
+            },
+            {
+              "name": "image",
+              "value": "={{ $json.image }}"
+            },
+            {
+              "name": "caption",
+              "value": "={{ $json.caption }}"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "zapi-node",
+      "name": "Enviar via Z-API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { success: true, portraitId: $('Preparar dados').first().json.portraitId } }}",
+        "options": {}
+      },
+      "id": "respond-success",
+      "name": "Responder OK",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [900, 220]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { success: false, error: $json.message || 'Erro desconhecido no Z-API' } }}",
+        "options": {
+          "responseCode": 502
+        }
+      },
+      "id": "respond-error",
+      "name": "Responder Erro",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [900, 400]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [{ "node": "Preparar dados", "type": "main", "index": 0 }]
+      ]
+    },
+    "Preparar dados": {
+      "main": [
+        [{ "node": "Enviar via Z-API", "type": "main", "index": 0 }]
+      ]
+    },
+    "Enviar via Z-API": {
+      "main": [
+        [{ "node": "Responder OK", "type": "main", "index": 0 }]
+      ],
+      "error": [
+        [{ "node": "Responder Erro", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "errorWorkflow": ""
+  },
+  "tags": ["retravium", "whatsapp"]
+}
