@@ -87,6 +87,15 @@ export async function registerRoutes(
     }
   });
 
+  // ── Lembretes de recompra — declarado aqui para estar disponível em todos os handlers ──
+  const pendingReminders = new Map<number, {
+    phone: string;
+    name: string;
+    pixCopyPaste: string;
+    imageBase64?: string;
+    sent: boolean;
+  }>();
+
   // ── Entregas via webhook (pessoa recebe sem precisar estar no site) ─────────
   const deliveries = new Map<number, {
     imageBase64: string;
@@ -272,7 +281,7 @@ export async function registerRoutes(
     return res.json({ status: 'done', ...job.result });
   });
 
-  // ── Lembretes de recompra — persistidos no Supabase (sobrevivem a restarts) ──
+  // ── Lembretes de recompra — funções e polling ────────────────────────────────
   // Salva lembrete no Supabase Storage
   async function saveReminderToSupabase(orderId: number, phone: string, name: string, pixCopyPaste: string) {
     try {
